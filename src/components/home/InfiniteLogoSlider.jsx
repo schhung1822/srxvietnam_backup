@@ -3,17 +3,20 @@ import React from 'react';
 const InfiniteLogoSlider = () => {
     // Danh sách logo mẫu - thay thế bằng logo thực tế
     const logos = [
-        { id: 1, src: '/assets/images/footer/footerlogo.png', alt: 'Partner 1' },
-        { id: 2, src: '/assets/images/footer/footerlogo.png', alt: 'Partner 2' },
-        { id: 3, src: '/assets/images/footer/footerlogo.png', alt: 'Partner 3' },
-        { id: 4, src: '/assets/images/footer/footerlogo.png', alt: 'Partner 4' },
-        { id: 5, src: '/assets/images/footer/footerlogo.png', alt: 'Partner 5' },
-        { id: 6, src: '/assets/images/footer/footerlogo.png', alt: 'Partner 6' },
+        { id: 1, src: 'assets/images/partner/partner2.png', alt: 'Partner 1' },
+        { id: 2, src: '/assets/images/partner/partner30.png', alt: 'Partner 2' },
+        { id: 3, src: '/assets/images/partner/partner29.png', alt: 'Partner 3' },
+        { id: 4, src: '/assets/images/partner/partner4.png', alt: 'Partner 4' },
+        { id: 5, src: '/assets/images/partner/partner5.png', alt: 'Partner 5' },
+        { id: 6, src: '/assets/images/partner/partner6.png', alt: 'Partner 6' },
+        { id: 7, src: '/assets/images/partner/partner27.png', alt: 'Partner 7' },
+        { id: 8, src: '/assets/images/partner/partner10.png', alt: 'Partner 8' },
     ];
+    
+
 
     // Duplicate logos để tạo hiệu ứng liền mạch
-    const duplicatedLogos = [...logos, ...logos,...logos,...logos];
-
+    const duplicatedLogos = [...logos, ...logos];
     return (
         <div className="relative w-full overflow-hidden bg-black py-4 md:py-6">
             {/* Overlay gradient bên trái */}
@@ -28,13 +31,13 @@ const InfiniteLogoSlider = () => {
                     {duplicatedLogos.map((logo, index) => (
                         <div
                             key={`${logo.id}-${index}`}
-                            className="flex-shrink-0 px-8 md:px-14"
+                            className="flex-shrink-0 mx-10 md:px-14 bg-white rounded-xl shadow-md"
                         >
                             <div className="flex items-center justify-center w-32 h-16 md:w-40 md:h-20">
                                 <img
                                     src={logo.src}
                                     alt={logo.alt}
-                                    className="w-full h-full object-contain grayscale opacity-100 transition-all duration-300 hover:grayscale-0 hover:scale-110"
+                                    className=" w-full h-full object-contain opacity-100 transition-all duration-300 hover:grayscale-0 hover:scale-110"
                                 />
                             </div>
                         </div>

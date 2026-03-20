@@ -16,7 +16,7 @@ import MarketingOutsource from "./pages/services/MarketingOutsource.jsx";
 import About from "./pages/About.jsx";
 import Tick from "./pages/services/Tick.jsx";
 import { useSEO } from './hooks/useSEO';
-import NewsListPage from "./pages/NewsListPage.jsx";
+import NewsListPage from "./pages/news/NewsListPage.jsx";
 import Contact from "./pages/Contact.jsx";
 import Projects from "./pages/projects/Projects.jsx";
 import Portfolio from "./pages/projects/Portfolio.jsx";
@@ -24,6 +24,7 @@ import PrivacyPolicyPage from "./pages/PrivacyPolicyPage.jsx";
 import TiktokVerification from "./pages/TiktokVerification.jsx";
 import WorkflowAutomation from "./pages/projects/WorkflowAutomation.jsx";
 import ProjectDetail from "./pages/projects/ProjectDetail.jsx";
+import NewsDetailPage from "./pages/news/NewsDetailPage.jsx";
 
 // Router Content Component
 const RouterContent = () => {
@@ -40,7 +41,7 @@ const RouterContent = () => {
     const isVerificationPage = location.pathname === '/tiktok-verification/';
 
     return (
-        <div className="App">
+        <div className="App min-h-screen flex flex-col">
             {/* Global SEO for all pages - this sets default values */}
             {/*<SEOManager*/}
             {/*    structuredData={localBusinessSchema}*/}
@@ -55,7 +56,7 @@ const RouterContent = () => {
             {/* Chỉ hiển thị Header nếu không phải trang verification */}
             {!isVerificationPage && <Header />}
 
-            <main className={!isVerificationPage ? "page-content pt-[70px] lg:pt-[85px]" : ""}>
+            <main className={!isVerificationPage ? "page-content flex-1 pt-[70px] lg:pt-[85px]" : "flex-1"}>
                 <Routes>
                     {/* Trang chủ */}
                     <Route path="/" element={<Home />} />
@@ -80,6 +81,8 @@ const RouterContent = () => {
                     <Route path="/projects/portfolio" element={<Portfolio />} />
                     <Route path="/projects/workflow" element={<WorkflowAutomation />} />
                     <Route path="/projects/:slug" element={<ProjectDetail />} />
+                    {/*trang chi tiết về tin tức công nghệ*/}
+                    <Route path="/news/:slug" element={<NewsDetailPage />} />
                 </Routes>
             </main>
 

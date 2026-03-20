@@ -96,6 +96,40 @@ const Projects = () => {
     const [search, setSearch] = useState('');
     const [category, setCategory] = useState('all');
     const [technology, setTechnology] = useState('all');
+    const [visibleItems, setVisibleItems] = useState(new Set());
+    const itemRefs = useRef([]);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                setVisibleItems((prev) => {
+                    const next = new Set(prev);
+                    let changed = false;
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            const index = Number(entry.target.getAttribute('data-item-index'));
+                            if (!next.has(index)) {
+                                next.add(index);
+                                changed = true;
+                            }
+                        }
+                    });
+                    return changed ? next : prev;
+                });
+            },
+            { threshold: 0.2 }
+        );
+
+        itemRefs.current.forEach((ref) => {
+            if (ref) observer.observe(ref);
+        });
+
+        return () => {
+            itemRefs.current.forEach((ref) => {
+                if (ref) observer.unobserve(ref);
+            });
+        };
+    }, []);
 
     const getProjectDateValue = (value) => {
         if (!value || typeof value !== 'string') {
@@ -156,48 +190,41 @@ const Projects = () => {
     }, [categories]);
 
     return (
-        <section className="bg-black text-white">
+        <section className="bg-gradient-to-b from-slate-950 via-slate-900 to-black text-white">
             <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
-                <div className="mb-10">
-                    <p className="text-sm uppercase tracking-[0.4em] text-purple-300">
-                    projects
-                    </p>
-                    <h1 className="mt-3 text-3xl font-semibold text-white sm:text-4xl">
-                        DỰ ÁN TIÊU BIỂU
-                    </h1>
+                <div className="mb-10 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-md shadow-2xl shadow-black/40">
+                    <p className="text-xs uppercase tracking-[0.35em] text-indigo-300 font-semibold">projects</p>
+                    <h1 className="mt-3 text-3xl md:text-4xl lg:text-5xl font-black text-white">DỰ ÁN TIÊU BIỂU</h1>
+                    <p className="mt-2 max-w-2xl text-slate-300">Tổng hợp các dự án đã triển khai, với kết quả thực tế và quy trình chuyên nghiệp.</p>
                 </div>
 
-                <div className="mb-6 flex gap-3 overflow-x-auto pb-2">
+                <div className="mb-6 flex flex-wrap gap-3">
                     {categoryStats.map((stat) => (
                         <button
                             key={stat.name}
                             type="button"
                             onClick={() => setCategory(stat.name)}
-                            className={`flex min-w-[180px] items-start justify-between flex-col rounded-2xl border px-4 py-3 text-left transition ${
+                            className={`flex min-w-[180px] items-start justify-between flex-col rounded-2xl border px-4 py-3 text-left transition-all duration-300 ${
                                 category === stat.name
-                                    ? 'border-purple-400 bg-purple-500/10'
-                                    : 'border-white/10 bg-white/5 hover:border-purple-400/60'
+                                    ? 'border-indigo-300 bg-indigo-500/15 text-white shadow-lg shadow-indigo-900/30'
+                                    : 'border-white/10 bg-white/5 text-slate-200 hover:border-indigo-400 hover:bg-white/10'
                             }`}
                         >
-                            <div className="text-xm font-semibold text-white mb-2">{stat.count} + Dự án</div>
-                            <div>
-                                <div className="text-sm font-semibold text-white">
-                                    {stat.name}
-                                </div>
-                            </div>
-
+                            <div className="text-xs uppercase tracking-[0.15em] text-indigo-200">Dự án</div>
+                            <div className="mt-1 text-xs font-semibold text-white">{stat.count} +</div>
+                            <div className="mt-2 text-sm font-semibold text-white">{stat.name}</div>
                         </button>
                     ))}
                 </div>
 
                 <div className="mb-10 grid gap-4 lg:grid-cols-[2fr_1fr_1fr]">
                     <div className="flex flex-col gap-2">
-                        <label className="text-sm text-white/70">Tìm kiếm</label>
+                        <label className="text-sm text-indigo-200">Tìm kiếm</label>
                         <input
                             value={search}
                             onChange={(event) => setSearch(event.target.value)}
                             placeholder="Tên dự án, thương hiệu, mô tả..."
-                            className="w-full rounded-full border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition focus:border-purple-400"
+                            className="w-full rounded-2xl border border-indigo-300/30 bg-slate-900 px-4 py-3 text-sm text-white outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/30"
                         />
                     </div>
                     <CustomDropdown
@@ -215,7 +242,7 @@ const Projects = () => {
                 </div>
 
                 <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                    {filteredProjects.map((project) => {
+                    {filteredProjects.map((project, index) => {
                         const projectCategories = getProjectCategories(project);
                         const primaryCategory = projectCategories[0] || 'Khác';
                         const remainingCategoryCount = Math.max(projectCategories.length - 1, 0);
@@ -226,8 +253,14 @@ const Projects = () => {
                         return (
                         <Link
                             key={project.id}
+                            ref={(el) => { itemRefs.current[index] = el; }}
+                            data-item-index={index}
                             to={`/projects/${project.id}`}
-                            className="group flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/5 transition hover:border-purple-400"
+                            className={`group flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-slate-900/80 via-slate-900 to-slate-800/80 backdrop-blur-lg transition-all duration-500 ${
+                                visibleItems.has(index)
+                                    ? 'opacity-100 translate-y-0'
+                                    : 'opacity-0 translate-y-8'
+                            } hover:border-indigo-400 hover:shadow-xl hover:shadow-indigo-900/20`}
                         >
                             <div className="relative h-52 overflow-hidden">
                                 <img
