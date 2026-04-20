@@ -15,11 +15,11 @@ const SEOManager = ({
                         structuredData,
                         additionalMetaTags = []
                     }) => {
-    const siteName = 'Nextgency - Digital Marketing Agency';
-    const defaultTitle = 'Nextgency - Giải pháp Marketing toàn diện';
-    const defaultDescription = 'Nextgency cung cấp dịch vụ thiết kế website, quảng cáo Google Ads, Facebook Ads, TikTok Ads và giải pháp marketing toàn diện cho doanh nghiệp.';
+    const siteName = 'SRX Vietnam - Digital Marketing Agency';
+    const defaultTitle = 'SRX Vietnam - Từ công nghệ sinh học đến gần hơn với làn da Việt';
+    const defaultDescription = 'NSRX Tiên phong tích hợp công nghệ tiên tiến nhất trong nghiên cứu và phát triển sản phẩm chăm da';
     const defaultImage = '/assets/images/og-image.jpg';
-    const baseUrl = 'https://nextgency.vn';
+    const baseUrl = 'https://srxvietnam.vn';
 
     const finalTitle = title ? `${title} | ${siteName}` : defaultTitle;
     const finalDescription = description || defaultDescription;

@@ -13,7 +13,6 @@ const AboutUsSection = () => {
     const titleRef = useRef(null);
     const descriptionRef = useRef(null);
     const cardsContainerRef = useRef(null);
-    const cardARef = useRef(null);
     const cardBRef = useRef(null);
     const buttonsRef = useRef(null);
 
@@ -23,7 +22,6 @@ const AboutUsSection = () => {
         const title = titleRef.current;
         const description = descriptionRef.current;
         const cardsContainer = cardsContainerRef.current;
-        const cardA = cardARef.current;
         const cardB = cardBRef.current;
         const buttons = buttonsRef.current;
 

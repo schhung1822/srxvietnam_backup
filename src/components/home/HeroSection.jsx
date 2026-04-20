@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+﻿import React, { useEffect, useRef } from 'react';
 import {ArrowRight, ArrowUpRight, Sparkles, Zap} from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -127,8 +127,8 @@ const HeroSection = () => {
             <div className="relative max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-screen flex flex-col justify-center md:justify-start items-center">
 
                 {/* Main title */}
-                <h1 ref={titleRef} className="text-[55px] md:text-[115px] lg:text-[150px] xl:text-[200px] 2xl:text-[230px] tracking-tighter font-archivo font-bold will-change-transform">
-                    NEXTGENCY
+                <h1 ref={titleRef} className="text-[48px] md:text-[100px] lg:text-[130px] xl:text-[180px] 2xl:text-[216px] tracking-tighter font-archivo font-bold will-change-transform">
+                    SRX VIETNAM
                 </h1>
 
                 {/* Glassmorphism card */}
@@ -139,12 +139,12 @@ const HeroSection = () => {
                             <div className="space-y-10">
                                 <div className="inline-flex items-center justify-center">
                         <span className=" text-[#c08dfe] rounded-full text-[11px] lg:text-[13px] font-medium font-archivo tracking-[0.4rem] uppercase">
-                            Digital Solutions Agency
+                            Công nghệ sinh học
                         </span>
                                 </div>
                                 <p className="text-black text-[15px] lg:text-[18px] max-w-sm text-justify">
-                                    Nextgency là đối tác công nghệ hàng đầu, chuyên cung cấp giải pháp số hóa toàn diện.
-                                    Chúng tôi biến ý tưởng thành hiện thực với công nghệ tiên tiến nhất.
+                                    SRX là thương hiệu dược mỹ phẩm cao cấp đến từ Hàn Quốc, chính thức ra đời vào năm 2005. Trải qua nhiều năm phát triển, 
+                                    SRX đã tạo được tiếng vang lớn không chỉ tại Hàn Quốc mà còn vươn ra thị trường quốc tế, có mặt ở các quốc gia lớn như Mỹ, Đức, Pháp, và hiện tại là Việt Nam.
                                 </p>
                                 <div className="">
                                     {/* Column A - CTAs */}
@@ -154,9 +154,9 @@ const HeroSection = () => {
                                             className="relative flex items-center space-x-3 pl-6 pr-1.5 py-1.5 bg-black text-[15px] sm:text-[16px] text-white rounded-full transition-all duration-300 hover:scale-105 group"
 
                                         >
-        <span className="">
-            Xem dự án
-        </span>
+                                        <span className="">
+                                            Xem dự án
+                                        </span>
                                             <div
                                                 className="w-9 h-9 sm:w-[2.5rem] sm:h-[2.5rem] bg-white rounded-full flex items-center justify-center neu-shadow-xs transition-all duration-300">
                                                 <ArrowUpRight

@@ -8,6 +8,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+.next
 dist
 dist-ssr
 *.local
@@ -22,3 +23,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+.env
+.env.local
+.env.*.local
+.tmp-edge-profile/
+.tmp-edge-profile-2/
+.tmp-edge-profile-3/
+.tmp-edge-profile-4/
+.publish-srxvietnam/

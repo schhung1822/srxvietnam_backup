@@ -11,29 +11,6 @@ export const useSEO = () => {
 
         // Update HTML lang attribute
         document.documentElement.lang = 'vi';
-
-        // Preload critical resources
-        const preloadResources = () => {
-            const resources = [
-                { href: '/assets/fonts/inter-var.woff2', as: 'font', type: 'font/woff2' },
-                { href: '/assets/css/critical.css', as: 'style' }
-            ];
-
-            resources.forEach(resource => {
-                const existingLink = document.querySelector(`link[href="${resource.href}"]`);
-                if (!existingLink) {
-                    const link = document.createElement('link');
-                    link.rel = 'preload';
-                    link.as = resource.as;
-                    link.href = resource.href;
-                    if (resource.type) link.type = resource.type;
-                    if (resource.as === 'font') link.crossOrigin = 'anonymous';
-                    document.head.appendChild(link);
-                }
-            });
-        };
-
-        preloadResources();
     }, [location]);
 
     // Performance monitoring

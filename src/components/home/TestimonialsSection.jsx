@@ -10,6 +10,7 @@ gsap.registerPlugin(ScrollTrigger);
 const TestimonialsSection = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+    const [itemsPerSlide, setItemsPerSlide] = useState(2);
     const [touchStart, setTouchStart] = useState(0);
     const [touchEnd, setTouchEnd] = useState(0);
     const carouselRef = useRef(null);
@@ -64,8 +65,20 @@ const TestimonialsSection = () => {
         }
     ];
 
-    const itemsPerSlide = window.innerWidth < 768 ? 1 : 2;
     const totalSlides = Math.ceil(testimonials.length / itemsPerSlide);
+
+    useEffect(() => {
+        const updateItemsPerSlide = () => {
+            setItemsPerSlide(window.innerWidth < 768 ? 1 : 2);
+        };
+
+        updateItemsPerSlide();
+        window.addEventListener('resize', updateItemsPerSlide);
+
+        return () => {
+            window.removeEventListener('resize', updateItemsPerSlide);
+        };
+    }, []);
 
     // Animation khi mount component
     useEffect(() => {

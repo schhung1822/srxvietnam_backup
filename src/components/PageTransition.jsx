@@ -1,95 +1,90 @@
-import React, { useState, useEffect } from 'react';
+import React from "react";
 
-const PageTransition = ({ isTransitioning, onTransitionComplete, logoSrc = '/assets/images/header/navbarfavicon.png' }) => {
-    const [phase, setPhase] = useState('hidden'); // hidden, entering, exiting
+const PageTransition = ({
+  logoSrc = "/assets/images/header/logo_primary.webp",
+  transitionPhase = "hidden",
+}) => {
+  if (transitionPhase === "hidden") {
+    return null;
+  }
 
-    useEffect(() => {
-        if (isTransitioning) {
-            // Prevent body scroll during transition
-            document.body.classList.add('transition-active');
+  const animationClass =
+    transitionPhase === "covering"
+      ? "animate-page-transition-cover"
+      : "animate-page-transition-reveal";
 
-            setPhase('entering');
+  return (
+    <>
+      <div className={`page-transition fixed inset-0 z-[9999] flex items-center justify-center bg-white ${animationClass}`}>
+        <div className="flex items-center justify-center">
+          <img
+            src={logoSrc}
+            alt="SRX Logo"
+            className="h-20 w-20 object-contain opacity-90 md:h-28 md:w-28"
+            style={{
+              animation:
+                transitionPhase === "covering"
+                  ? "pageTransitionLogoIn 0.45s ease-out forwards"
+                  : "pageTransitionLogoOut 0.35s ease-in forwards",
+            }}
+            onError={(event) => {
+              event.currentTarget.style.display = "none";
+            }}
+          />
+        </div>
+      </div>
 
-            // Phase 1: Fade in từ bên phải (300ms)
-            const enterTimer = setTimeout(() => {
-                setPhase('exiting');
-
-                // Phase 2: Fade out ra bên trái (300ms)
-                const exitTimer = setTimeout(() => {
-                    setPhase('hidden');
-                    document.body.classList.remove('transition-active');
-                    onTransitionComplete();
-                }, 1000);
-
-                return () => clearTimeout(exitTimer);
-            }, 1000);
-
-            return () => clearTimeout(enterTimer);
+      <style jsx>{`
+        @keyframes pageTransitionCover {
+          from {
+            transform: translate3d(100%, 0, 0);
+          }
+          to {
+            transform: translate3d(0, 0, 0);
+          }
         }
-    }, [isTransitioning, onTransitionComplete]);
 
-    if (phase === 'hidden') return null;
+        @keyframes pageTransitionReveal {
+          from {
+            transform: translate3d(0, 0, 0);
+          }
+          to {
+            transform: translate3d(-100%, 0, 0);
+          }
+        }
 
-    return (
-        <>
-            {/* Transition overlay */}
-            <div
-                className={`fixed inset-0 z-[9999] bg-white flex items-center justify-center transition-transform duration-[1000ms] ease-out ${
-                    phase === 'entering'
-                        ? 'translate-x-0'
-                        : phase === 'exiting'
-                            ? '-translate-x-full'
-                            : 'translate-x-full'
-                }`}
-                style={{
-                    willChange: 'transform',
-                    backfaceVisibility: 'hidden',
-                    WebkitBackfaceVisibility: 'hidden'
-                }}
-            >
-                {/* Logo container */}
-                <div className="flex items-center justify-center">
-                    <img
-                        src={logoSrc}
-                        alt="Nextgency Logo"
-                        className="w-20 h-20 md:w-28 md:h-28 object-contain opacity-90 transition-all duration-500"
-                        style={{
-                            animation: phase === 'entering' ? 'logoFadeIn 0.5s ease-out' : 'logoFadeOut 0.3s ease-in'
-                        }}
-                        onError={(e) => {
-                            // Fallback if logo doesn't load
-                            e.target.style.display = 'none';
-                        }}
-                    />
-                </div>
-            </div>
+        @keyframes pageTransitionLogoIn {
+          from {
+            opacity: 0;
+            transform: scale(0.84);
+          }
+          to {
+            opacity: 0.92;
+            transform: scale(1);
+          }
+        }
 
-            {/* Inline styles for logo animations */}
-            <style jsx>{`
-                @keyframes logoFadeIn {
-                    0% {
-                        opacity: 0;
-                        transform: scale(0.8);
-                    }
-                    100% {
-                        opacity: 0.9;
-                        transform: scale(1);
-                    }
-                }
+        @keyframes pageTransitionLogoOut {
+          from {
+            opacity: 0.92;
+            transform: scale(1);
+          }
+          to {
+            opacity: 0.64;
+            transform: scale(0.96);
+          }
+        }
 
-                @keyframes logoFadeOut {
-                    0% {
-                        opacity: 0.9;
-                        transform: scale(1);
-                    }
-                    100% {
-                        opacity: 0.6;
-                        transform: scale(0.95);
-                    }
-                }
-            `}</style>
-        </>
-    );
+        .animate-page-transition-cover {
+          animation: pageTransitionCover 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        .animate-page-transition-reveal {
+          animation: pageTransitionReveal 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+      `}</style>
+    </>
+  );
 };
 
 export default PageTransition;

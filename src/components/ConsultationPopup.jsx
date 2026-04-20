@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { X, Star, CheckCircle, Target } from 'lucide-react';
 
 export const ConsultationPopup = ({ isOpen, onClose }) => {
@@ -13,6 +13,23 @@ export const ConsultationPopup = ({ isOpen, onClose }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitStatus, setSubmitStatus] = useState(null);
     const [isAnimating, setIsAnimating] = useState(false);
+
+    const handleClose = useCallback(() => {
+        setIsAnimating(false);
+        setTimeout(() => {
+            onClose();
+            // Reset form when fully closed
+            setFormData({
+                customer_name: '',
+                phone: '',
+                email: '',
+                business_field: '',
+                brand_name: '',
+                consultation_request: ''
+            });
+            setSubmitStatus(null);
+        }, 300); // Match animation duration
+    }, [onClose]);
 
     // Handle escape key
     useEffect(() => {
@@ -31,7 +48,7 @@ export const ConsultationPopup = ({ isOpen, onClose }) => {
             document.removeEventListener('keydown', handleEscape);
             document.body.style.overflow = 'unset';
         };
-    }, [isOpen]);
+    }, [handleClose, isOpen]);
 
     // Handle animation states
     useEffect(() => {
@@ -39,23 +56,6 @@ export const ConsultationPopup = ({ isOpen, onClose }) => {
             setIsAnimating(true);
         }
     }, [isOpen]);
-
-    const handleClose = () => {
-        setIsAnimating(false);
-        setTimeout(() => {
-            onClose();
-            // Reset form when fully closed
-            setFormData({
-                customer_name: '',
-                phone: '',
-                email: '',
-                business_field: '',
-                brand_name: '',
-                consultation_request: ''
-            });
-            setSubmitStatus(null);
-        }, 300); // Match animation duration
-    };
 
     const handleBackdropClick = (e) => {
         if (e.target === e.currentTarget) {
@@ -172,28 +172,28 @@ export const ConsultationPopup = ({ isOpen, onClose }) => {
                                     <div className="flex items-center space-x-3 bg-white/10 p-2 rounded-xl backdrop-blur-sm">
                                         <div>
                                             <h3 className="text-[11px] sm:text-[12px] font-archivo font-medium text-[#c08dfe] mb-1 uppercase tracking-widest">Hotline</h3>
-                                            <p className="text-white text-[11px] lg:text-[13px]">033 208 3366</p>
+                                            <p className="text-white text-[11px] lg:text-[13px]">84 903 010 692</p>
                                         </div>
                                     </div>
 
                                     <div className="flex items-center space-x-3 bg-white/10 p-2 rounded-xl backdrop-blur-sm">
                                         <div>
                                             <h3 className="text-[11px] sm:text-[12px] font-archivo font-medium text-[#c08dfe] mb-1 uppercase tracking-widest">Email</h3>
-                                            <p className="text-white text-[11px] lg:text-[13px]">contact@nextgency.vn</p>
+                                            <p className="text-white text-[11px] lg:text-[13px]">eacgroup.vn@gmail.com</p>
                                         </div>
                                     </div>
 
                                     <div className="flex items-center space-x-3 bg-white/10 p-2 rounded-xl backdrop-blur-sm">
                                         <div>
                                             <h3 className="text-[11px] sm:text-[12px] font-archivo font-medium text-[#c08dfe] mb-1 uppercase tracking-widest">Address</h3>
-                                            <p className="text-white text-[11px] lg:text-[13px]">2/11 Vương Thừa Vũ, Thanh Xuân, Hà Nội</p>
+                                            <p className="text-white text-[11px] lg:text-[13px]">58 Phước Hưng, Phường 08, Quận 5, Thành phố Hồ Chí Minh, Việt Nam</p>
                                         </div>
                                     </div>
 
                                     {/* Stats */}
                                     <div className="bg-[#c59efe] rounded-xl p-4 text-center">
-                                        <div className="text-3xl font-bold text-white">500+</div>
-                                        <div className="text-sm text-white">Khách hàng tin tương</div>
+                                        <div className="text-3xl font-bold text-white">10.000+</div>
+                                        <div className="text-sm text-white">Khách hàng tin tưởng</div>
                                     </div>
                                 </div>
 

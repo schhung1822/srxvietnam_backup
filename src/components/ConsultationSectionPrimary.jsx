@@ -79,7 +79,7 @@ export default function ConsultationSectionPrimary() {
                         Nhận tư vấn
                     </h2>
                     <p className="text-[15px] sm:text-[18px] text-white">
-                        Nextgency chân thành cảm ơn bạn đã dành thời gian điền bảng khảo sát này. Đội ngũ của chúng tôi sẽ xem xét kỹ thông tin và liên hệ trong vòng 24h làm việc để tư vấn giải pháp phù hợp nhất.
+                        SRX chân thành cảm ơn bạn đã dành thời gian điền bảng khảo sát này. Đội ngũ của chúng tôi sẽ xem xét kỹ thông tin và liên hệ trong vòng 24h làm việc để tư vấn giải pháp phù hợp nhất.
                     </p>
                 </div>
 
@@ -233,21 +233,21 @@ export default function ConsultationSectionPrimary() {
                                 <div className="flex items-center space-x-3 bg-white/5 p-4 rounded-sm shadow-lg backdrop-blur-3xl">
                                     <div>
                                         <h3 className="text-[11px] sm:text-[13px] font-archivo font-medium text-[#c08dfe] mb-1 uppercase tracking-widest">Hotline</h3>
-                                        <p className="text-white text-[13px] lg:text-[15px]">033 208 3366</p>
+                                        <p className="text-white text-[13px] lg:text-[15px]">84 903 010 692</p>
                                     </div>
                                 </div>
 
                                 <div className="flex items-center space-x-3 bg-white/5 p-4 rounded-sm shadow-lg backdrop-blur-3xl">
                                     <div>
                                         <h3 className="text-[11px] sm:text-[13px] font-archivo font-medium text-[#c08dfe] mb-1 uppercase tracking-widest">Email</h3>
-                                        <p className="text-white text-[13px] lg:text-[15px]">contact@nextgency.vn</p>
+                                        <p className="text-white text-[13px] lg:text-[15px]">eacgroup.vn@gmail.com</p>
                                     </div>
                                 </div>
 
                                 <div className="flex items-center space-x-3 bg-white/5 p-4 rounded-sm shadow-lg backdrop-blur-3xl">
                                     <div>
                                         <h3 className="text-[11px] sm:text-[13px] font-archivo font-medium text-[#c08dfe] mb-1 uppercase tracking-widest">Address</h3>
-                                        <p className="text-white text-[13px] lg:text-[15px]">2/11 Vương Thừa Vũ, Thanh Xuân, Hà Nội</p>
+                                        <p className="text-white text-[13px] lg:text-[15px]">58 Phước Hưng, Phường 08, Quận 5, Thành phố Hồ Chí Minh, Việt Nam</p>
                                     </div>
                                 </div>
                             </div>
@@ -255,7 +255,7 @@ export default function ConsultationSectionPrimary() {
                             {/* Floating Stats */}
                             <div className="absolute -top-4 -right-0 bg-[#c59efe] rounded-sm px-4 py-2">
                                 <div className="text-center">
-                                    <div className="text-2xl font-bold text-white">500+</div>
+                                    <div className="text-2xl font-bold text-white">10.000+</div>
                                     <div className="text-xs text-white">Khách hàng</div>
                                 </div>
                             </div>

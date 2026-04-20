@@ -1,180 +1,203 @@
-import React from 'react';
-import { ChevronRight } from 'lucide-react';
-import {Link} from "react-router-dom";
+import React, { useState } from "react";
+import { ArrowUpRight, ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ConsultationPopup } from "./ConsultationPopup.jsx";
+
+const srxLinks = [
+  { to: "/services/about", label: "Về SRX" },
+  { to: "/products", label: "Sản phẩm" },
+  { to: "/services/facebook-ads", label: "Từ điển sản phẩm" },
+  { to: "/services/follow-srx", label: "Theo dòng SRX" },
+  { to: "/services/tin-tuc", label: "Tin tức" },
+  { to: "/services/su-kien", label: "Sự kiện" },
+  { to: "/services/kien-thuc", label: "kiến thức" },
+  { to: "/affiliate", label: "Affiliate" },
+  { to: "/faqs", label: "FAQs" },
+];
+
+const policyLinks = [
+  { to: "/chinh-sach-bao-mat", label: "Chính sách & bảo mật" },
+  { to: "/dieu-khoan", label: "Điều khoản" },
+  { href: "/chinh-sach-giao-hang", label: "Chính sách giao hàng" },
+  { href: "/chinh-sach-hoan-tra", label: "Chính sách hoàn trả" },
+  { href: "/quy-dinh-thanh-toan", label: "Quy định về thanh toán" },
+  { href: "/chinh-sach-cho-affiliate", label: "Chính sách cho Affiliate" },
+  { href: "/cach-dang-ky-affiliate", label: "Cách đăng ký Affiliate" },
+];
+
+const footerChevronClass =
+  "mr-2 h-4 w-4 shrink-0 text-[#c59efe] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-0.5 group-hover:text-white group-focus-within:translate-x-0.5 group-focus-within:text-white";
+
+const FooterAnimatedLink = ({ children, href, to }) => {
+  const Component = href ? "a" : Link;
+  const linkProps = href ? { href } : { to };
+
+  return (
+    <Component {...linkProps} className="relative inline-flex max-w-full text-white/90 transition-colors duration-500">
+      <span className="leading-[1.45] md:hidden">{children}</span>
+      <span className="hidden md:inline-grid">
+        <span
+          aria-hidden="true"
+          className="invisible col-start-1 row-start-1 whitespace-nowrap font-semibold leading-[1.55]"
+        >
+          {children}
+        </span>
+        <span className="relative col-start-1 row-start-1 block h-[1.55em] overflow-hidden">
+          <span
+            aria-hidden="true"
+            className="absolute inset-x-0 top-0 flex items-center whitespace-nowrap leading-[1.55] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-full group-focus-within:-translate-y-full"
+          >
+            {children}
+          </span>
+          <span
+            aria-hidden="true"
+            className="absolute inset-x-0 top-0 flex items-center whitespace-nowrap translate-y-full font-semibold leading-[1.55] text-white transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-y-0 group-focus-within:translate-y-0"
+          >
+            {children}
+          </span>
+        </span>
+      </span>
+    </Component>
+  );
+};
+
+const FooterLinkItem = ({ href, label, to }) => (
+  <li className="group flex items-center text-[14px] text-white">
+    <ChevronRight className={footerChevronClass} />
+    <FooterAnimatedLink href={href} to={to}>
+      {label}
+    </FooterAnimatedLink>
+  </li>
+);
 
 const Footer = () => {
-    return (
-        <footer className="bg-black text-white py-[60px] lg:py-[120px]">
-            <div className="max-w-[1440px] mx-auto px-6 sm:px-6 lg:px-8">
-                {/* Container A - Logo */}
-                <div className="mb-12">
-                    <img
-                        src="/assets/images/footer/footerlogo.png"
-                        alt="Nextgency Logo"
-                        className=" h-8 lg:h-7 w-auto object-contain"
-                    />
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+
+  return (
+    <>
+      <footer className="bg-[#7584d6] pb-[20px] py-[40px] text-white lg:pt-[100px]">
+        <div className="mx-auto max-w-[1840px] px-6 sm:px-6 lg:px-8">
+          <div className="mb-12 grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-4 lg:gap-20">
+            <div className="space-y-4">
+              <div className="mb-14">
+                <img
+                  src="/assets/images/footer/logo_srx_white.webp"
+                  alt="SRX Logo"
+                  className="h-14 w-auto object-contain lg:h-16"
+                />
+              </div>
+
+              <h3 className="mb-2 text-[16px] font-medium text-white">
+                CÔNG TY TNHH XUẤT NHẬP KHẨU TOÀN DIỆN EAC - Chuyên nhập khẩu & phân phối sản phẩm thẩm mỹ nội khoa, filler, skin booster, thiết bị y tế, dược mỹ phẩm
+              </h3>
+              <div className="space-y-3">
+                <div className="text-[14px] text-white">
+                  <span className="font-medium">Hotline:</span>
+                  <div className="text-white">+84 903.010.692</div>
                 </div>
-
-                {/* Container B - Main Content Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-20 mb-12">
-                    {/* Column A - Contact Info */}
-                    <div className="space-y-4">
-                        <h3 className="text-[16px] font-medium text-white mb-2">
-                            AI - Marketing Automation Agency
-                        </h3>
-                        <div className="space-y-3">
-                            <div className="text-[14px] text-gray-200">
-                                <span className="font-medium">Hotline:</span>
-                                <div className="text-gray-300">033 208 3366</div>
-                            </div>
-                            <div className="text-[14px] text-gray-200">
-                                <span className="font-medium">Email:</span>
-                                <div className="text-gray-300">contact@nextgency.vn</div>
-                            </div>
-                            <div className="text-[14px] text-gray-200">
-                                <span className="font-medium">Website:</span>
-                                <div className="text-gray-300">nextgency.vn</div>
-                            </div>
-                            <div className="text-[14px] text-gray-200">
-                                <span className="font-medium">Address:</span>
-                                <div className="text-gray-300">2/11 Vương Thừa Vũ, Thanh Xuân, Hà Nội</div>
-                            </div>
-                        </div>
-
-                        {/* Social Media Icons */}
-                        <div className="flex space-x-5 pt-4">
-                            <a href="#" className="hover:opacity-80 transition-opacity">
-                                <img
-                                    src="/assets/images/footer/zalo.png"
-                                    alt="Facebook"
-                                    className="w-8 h-8 object-contain"
-                                />
-                            </a>
-                            <a href="#" className="hover:opacity-80 transition-opacity">
-                                <img
-                                    src="/assets/images/footer/facebook.png"
-                                    alt="Instagram"
-                                    className="w-8 h-8 object-contain"
-                                />
-                            </a>
-                            <a href="#" className="hover:opacity-80 transition-opacity">
-                                <img
-                                    src="/assets/images/footer/mess.png"
-                                    alt="LinkedIn"
-                                    className="w-8 h-8 object-contain"
-                                />
-                            </a>
-                            <a href="#" className="hover:opacity-80 transition-opacity">
-                                <img
-                                    src="/assets/images/footer/lark.png"
-                                    alt="Twitter"
-                                    className="w-9 h-9 object-contain"
-                                />
-                            </a>
-                        </div>
-                    </div>
-
-                    {/* Column B - Services */}
-                    <div className="space-y-4">
-                        <h3 className="text-[16px] font-medium text-white mb-2">
-                            Dịch vụ của chúng tôi
-                        </h3>
-                        <ul className="space-y-3">
-                            <li className="flex items-center text-[14px] text-gray-200 hover:text-white transition-colors">
-                                <ChevronRight className="w-4 h-4 mr-2 text-[#c59efe]" />
-                                <Link to="/facebook-ads" className="hover:text-white">Dịch vụ Facebook Ads</Link>
-                            </li>
-                            <li className="flex items-center text-[14px] text-gray-200 hover:text-white transition-colors">
-                                <ChevronRight className="w-4 h-4 mr-2 text-[#c59efe]" />
-                                <a href="#" className="hover:text-white">Dịch vụ Google Ads</a>
-                            </li>
-                            <li className="flex items-center text-[14px] text-gray-200 hover:text-white transition-colors">
-                                <ChevronRight className="w-4 h-4 mr-2 text-[#c59efe]" />
-                                <a href="#" className="hover:text-white">Dịch vụ Tiktok Ads</a>
-                            </li>
-                            <li className="flex items-center text-[14px] text-gray-200 hover:text-white transition-colors">
-                                <ChevronRight className="w-4 h-4 mr-2 text-[#c59efe]" />
-                                <a href="#" className="hover:text-white">Dịch vụ Tick Xanh Facebook</a>
-                            </li>
-                            <li className="flex items-center text-[14px] text-gray-200 hover:text-white transition-colors">
-                                <ChevronRight className="w-4 h-4 mr-2 text-[#c59efe]" />
-                                <a href="#" className="hover:text-white">Phòng Marketing thuê ngoài</a>
-                            </li>
-                            <li className="flex items-center text-[14px] text-gray-200 hover:text-white transition-colors">
-                                <ChevronRight className="w-4 h-4 mr-2 text-[#c59efe]" />
-                                <a href="#" className="hover:text-white">Xây dựng Website & Landing page</a>
-                            </li>
-                            <li className="flex items-center text-[14px] text-gray-200 hover:text-white transition-colors">
-                                <ChevronRight className="w-4 h-4 mr-2 text-[#c59efe]" />
-                                <a href="#" className="hover:text-white">Automation - AI - Data</a>
-                            </li>
-                            <li className="flex items-center text-[14px] text-gray-200 hover:text-white transition-colors">
-                                <ChevronRight className="w-4 h-4 mr-2 text-[#c59efe]" />
-                                <a href="#" className="hover:text-white">Facebook Dataset & CRM</a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    {/* Column C - Company */}
-                    <div className="space-y-4">
-                        <h3 className="text-[16px] font-medium text-white mb-2">
-                            Chính sách & quy định chung
-                        </h3>
-                        <ul className="space-y-3">
-                            <li className="flex items-center text-[14px] text-gray-200 hover:text-white transition-colors">
-                                <ChevronRight className="w-4 h-4 mr-2 text-[#c59efe]" />
-                                <a href="#" className="hover:text-white">Chính sách & quy định chung</a>
-                            </li>
-                            <li className="flex items-center text-[14px] text-gray-200 hover:text-white transition-colors">
-                                <ChevronRight className="w-4 h-4 mr-2 text-[#c59efe]" />
-                                <a href="#" className="hover:text-white">Chính sách bảo hành</a>
-                            </li>
-                            <li className="flex items-center text-[14px] text-gray-200 hover:text-white transition-colors">
-                                <ChevronRight className="w-4 h-4 mr-2 text-[#c59efe]" />
-                                <a href="/chinh-sach-bao-mat" className="hover:text-white">Chính sách bảo mật thông tin</a>
-                            </li>
-                            <li className="flex items-center text-[14px] text-gray-200 hover:text-white transition-colors">
-                                <ChevronRight className="w-4 h-4 mr-2 text-[#c59efe]" />
-                                <a href="#" className="hover:text-white">Chính sách bàn giao </a>
-                            </li>
-                            <li className="flex items-center text-[14px] text-gray-200 hover:text-white transition-colors">
-                                <ChevronRight className="w-4 h-4 mr-2 text-[#c59efe]" />
-                                <a href="#" className="hover:text-white">Quy định về thanh toán</a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    {/* Column D - Newsletter */}
-                    <div className="space-y-4">
-                        <h3 className="text-[16px] font-medium text-white mb-2">
-                            Đăng ký nhận thông tin
-                        </h3>
-                        <p className="text-[14px] text-gray-200 mb-2">
-                            Đăng ký để nhận thông tin mới nhất về dịch vụ và xu hướng công nghệ từ Nextgency.
-                        </p>
-                        <div className="space-y-3">
-                            <input
-                                type="email"
-                                placeholder="Nhập email của bạn"
-                                className="w-full px-3 py-2.5 bg-gray-900 border border-gray-700 rounded-3xl text-white placeholder-gray-400 focus:outline-none focus:border-[#c59efe] focus:ring-1 focus:ring-[#c59efe] transition-colors"
-                            />
-                            <button className="w-full px-3 py-2.5 bg-white text-black font-medium rounded-3xl hover:bg-purple-400 transition-all transform hover:scale-105">
-                                Đăng ký
-                            </button>
-                        </div>
-                    </div>
+                <div className="text-[14px] text-white">
+                  <span className="font-medium">Email:</span>
+                  <div className="text-white">eacgroup.vn@gmail.com</div>
                 </div>
-
-                {/* Container C - Copyright */}
-                <div className="pt-8 text-center">
-                    <p className="text-[13px] lg:text-[14px] text-gray-300">
-                        © Bản quyền thuộc về & cung cấp bởi{'  '}
-                        <span className=" text-gray-300">Nextgency</span>
-                    </p>
+                <div className="text-[14px] text-white">
+                  <span className="font-medium">Address:</span>
+                  <div className="text-white">
+                    58 Phước Hưng, Phường 08, Quận 5, Thành phố Hồ Chí Minh, Việt Nam
+                  </div>
                 </div>
+              </div>
+
+              <div className="flex space-x-5 pt-4">
+                <a href="https://www.facebook.com/srxvnofficial" className="transition-opacity hover:opacity-80">
+                  <img
+                    src="/assets/images/footer/facebook.webp"
+                    alt="Facebook"
+                    className="h-10 w-10 object-contain"
+                  />
+                </a>
+                <a href="https://zalo.me/4112137101220932811" className="transition-opacity hover:opacity-80">
+                  <img
+                    src="/assets/images/footer/zalo.webp"
+                    alt="Zalo OA"
+                    className="h-10 w-10 object-contain"
+                  />
+                </a>
+                <a href="https://www.tiktok.com/@srxvietnam" className="transition-opacity hover:opacity-80">
+                  <img
+                    src="/assets/images/footer/tiktok.webp"
+                    alt="TikTok"
+                    className="h-10 w-10 object-contain"
+                  />
+                </a>
+                <a href="https://shopee.vn/srxvietnam" className="transition-opacity hover:opacity-80">
+                  <img
+                    src="/assets/images/footer/shopee.webp"
+                    alt="Shopee"
+                    className="h-10 w-10 object-contain"
+                  />
+                </a>
+              </div>
             </div>
-        </footer>
-    );
+
+            <div className="space-y-4">
+              <h3 className="mb-2 text-[16px] font-medium text-white">SRX Việt Nam</h3>
+              <ul className="space-y-3">
+                {srxLinks.map((item) => (
+                  <FooterLinkItem key={item.label} {...item} />
+                ))}
+              </ul>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="mb-2 text-[16px] font-medium text-white">Hỗ trợ khách hàng</h3>
+              <ul className="space-y-3">
+                {policyLinks.map((item) => (
+                  <FooterLinkItem key={item.label} {...item} />
+                ))}
+              </ul>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="mb-2 text-[20px] font-medium text-white">Đối tác & Liên kết</h3>
+              <p className="mb-2 text-[14px] text-white">
+                Đăng ký để nhận thông tin mới nhất về sản phẩm và xu hướng làm đẹp từ SRX.
+              </p>
+              <div className="space-y-3">
+                <input
+                  type="email"
+                  placeholder="Nhập email của bạn"
+                  className="w-full rounded-3xl bg-white px-3 py-2.5 text-white placeholder-gray-400 transition-colors focus:border-[#c59efe] focus:outline-none focus:ring-1 focus:ring-[#c59efe]"
+                />
+                <button className="w-full transform rounded-3xl bg-black px-3 py-2.5 font-medium text-white transition-all hover:scale-105 hover:bg-purple-400">
+                  Đăng ký
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsPopupOpen(true)}
+                className="flex w-full items-center justify-between gap-3 rounded-full bg-gradient-to-r from-[#2B144D] via-[#c08dfe] to-[#2B144D] px-5 py-1.5 text-left text-[15px] font-medium text-white transition-transform duration-300 hover:scale-[1.02]"
+              >
+                <span>Hợp tác ngay</span>
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-black">
+                  <ArrowUpRight className="h-5 w-5" strokeWidth={2.3} />
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <div className="pt-8 text-center">
+            <p className="text-[13px] text-white lg:text-[14px]">
+              © Bản quyền thuộc về & cung cấp bởi{" "}
+              <a href="https://nextgency.vn/" className="text-white hover:text-bold" target="_blank" rel="noopener noreferrer">
+                Nextgency
+              </a>
+            </p>
+          </div>
+        </div>
+      </footer>
+      <ConsultationPopup isOpen={isPopupOpen} onClose={() => setIsPopupOpen(false)} />
+    </>
+  );
 };
 
 export default Footer;
