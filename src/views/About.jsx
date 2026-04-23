@@ -1,11 +1,12 @@
 import React from 'react';
-import AboutHeroSection from "../components/aboutus/AboutHeroSection.jsx";
-import MyStorySection from "../components/aboutus/MyStorySection.jsx";
-import ConsultationSectionPrimary from "../components/ConsultationSectionPrimary.jsx";
-import ConsultationSection from "../components/ConsultationSection.jsx";
-import ServicesSection from "../components/ServicesSection.jsx";
 import SEOManager from "../components/SEO/SEOManager.jsx";
 import {seoConfigs} from "./seo-configs.js";
+import AboutBrandStorySection from "../components/aboutus/AboutBrandStorySection.jsx";
+import AboutFeaturedProductsSection from "../components/aboutus/AboutFeaturedProductsSection.jsx";
+import AboutHistorySection from "../components/aboutus/AboutHistorySection.jsx";
+import AboutIntroSection from "../components/aboutus/AboutIntroSection.jsx";
+import AboutTechnologyJourneySection from "../components/aboutus/AboutTechnologyJourneySection.jsx";
+import SRXLogo from "../components/home/SrxLogo.jsx";
 
 const About = () => {
     return (
@@ -16,11 +17,13 @@ const About = () => {
                 keywords={seoConfigs.about.keywords}
                 ogUrl="/about"
             />
-            <AboutHeroSection />
-            <MyStorySection/>
-            <ConsultationSection/>
-            <ServicesSection/>
-        </div>
+            <AboutIntroSection />
+            <AboutBrandStorySection />
+            <AboutHistorySection />
+            <AboutFeaturedProductsSection />
+            <AboutTechnologyJourneySection />
+            <SRXLogo/>
+        </div> 
     );
 };
 
