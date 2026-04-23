@@ -1,4 +1,4 @@
-/* eslint-disable react-refresh/only-export-components */
+﻿/* eslint-disable react-refresh/only-export-components */
 import { notFound } from 'next/navigation';
 import ProductDetailPage from '../../../src/views/shop/ProductDetailMinimalPage.jsx';
 import { getRelatedProducts } from '../../../src/lib/products/catalog.js';
@@ -38,3 +38,4 @@ export default async function ProductDetailRoute({ params }) {
 
   return <ProductDetailPage product={product} relatedProducts={relatedProducts} />;
 }
+

@@ -1,9 +1,8 @@
-'use client';
+﻿'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { FileText, Search, ShoppingBag, X } from 'lucide-react';
-import { demoNews, searchNews, sortNewsByDate } from '../../data/demoNews';
 
 const moneyFormatter = new Intl.NumberFormat('vi-VN');
 
@@ -18,7 +17,9 @@ async function parseJson(response) {
 export default function HeaderSearchOverlay({ isOpen, onClose }) {
   const [query, setQuery] = useState('');
   const [productResults, setProductResults] = useState([]);
+  const [newsResults, setNewsResults] = useState([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+  const [isLoadingNews, setIsLoadingNews] = useState(false);
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -49,6 +50,7 @@ export default function HeaderSearchOverlay({ isOpen, onClose }) {
     if (!isOpen) {
       setQuery('');
       setProductResults([]);
+      setNewsResults([]);
     }
   }, [isOpen]);
 
@@ -63,6 +65,7 @@ export default function HeaderSearchOverlay({ isOpen, onClose }) {
     const timeout = window.setTimeout(async () => {
       try {
         setIsLoadingProducts(true);
+        setIsLoadingNews(true);
 
         const params = new URLSearchParams({
           limit: trimmedQuery ? '5' : '4',
@@ -72,25 +75,41 @@ export default function HeaderSearchOverlay({ isOpen, onClose }) {
           params.set('q', trimmedQuery);
         }
 
-        const response = await fetch(`/api/products/search?${params.toString()}`, {
-          cache: 'no-store',
-          signal: controller.signal,
-        });
-        const data = await parseJson(response);
+        const [productResponse, newsResponse] = await Promise.all([
+          fetch(`/api/products/search?${params.toString()}`, {
+            cache: 'no-store',
+            signal: controller.signal,
+          }),
+          fetch(`/api/news/search?${params.toString()}`, {
+            cache: 'no-store',
+            signal: controller.signal,
+          }),
+        ]);
+        const [productData, newsData] = await Promise.all([
+          parseJson(productResponse),
+          parseJson(newsResponse),
+        ]);
 
-        if (!response.ok) {
-          throw new Error(data.message ?? 'Không thể tải danh sách sản phẩm.');
+        if (!productResponse.ok) {
+          throw new Error(productData.message ?? 'Không thể tải danh sách sản phẩm.');
         }
 
-        setProductResults(Array.isArray(data.products) ? data.products : []);
+        if (!newsResponse.ok) {
+          throw new Error(newsData.message ?? 'Không thể tải danh sách tin tức.');
+        }
+
+        setProductResults(Array.isArray(productData.products) ? productData.products : []);
+        setNewsResults(Array.isArray(newsData.articles) ? newsData.articles : []);
       } catch (error) {
         if (error.name === 'AbortError') {
           return;
         }
 
         setProductResults([]);
+        setNewsResults([]);
       } finally {
         setIsLoadingProducts(false);
+        setIsLoadingNews(false);
       }
     }, trimmedQuery ? 180 : 0);
 
@@ -99,14 +118,6 @@ export default function HeaderSearchOverlay({ isOpen, onClose }) {
       window.clearTimeout(timeout);
     };
   }, [isOpen, trimmedQuery]);
-
-  const newsResults = useMemo(() => {
-    if (!trimmedQuery) {
-      return sortNewsByDate(demoNews).slice(0, 4);
-    }
-
-    return searchNews(trimmedQuery).slice(0, 5);
-  }, [trimmedQuery]);
 
   return (
     <>
@@ -216,6 +227,10 @@ export default function HeaderSearchOverlay({ isOpen, onClose }) {
                         </div>
                       </Link>
                     ))
+                  ) : isLoadingNews ? (
+                    <div className="rounded-[20px] border border-dashed border-[#ddd3c6] px-4 py-6 text-[14px] text-[#75695d]">
+                      Đang tải tin tức...
+                    </div>
                   ) : (
                     <div className="rounded-[20px] border border-dashed border-[#ddd3c6] px-4 py-6 text-[14px] text-[#75695d]">
                       Không tìm thấy tin tức phù hợp.

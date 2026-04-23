@@ -1,4 +1,4 @@
-import Link from 'next/link';
+﻿import Link from 'next/link';
 import ProductArtwork from './ProductArtwork';
 
 const moneyFormatter = new Intl.NumberFormat('vi-VN');
@@ -42,3 +42,4 @@ export default function ProductCard({ product, priority = false }) {
     </Link>
   );
 }
+

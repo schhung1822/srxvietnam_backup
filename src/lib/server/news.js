@@ -1,7 +1,5 @@
-import { demoNews, sortNewsByDate } from '../../data/demoNews.js';
-import { getMissingDatabaseEnvNames, hasDatabaseConfig, query } from './db.js';
+﻿import { getMissingDatabaseEnvNames, hasDatabaseConfig, query } from './db.js';
 
-const fallbackArticles = sortNewsByDate(demoNews);
 let hasWarnedAboutMissingDbConfig = false;
 
 const categoryDisplayNames = {
@@ -60,14 +58,6 @@ function estimateReadTime(value = '') {
   return `${minutes} phút đọc`;
 }
 
-function getFallbackArticle(slug) {
-  return fallbackArticles.find((article) => article.slug === slug) ?? null;
-}
-
-function getFallbackArticles(limit) {
-  return fallbackArticles.slice(0, limit);
-}
-
 function normalizeCategory({ categorySlug, categoryName }) {
   if (categorySlug && categoryDisplayNames[categorySlug]) {
     return categoryDisplayNames[categorySlug];
@@ -76,7 +66,7 @@ function normalizeCategory({ categorySlug, categoryName }) {
   return categoryName ?? 'Tin tức';
 }
 
-function normalizeTags(tagNames, fallbackArticle) {
+function normalizeTags(tagNames) {
   if (typeof tagNames === 'string' && tagNames.trim()) {
     return tagNames
       .split('||')
@@ -84,16 +74,12 @@ function normalizeTags(tagNames, fallbackArticle) {
       .filter(Boolean);
   }
 
-  return fallbackArticle?.tags ?? [];
+  return [];
 }
 
-function normalizeCoverImage({ coverImage, categorySlug, fallbackArticle }) {
+function normalizeCoverImage({ coverImage, categorySlug }) {
   if (coverImage) {
     return coverImage;
-  }
-
-  if (fallbackArticle?.coverImage) {
-    return fallbackArticle.coverImage;
   }
 
   if (categorySlug && categoryFallbackImages[categorySlug]) {
@@ -104,44 +90,29 @@ function normalizeCoverImage({ coverImage, categorySlug, fallbackArticle }) {
 }
 
 function normalizeNewsArticle(row) {
-  const fallbackArticle = getFallbackArticle(row.slug);
-  const content = row.content?.trim() || fallbackArticle?.content || '';
+  const content = row.content?.trim() || '';
   const plainTextContent = stripHtml(content);
-  const excerpt =
-    row.excerpt?.trim() ||
-    fallbackArticle?.excerpt ||
-    truncateText(plainTextContent, 180);
+  const excerpt = row.excerpt?.trim() || truncateText(plainTextContent, 180);
 
   return {
-    id: Number(row.id ?? fallbackArticle?.id ?? 0),
+    id: Number(row.id ?? 0),
     slug: row.slug,
-    title: row.title?.trim() || fallbackArticle?.title || '',
+    title: row.title?.trim() || '',
     category: normalizeCategory({
       categorySlug: row.category_slug,
       categoryName: row.category_name,
     }),
     excerpt,
     content: content || excerpt,
-    publishedAt:
-      toDateString(row.published_at ?? row.publishedAt) ||
-      fallbackArticle?.publishedAt ||
-      null,
-    readTime:
-      row.read_time?.trim() ||
-      fallbackArticle?.readTime ||
-      estimateReadTime(content || excerpt),
-    tags: normalizeTags(row.tag_names, fallbackArticle),
+    publishedAt: toDateString(row.published_at ?? row.publishedAt) || null,
+    readTime: row.read_time?.trim() || estimateReadTime(content || excerpt),
+    tags: normalizeTags(row.tag_names),
     coverImage: normalizeCoverImage({
       coverImage: row.featured_image_url ?? row.coverImage,
       categorySlug: row.category_slug,
-      fallbackArticle,
     }),
-    coverAlt:
-      row.cover_alt_text?.trim() ||
-      fallbackArticle?.coverAlt ||
-      row.title?.trim() ||
-      'Tin tức SRX',
-    featured: Boolean(row.is_featured ?? fallbackArticle?.featured),
+    coverAlt: row.cover_alt_text?.trim() || row.title?.trim() || 'Tin tức SRX',
+    featured: Boolean(row.is_featured),
   };
 }
 
@@ -190,7 +161,7 @@ function shouldUseFallbackArticles() {
   if (!hasWarnedAboutMissingDbConfig) {
     hasWarnedAboutMissingDbConfig = true;
     console.warn(
-      `Database env is missing (${getMissingDatabaseEnvNames().join(', ')}). Falling back to demo news data.`,
+      `Database env is missing (${getMissingDatabaseEnvNames().join(', ')}). News data will be empty until DB is configured.`,
     );
   }
 
@@ -201,7 +172,7 @@ export async function getPublishedNews({ limit = 12 } = {}) {
   const safeLimit = Math.max(1, Number(limit) || 12);
 
   if (shouldUseFallbackArticles()) {
-    return getFallbackArticles(safeLimit);
+    return [];
   }
 
   try {
@@ -215,14 +186,10 @@ export async function getPublishedNews({ limit = 12 } = {}) {
       [safeLimit],
     );
 
-    if (!rows.length) {
-      return getFallbackArticles(safeLimit);
-    }
-
     return rows.map(normalizeNewsArticle);
   } catch (error) {
     console.error('Failed to load published news from database:', error);
-    return getFallbackArticles(safeLimit);
+    return [];
   }
 }
 
@@ -232,7 +199,7 @@ export async function getNewsArticleBySlug(slug) {
   }
 
   if (shouldUseFallbackArticles()) {
-    return getFallbackArticle(slug);
+    return null;
   }
 
   try {
@@ -253,5 +220,51 @@ export async function getNewsArticleBySlug(slug) {
     console.error(`Failed to load article "${slug}" from database:`, error);
   }
 
-  return getFallbackArticle(slug);
+  return null;
+}
+
+export async function searchPublishedNews(term = '', limit = 5) {
+  const safeLimit = Math.max(1, Number(limit) || 5);
+  const trimmedTerm = String(term ?? '').trim();
+
+  if (!trimmedTerm) {
+    return getPublishedNews({ limit: safeLimit });
+  }
+
+  if (shouldUseFallbackArticles()) {
+    return [];
+  }
+
+  const likeTerm = `%${trimmedTerm.toLowerCase()}%`;
+
+  try {
+    const rows = await query(
+      `
+        ${baseNewsSelect}
+          AND (
+            LOWER(p.title) LIKE ?
+            OR LOWER(COALESCE(p.excerpt, '')) LIKE ?
+            OR LOWER(COALESCE(p.content, '')) LIKE ?
+            OR LOWER(COALESCE(ac.name, '')) LIKE ?
+            OR EXISTS (
+              SELECT 1
+              FROM post_tag_links ptl2
+              INNER JOIN post_tags pt2
+                ON pt2.id = ptl2.tag_id
+              WHERE ptl2.post_id = p.id
+                AND LOWER(pt2.name) LIKE ?
+            )
+          )
+        ${baseNewsGroupBy}
+        ${baseNewsOrder}
+        LIMIT ?
+      `,
+      [likeTerm, likeTerm, likeTerm, likeTerm, likeTerm, safeLimit],
+    );
+
+    return rows.map(normalizeNewsArticle);
+  } catch (error) {
+    console.error('Failed to search news from database:', error);
+    return [];
+  }
 }

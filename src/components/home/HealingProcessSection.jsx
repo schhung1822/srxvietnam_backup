@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import ScrollRevealHeading from "./ScrollRevealHeading.jsx";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -54,7 +53,7 @@ function SlideMedia({ slide, index, isActive, videoRefs }) {
         ref={(element) => {
           videoRefs.current[index] = element;
         }}
-        className="absolute inset-0 h-full w-full object-cover"
+        className="h-full w-full object-cover"
         autoPlay={isActive}
         muted
         loop
@@ -71,7 +70,7 @@ function SlideMedia({ slide, index, isActive, videoRefs }) {
     <img
       src={slide.media.src}
       alt={slide.media.alt ?? slide.title}
-      className="absolute inset-0 h-full w-full object-cover"
+      className="h-full w-full object-cover"
       loading={index === 0 ? "eager" : "lazy"}
     />
   );
@@ -89,56 +88,27 @@ export default function HealingProcessSection({
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      const media = gsap.matchMedia();
-
-      media.add("(max-width: 1023px)", () => {
-        gsap.from("[data-healing-intro]", {
-          opacity: 0,
-          duration: 0.7,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top 80%",
-          },
-        });
-
-        gsap.from("[data-healing-panel]", {
-          opacity: 0,
-          duration: 0.7,
-          delay: 0.08,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top 78%",
-          },
-        });
+      gsap.from("[data-healing-intro]", {
+        opacity: 0,
+        y: 42,
+        duration: 0.8,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 75%",
+        },
       });
 
-      media.add("(min-width: 1024px)", () => {
-        gsap.from("[data-healing-intro]", {
-          opacity: 0,
-          y: 42,
-          duration: 0.8,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top 75%",
-          },
-        });
-
-        gsap.from("[data-healing-panel]", {
-          opacity: 0,
-          x: 54,
-          duration: 0.9,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top 72%",
-          },
-        });
+      gsap.from("[data-healing-panel]", {
+        opacity: 0,
+        x: 54,
+        duration: 0.9,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 72%",
+        },
       });
-
-      return () => media.revert();
     }, sectionRef);
 
     return () => ctx.revert();
@@ -200,27 +170,24 @@ export default function HealingProcessSection({
   return (
     <section
       ref={sectionRef}
-      className="bg-white px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-24"
+      className="bg-white px-4 py-16 sm:px-6 lg:px-8 lg:py-24"
     >
-      <div className="mx-auto grid max-w-[1800px] gap-8 sm:gap-10 lg:grid-cols-2 lg:gap-8">
+      <div className="mx-auto grid max-w-[1800px] gap-10 lg:grid-cols-2 lg:gap-8">
         <div
           data-healing-intro
-          className="flex w-full flex-col gap-8 sm:gap-10 lg:min-h-[760px] lg:justify-between"
+          className="flex w-full flex-col gap-10 lg:min-h-[760px] lg:justify-between"
         >
           <div>
-            <ScrollRevealHeading
-              as="h2"
-              className="text-[38px] font-medium leading-[0.98] tracking-[-0.05em] sm:text-[52px] lg:text-[74px]"
-              revealedClassName="text-[#6e96fb]"
-              baseStyle={{ color: 'rgba(110,150,251,0.18)' }}
+            <h2
+              className="whitespace-pre-line text-[48px] font-medium leading-[1] tracking-[-0.05em] text-[#6e96fb] sm:text-[60px] lg:text-[74px]"
               style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
             >
               {title}
-            </ScrollRevealHeading>
+            </h2>
           </div>
 
-          <div className="flex items-end justify-between gap-4 sm:gap-8">
-            <div className="min-w-0 flex-1 space-y-0.5 sm:space-y-1">
+          <div className="flex flex-row gap-8 items-end justify-between">
+            <div className="space-y-1">
               {slides.map((slide, index) => {
                 const isActive = index === currentIndex;
 
@@ -229,7 +196,7 @@ export default function HealingProcessSection({
                     key={slide.id}
                     type="button"
                     onClick={() => goToSlide(index)}
-                    className={`block text-left text-[14px] leading-[1.7] tracking-[-0.02em] transition-colors duration-300 sm:text-[16px] ${
+                    className={`block text-left text-[16px] leading-[1.7] tracking-[-0.02em] transition-colors duration-300 ${
                       isActive ? "text-[#ff5be2]" : "text-[#7f7f7f]"
                     }`}
                     style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
@@ -240,23 +207,23 @@ export default function HealingProcessSection({
               })}
             </div>
 
-            <div className="flex shrink-0 items-center gap-2 text-[#202020] sm:gap-3">
+            <div className="flex items-center gap-3 text-[#202020]">
               <button
                 type="button"
                 onClick={() => goToSlide(currentIndex - 1)}
-                className="flex h-10 w-10 items-center justify-center transition-opacity duration-300 hover:opacity-65 sm:h-12 sm:w-12"
+                className="flex h-12 w-12 items-center justify-center transition-opacity duration-300 hover:opacity-65"
                 aria-label="Slide trước"
               >
-                <ArrowLeft className="h-6 w-6 stroke-[1.4] sm:h-8 sm:w-8" />
+                <ArrowLeft className="h-8 w-8 stroke-[1.4]" />
               </button>
 
               <button
                 type="button"
                 onClick={() => goToSlide(currentIndex + 1)}
-                className="flex h-10 w-10 items-center justify-center transition-opacity duration-300 hover:opacity-65 sm:h-12 sm:w-12"
+                className="flex h-12 w-12 items-center justify-center transition-opacity duration-300 hover:opacity-65"
                 aria-label="Slide tiếp theo"
               >
-                <ArrowRight className="h-6 w-6 stroke-[1.4] sm:h-8 sm:w-8" />
+                <ArrowRight className="h-8 w-8 stroke-[1.4]" />
               </button>
             </div>
           </div>
@@ -264,7 +231,7 @@ export default function HealingProcessSection({
 
         <div
           data-healing-panel
-          className="relative w-full overflow-hidden rounded-[24px] bg-[#eff3ff] bg-cover bg-center bg-no-repeat p-4 shadow-[0_24px_70px_rgba(177,184,246,0.18)] sm:rounded-[28px] sm:p-8 lg:px-12 lg:py-16"
+          className="relative w-full overflow-hidden bg-[#eff3ff] bg-cover bg-center bg-no-repeat p-6 shadow-[0_24px_70px_rgba(177,184,246,0.18)] sm:p-10 lg:px-12 lg:py-16"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
@@ -274,50 +241,50 @@ export default function HealingProcessSection({
               "url('/assets/images/home/background_hero.webp')",
           }}
         >
-          <div className="relative grid">
+          <div className="relative min-h-[620px] sm:min-h-[720px] lg:min-h-[760px]">
             {slides.map((slide, index) => {
               const isActive = index === currentIndex;
 
               return (
                 <article
                   key={slide.id}
-                  className={`col-start-1 row-start-1 transition-opacity duration-500 ease-out ${
-                    isActive
-                      ? "relative z-10 opacity-100"
-                      : "pointer-events-none z-0 opacity-0"
+                  className={`absolute inset-0 transition-opacity duration-500 ease-out ${
+                    isActive ? "opacity-100" : "pointer-events-none opacity-0"
                   }`}
                   aria-hidden={!isActive}
                 >
-                  <div className="flex flex-col items-start">
+                  <div className="flex h-full flex-col">
                     <p
-                      className="text-[15px] font-normal tracking-[-0.02em] text-[#303030] sm:text-[17px]"
+                      className="text-[24px] font-normal tracking-[-0.02em] text-[#303030]"
                       style={{ fontFamily: '"Aeonik TRIAL Regular", "Manrope", sans-serif' }}
                     >
                       /{String(index + 1).padStart(2, "0")}
                     </p>
 
-                    <div
-                      className="relative mt-3 w-full shrink-0 overflow-hidden bg-white/30 sm:mt-4"
-                      style={{ aspectRatio: "5 / 4" }}
-                    >
-                      <SlideMedia
-                        slide={slide}
-                        index={index}
-                        isActive={isActive}
-                        videoRefs={videoRefs}
-                      />
+                    <div className="mt-4 overflow-hidden bg-white/30">
+                      <div
+                        className="mx-auto w-full max-w-[640px] shrink-0 overflow-hidden"
+                        style={{ aspectRatio: "5 / 4" }}
+                      >
+                        <SlideMedia
+                          slide={slide}
+                          index={index}
+                          isActive={isActive}
+                          videoRefs={videoRefs}
+                        />
+                      </div>
                     </div>
 
-                    <div className="mt-4 w-full sm:mt-6">
+                    <div className="mt-8 max-w-[92%]">
                       <h3
-                        className="text-[24px] font-bold tracking-[-0.03em] text-[#151515] sm:text-[28px] lg:text-[31px]"
+                        className="text-[28px] font-bold tracking-[-0.03em] text-[#151515] sm:text-[31px]"
                         style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
                       >
                         {slide.title}
                       </h3>
 
                       <p
-                        className="mt-3 w-full text-[14px] leading-[1.65] text-[#5f5f5f] sm:mt-4 sm:text-[15px]"
+                        className="mt-4 text-[13px] leading-[1.65] text-[#5f5f5f] sm:text-[14px]"
                         style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
                       >
                         {slide.description}

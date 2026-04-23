@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
-import { searchCatalogProducts } from '../../../../src/lib/server/products.js';
+import { searchPublishedNews } from '../../../../src/lib/server/news.js';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 function normalizeLimit(value) {
   const parsedValue = Number.parseInt(value ?? '5', 10);
@@ -18,23 +19,22 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q') ?? '';
     const limit = normalizeLimit(searchParams.get('limit'));
-    const products = await searchCatalogProducts(query, limit);
+    const articles = await searchPublishedNews(query, limit);
 
     return NextResponse.json({
-      products: products.map((product) => ({
-        id: product.id,
-        slug: product.slug,
-        name: product.name,
-        brand: product.brand,
-        category: product.category,
-        price: product.price,
+      articles: articles.map((article) => ({
+        id: article.id,
+        slug: article.slug,
+        title: article.title,
+        category: article.category,
+        excerpt: article.excerpt,
       })),
     });
   } catch (error) {
     return NextResponse.json(
       {
-        message: error.message ?? 'Không thể tải danh sách sản phẩm.',
-        products: [],
+        message: error.message ?? 'Không thể tải danh sách tin tức.',
+        articles: [],
       },
       { status: 500 },
     );

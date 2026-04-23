@@ -89,7 +89,7 @@ export default function CartDrawer() {
                 <div key={item.lineId} className="rounded-[24px] border border-[#ece4da] bg-[#fcfaf8] p-4">
                   <div className="flex gap-4">
                     <div className="h-[96px] w-[82px] shrink-0 overflow-hidden rounded-[18px] bg-[#f3ede5]">
-                      {item.scene ? <ProductArtwork scene={item.scene} badge={item.badge} mode="thumbnail" /> : null}
+                      <ProductArtwork scene={item.scene} badge={item.badge} mode="thumbnail" />
                     </div>
 
                     <div className="min-w-0 flex-1">

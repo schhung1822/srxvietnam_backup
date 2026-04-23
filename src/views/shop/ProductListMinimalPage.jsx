@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useMemo, useState } from 'react';
 import { RotateCcw, Search } from 'lucide-react';
@@ -191,3 +191,5 @@ export default function ProductListMinimalPage({ products = [] }) {
     </section>
   );
 }
+
+

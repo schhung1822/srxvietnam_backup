@@ -65,7 +65,6 @@ export function CartProvider({ children }) {
           variantId: variant.id,
           variantLabel: variant.label,
           sku: variant.sku ?? null,
-          swatch: product.swatches?.[0] ?? '#f3ede5',
           badge: product.badge ?? '',
           scene: product.gallery?.[0] ?? null,
         },

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -17,19 +17,20 @@ const purchaseNotes = [
 
 export default function ProductDetailMinimalPage({ product, relatedProducts = [] }) {
   const { addItem } = useCart();
-  const [selectedSceneId, setSelectedSceneId] = useState(product.gallery[0].id);
+  const [selectedSceneId, setSelectedSceneId] = useState(product.gallery[0]?.id ?? null);
   const [selectedVariantId, setSelectedVariantId] = useState(product.variants[0].id);
   const [quantity, setQuantity] = useState(1);
   const [copyState, setCopyState] = useState('Sao chép link');
 
   useEffect(() => {
-    setSelectedSceneId(product.gallery[0].id);
+    setSelectedSceneId(product.gallery[0]?.id ?? null);
     setSelectedVariantId(product.variants[0].id);
     setQuantity(1);
     setCopyState('Sao chép link');
   }, [product.slug, product.gallery, product.variants]);
 
-  const selectedScene = product.gallery.find((scene) => scene.id === selectedSceneId) ?? product.gallery[0];
+  const selectedScene =
+    product.gallery.find((scene) => scene.id === selectedSceneId) ?? product.gallery[0] ?? null;
   const selectedVariant = product.variants.find((variant) => variant.id === selectedVariantId) ?? product.variants[0];
 
   const increaseQuantity = () => setQuantity((current) => current + 1);
@@ -74,10 +75,10 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
                 key={scene.id}
                 type="button"
                 onClick={() => setSelectedSceneId(scene.id)}
-                className={`min-w-[76px] rounded-[18px] border p-1 transition ${
+                className={`min-w-[76px] rounded-[12px] border transition ${
                   selectedSceneId === scene.id
-                    ? 'border-[#15110d] bg-[#f7f3ee]'
-                    : 'border-[#e4dbcf] bg-white hover:border-[#cdbfae]'
+                    ? 'border-[#7C93F1] '
+                    : 'border-[#F6BFDF] hover:border-[#7C93F1]'
                 }`}
               >
                 <ProductArtwork scene={scene} mode="thumbnail" />
@@ -166,26 +167,12 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
                   </button>
                 </div>
 
-                <div className="text-[14px] text-[#6b5f53]">
-                  Tồn kho: <span className="font-semibold text-[#15110d]">{selectedVariant.stock}</span>
-                </div>
-              </div>
-
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                 <button
                   type="button"
                   onClick={() => addItem({ product, variant: selectedVariant, quantity })}
                   className="flex-1 rounded-full bg-[#15110d] px-6 py-4 text-[15px] font-semibold text-white transition hover:bg-[#2b2520]"
                 >
                   Thêm vào giỏ
-                </button>
-                <button
-                  type="button"
-                  onClick={copyProductLink}
-                  className="inline-flex items-center justify-center gap-2 rounded-full border border-[#ddd3c6] bg-white px-5 py-4 text-[14px] font-semibold text-[#15110d] transition hover:border-[#15110d]"
-                >
-                  <Copy className="h-4 w-4" />
-                  {copyState}
                 </button>
               </div>
             </div>
@@ -300,3 +287,4 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
     </section>
   );
 }
+

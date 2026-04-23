@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {ArrowRight, ArrowUpRight, Sparkles, Zap} from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -117,7 +117,7 @@ const HeroSection = () => {
                 <div className="w-80 h-80 md:w-[600px] md:h-[600px] xl:w-[750px] xl:h-[750px]">
                     <img
                         src="/assets/images/main.webp"
-                        alt="Nextgency Innovation"
+                        alt="SRX Việt Nam Innovation"
                         className="w-full h-full object-contain opacity-70"
                     />
                 </div>
@@ -172,7 +172,7 @@ const HeroSection = () => {
                             <div className="relative h-64 md:h-96 overflow-hidden rounded-md">
                                 <img
                                     src="/assets/images/test.webp"
-                                    alt="Nextgency Innovation"
+                                    alt="SRX Việt Nam Innovation"
                                     className="w-full h-full object-cover rounded-md"
                                 />
                             </div>

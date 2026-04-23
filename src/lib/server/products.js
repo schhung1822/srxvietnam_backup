@@ -1,55 +1,7 @@
-import { cache } from 'react';
-import { query, hasDatabaseConfig } from './db.js';
+﻿import { cache } from 'react';
+import { getMissingDatabaseEnvNames, hasDatabaseConfig, query } from './db.js';
 
-const PRODUCT_VISUAL_PRESETS = {
-  'srx-repair-ampoule-50ml': {
-    palette: ['#f7f0ff', '#d6c7ff'],
-    accent: '#6e58d9',
-    badge: 'Repair',
-    packageType: 'dropper',
-  },
-  'srx-recovery-booster-50ml': {
-    palette: ['#eef7ff', '#c9e0ff'],
-    accent: '#4f8cd7',
-    badge: 'Booster',
-    packageType: 'pump',
-  },
-  'srx-retinol-a-cream-50ml': {
-    palette: ['#fbf1df', '#e5d0a9'],
-    accent: '#8e6738',
-    badge: 'Best Seller',
-    packageType: 'jar',
-  },
-  'srx-rosy-veil-tone-up-glow-sun-50ml': {
-    palette: ['#fff4f8', '#f4cfdd'],
-    accent: '#d87ca2',
-    badge: 'Tone Up',
-    packageType: 'tube',
-  },
-};
-
-const CATEGORY_VISUAL_PRESETS = {
-  'phuc-hoi-da': {
-    palette: ['#f4f0ff', '#d9d0ff'],
-    accent: '#6e58d9',
-    packageType: 'dropper',
-  },
-  'tai-tao-da': {
-    palette: ['#fbf1df', '#e5d0a9'],
-    accent: '#8e6738',
-    packageType: 'jar',
-  },
-  'bao-ve-da': {
-    palette: ['#fff4f8', '#f4cfdd'],
-    accent: '#d87ca2',
-    packageType: 'tube',
-  },
-  skincare: {
-    palette: ['#eef5ff', '#cfdbff'],
-    accent: '#4f8cd7',
-    packageType: 'bottle',
-  },
-};
+let hasWarnedAboutMissingDbConfig = false;
 
 const SKIN_TYPE_LABELS = {
   normal: 'Da thường',
@@ -72,14 +24,23 @@ const CONCERN_LABELS = {
   acne: 'Mụn',
 };
 
-const SCENE_META = [
-  { id: 'hero', title: 'Bao bì', word: 'Hero' },
-  { id: 'texture', title: 'Kết cấu', word: 'Texture' },
-  { id: 'ritual', title: 'Routine', word: 'Ritual' },
-];
-
 function createPlaceholders(values) {
   return values.map(() => '?').join(', ');
+}
+
+function shouldUseFallbackProducts() {
+  if (hasDatabaseConfig()) {
+    return false;
+  }
+
+  if (!hasWarnedAboutMissingDbConfig) {
+    hasWarnedAboutMissingDbConfig = true;
+    console.warn(
+      `Database env is missing (${getMissingDatabaseEnvNames().join(', ')}). Catalog data will be empty until DB is configured.`,
+    );
+  }
+
+  return true;
 }
 
 function splitCommaList(value) {
@@ -134,19 +95,7 @@ function formatAttributeLabel(attributeCode, attributeSlug, attributeValue) {
   return attributeValue;
 }
 
-function getVisualPreset(productRow) {
-  return (
-    PRODUCT_VISUAL_PRESETS[productRow.slug] ??
-    CATEGORY_VISUAL_PRESETS[productRow.category_slug] ?? {
-      palette: ['#f3efe8', '#ddd1c2'],
-      accent: '#7b6754',
-      badge: productRow.is_featured ? 'Nổi bật' : '',
-      packageType: 'bottle',
-    }
-  );
-}
-
-function buildGallery({ productRow, imageRows, preset }) {
+function buildGallery({ productRow, imageRows }) {
   const sourceImages = imageRows.length
     ? imageRows
     : productRow.thumbnail_url
@@ -158,32 +107,13 @@ function buildGallery({ productRow, imageRows, preset }) {
         ]
       : [];
 
-  if (!sourceImages.length) {
-    return [
-      {
-        id: 'hero',
-        title: 'Bao bì',
-        word: 'SRX',
-        palette: preset.palette,
-        accent: preset.accent,
-        packageType: preset.packageType,
-        layout: 'single',
-        eyebrow: productRow.short_description ?? productRow.name,
-      },
-    ];
-  }
-
-  return sourceImages.slice(0, 3).map((imageRow, index) => ({
-    id: SCENE_META[index]?.id ?? `scene-${index + 1}`,
-    title: SCENE_META[index]?.title ?? `Ảnh ${index + 1}`,
-    word: SCENE_META[index]?.word ?? 'SRX',
-    palette: preset.palette,
-    accent: preset.accent,
-    packageType: preset.packageType,
-    layout: 'single',
+  return sourceImages.slice(0, 6).map((imageRow, index) => ({
+    id: `image-${index + 1}`,
+    title: imageRow.alt_text ?? `Ảnh ${index + 1}`,
     image: imageRow.image_url,
-    alt: imageRow.alt_text ?? `${productRow.name} - ${SCENE_META[index]?.title ?? `Ảnh ${index + 1}`}`,
+    alt: imageRow.alt_text ?? `${productRow.name} - Ảnh ${index + 1}`,
     eyebrow: index === 0 ? productRow.short_description ?? productRow.name : productRow.name,
+    isPrimary: Boolean(imageRow.is_primary),
   }));
 }
 
@@ -254,7 +184,6 @@ function mapVariant(variantRow, fallbackPrice, fallbackOriginalPrice) {
 }
 
 function mapProduct(productRow, variantRows, imageRows, attributeRows) {
-  const preset = getVisualPreset(productRow);
   const basePrice = Number(productRow.base_price ?? 0);
   const salePrice = Number(productRow.sale_price ?? productRow.base_price ?? 0);
   const variants = variantRows.length
@@ -287,11 +216,7 @@ function mapProduct(productRow, variantRows, imageRows, attributeRows) {
       .map((row) => formatAttributeLabel(row.attribute_code, row.attribute_slug, row.attribute_value)),
   );
   const totalStock = variants.reduce((sum, variant) => sum + Number(variant.stock ?? 0), 0);
-  const gallery = buildGallery({
-    productRow,
-    imageRows,
-    preset,
-  });
+  const gallery = buildGallery({ productRow, imageRows });
 
   return {
     id: Number(productRow.id),
@@ -305,7 +230,7 @@ function mapProduct(productRow, variantRows, imageRows, attributeRows) {
     rating: Number(productRow.rating_average ?? 0),
     reviewCount: Number(productRow.rating_count ?? 0),
     soldCount: Number(productRow.sold_count ?? 0),
-    badge: preset.badge ?? '',
+    badge: productRow.is_featured ? 'Nổi bật' : '',
     promoLabel: defaultVariant.label,
     shortDescription: productRow.short_description ?? '',
     description: productRow.description ?? productRow.short_description ?? '',
@@ -320,7 +245,7 @@ function mapProduct(productRow, variantRows, imageRows, attributeRows) {
     ]),
     skinTypes,
     concerns,
-    swatches: [preset.palette[0], preset.palette[1], preset.accent],
+    swatches: [],
     variants,
     specs: buildSpecs({
       productRow,
@@ -440,60 +365,69 @@ async function fetchProductResources(productIds) {
 }
 
 export const getCatalogProducts = cache(async () => {
-  if (!hasDatabaseConfig()) {
+  if (shouldUseFallbackProducts()) {
     return [];
   }
 
-  const productRows = await query(`
-    SELECT
-      p.id,
-      p.name,
-      p.slug,
-      p.product_code,
-      p.short_description,
-      p.description,
-      p.usage_instructions,
-      p.ingredient_list,
-      p.base_price,
-      p.sale_price,
-      p.thumbnail_url,
-      p.rating_average,
-      p.rating_count,
-      p.sold_count,
-      p.is_featured,
-      c.slug AS category_slug,
-      c.name AS category_name,
-      b.slug AS brand_slug,
-      b.name AS brand_name
-    FROM products p
-    LEFT JOIN product_categories c
-      ON c.id = p.category_id
-    LEFT JOIN brands b
-      ON b.id = p.brand_id
-    WHERE p.status = 'active'
-      AND p.deleted_at IS NULL
-    ORDER BY p.is_featured DESC, COALESCE(p.published_at, p.created_at) DESC, p.id DESC
-  `);
+  try {
+    const productRows = await query(`
+      SELECT
+        p.id,
+        p.name,
+        p.slug,
+        p.product_code,
+        p.short_description,
+        p.description,
+        p.usage_instructions,
+        p.ingredient_list,
+        p.base_price,
+        p.sale_price,
+        p.thumbnail_url,
+        p.rating_average,
+        p.rating_count,
+        p.sold_count,
+        p.is_featured,
+        c.slug AS category_slug,
+        c.name AS category_name,
+        b.slug AS brand_slug,
+        b.name AS brand_name
+      FROM products p
+      LEFT JOIN product_categories c
+        ON c.id = p.category_id
+      LEFT JOIN brands b
+        ON b.id = p.brand_id
+      WHERE p.status = 'active'
+        AND p.deleted_at IS NULL
+      ORDER BY p.is_featured DESC, COALESCE(p.published_at, p.created_at) DESC, p.id DESC
+    `);
 
-  if (!productRows.length) {
+    const productIds = productRows.map((row) => Number(row.id));
+    const { variantsByProductId, imagesByProductId, attributesByProductId } =
+      await fetchProductResources(productIds);
+
+    return productRows.map((productRow) =>
+      mapProduct(
+        productRow,
+        variantsByProductId.get(Number(productRow.id)) ?? [],
+        imagesByProductId.get(Number(productRow.id)) ?? [],
+        attributesByProductId.get(Number(productRow.id)) ?? [],
+      ),
+    );
+  } catch (error) {
+    console.error('Failed to load catalog products from database:', error);
     return [];
   }
-
-  const productIds = productRows.map((row) => Number(row.id));
-  const { variantsByProductId, imagesByProductId, attributesByProductId } =
-    await fetchProductResources(productIds);
-
-  return productRows.map((productRow) =>
-    mapProduct(
-      productRow,
-      variantsByProductId.get(Number(productRow.id)) ?? [],
-      imagesByProductId.get(Number(productRow.id)) ?? [],
-      attributesByProductId.get(Number(productRow.id)) ?? [],
-    ),
-  );
 });
 
 export async function getCatalogProductBySlug(slug) {
+  if (!slug) {
+    return null;
+  }
+
+  if (shouldUseFallbackProducts()) {
+    return null;
+  }
+
   const products = await getCatalogProducts();
   return products.find((product) => product.slug === slug) ?? null;
 }
@@ -514,3 +448,7 @@ export async function searchCatalogProducts(term = '', limit = 5) {
 
   return filteredProducts.slice(0, Math.max(1, limit));
 }
+
+
+
+

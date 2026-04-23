@@ -5,7 +5,7 @@ const SEOManager = ({
                         title,
                         description,
                         keywords,
-                        author = 'Nextgency',
+                        author = 'SRX Việt Nam',
                         image,
                         url,
                         type = 'website',

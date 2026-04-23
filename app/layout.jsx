@@ -4,8 +4,8 @@ import AppShell from '../src/components/AppShell';
 
 export const metadata = {
   metadataBase: new URL('https://nextgency.vn'),
-  title: 'Nextgency',
-  description: 'Nextgency - Giải pháp digital marketing toàn diện',
+  title: 'SRX Việt Nam',
+  description: 'SRX Việt Nam - Giải pháp digital marketing toàn diện',
   icons: {
     icon: [
       {

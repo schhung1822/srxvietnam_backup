@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
-import { demoNews, formatNewsDate, sortNewsByDate } from '../../data/demoNews.js';
+import { formatNewsDate } from '../../lib/news/articles.js';
 import ScrollRevealHeading from './ScrollRevealHeading.jsx';
 import {
   homeButtonHighlightClass,
@@ -11,8 +11,6 @@ import {
   homePrimaryButtonClass,
   homeSecondaryButtonClass,
 } from './homeCtaStyles.js';
-
-const fallbackArticles = sortNewsByDate(demoNews).slice(0, 3);
 
 function ScientificTopicCard({ article }) {
   return (
@@ -53,8 +51,9 @@ function ScientificTopicCard({ article }) {
   );
 }
 
-export default function HomeScientificTopicsSection() {
-  const [articles, setArticles] = useState(fallbackArticles);
+export default function HomeScientificTopicsSection({ initialArticles = [] }) {
+  const [articles, setArticles] = useState(initialArticles);
+  const [isLoading, setIsLoading] = useState(initialArticles.length === 0);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -79,6 +78,8 @@ export default function HomeScientificTopicsSection() {
         if (error.name !== 'AbortError') {
           console.error('Failed to hydrate homepage news section:', error);
         }
+      } finally {
+        setIsLoading(false);
       }
     }
 
@@ -120,9 +121,29 @@ export default function HomeScientificTopicsSection() {
         </div>
 
         <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {articles.map((article) => (
-            <ScientificTopicCard key={article.slug} article={article} />
-          ))}
+          {articles.length
+            ? articles.map((article) => (
+                <ScientificTopicCard key={article.slug} article={article} />
+              ))
+            : isLoading
+              ? Array.from({ length: 3 }).map((_, index) => (
+                  <div
+                    key={`scientific-topic-skeleton-${index + 1}`}
+                    className="overflow-hidden rounded-[18px] border border-[#eef1fb] bg-[#f8faff] shadow-[0_24px_70px_rgba(79,94,147,0.08)]"
+                  >
+                    <div className="aspect-[4/5] animate-pulse bg-[linear-gradient(135deg,#eef2ff_0%,#f8fbff_100%)]" />
+                    <div className="space-y-4 px-6 py-5">
+                      <div className="h-3 w-28 animate-pulse rounded-full bg-[#e5e9f8]" />
+                      <div className="h-6 w-4/5 animate-pulse rounded-full bg-[#dfe5fb]" />
+                      <div className="h-[3px] w-12 rounded-full bg-[#d5dbf4]" />
+                    </div>
+                  </div>
+                ))
+              : (
+                  <div className="rounded-[24px] border border-dashed border-[#d8deef] bg-[#fbfcff] px-6 py-12 text-center text-[#667086] md:col-span-2 xl:col-span-3">
+                    Chưa có bài viết nào được publish trên database.
+                  </div>
+                )}
         </div>
 
         <div data-tech-cta className="mt-20 flex w-full justify-center">

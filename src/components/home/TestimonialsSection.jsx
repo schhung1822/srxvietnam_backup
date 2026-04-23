@@ -29,37 +29,37 @@ const TestimonialsSection = () => {
     const testimonials = [
         {
             id: 1,
-            content: "Nextgency đã mang đến cho chúng tôi một giải pháp tuyệt vời. Đội ngũ chuyên nghiệp, sáng tạo và luôn hỗ trợ nhiệt tình.",
+            content: "SRX Việt Nam đã mang đến cho chúng tôi một giải pháp tuyệt vời. Đội ngũ chuyên nghiệp, sáng tạo và luôn hỗ trợ nhiệt tình.",
             author: "Võ Anh Dũng",
             company: "EAC Group"
         },
         {
             id: 2,
-            content: "Chất lượng dịch vụ vượt trội, thời gian hoàn thành nhanh chóng. Rất hài lòng với kết quả nhận được từ Nextgency.",
+            content: "Chất lượng dịch vụ vượt trội, thời gian hoàn thành nhanh chóng. Rất hài lòng với kết quả nhận được từ SRX Việt Nam.",
             author: "Trần Thị B",
             company: "XYZ Company"
         },
         {
             id: 3,
-            content: "Sự chuyên nghiệp và tận tâm của Nextgency thực sự ấn tượng. Họ đã giúp chúng tôi đạt được mục tiêu kinh doanh.",
+            content: "Sự chuyên nghiệp và tận tâm của SRX Việt Nam thực sự ấn tượng. Họ đã giúp chúng tôi đạt được mục tiêu kinh doanh.",
             author: "Lê Văn C",
             company: "Tech Startup"
         },
         {
             id: 4,
-            content: "Đội ngũ Nextgency rất sáng tạo và năng động. Họ luôn đưa ra những ý tưởng mới mẻ và hiệu quả cho dự án của chúng tôi.",
+            content: "Đội ngũ SRX Việt Nam rất sáng tạo và năng động. Họ luôn đưa ra những ý tưởng mới mẻ và hiệu quả cho dự án của chúng tôi.",
             author: "Phạm Thị D",
             company: "Digital Agency"
         },
         {
             id: 5,
-            content: "Hợp tác với Nextgency là một trải nghiệm tuyệt vời. Họ thực sự hiểu nhu cầu của khách hàng và đáp ứng hoàn hảo.",
+            content: "Hợp tác với SRX Việt Nam là một trải nghiệm tuyệt vời. Họ thực sự hiểu nhu cầu của khách hàng và đáp ứng hoàn hảo.",
             author: "Hoàng Văn E",
             company: "E-commerce Platform"
         },
         {
             id: 6,
-            content: "Hợp tác với Nextgency là một trải nghiệm tuyệt vời. Họ thực sự hiểu nhu cầu của khách hàng và đáp ứng hoàn hảo.",
+            content: "Hợp tác với SRX Việt Nam là một trải nghiệm tuyệt vời. Họ thực sự hiểu nhu cầu của khách hàng và đáp ứng hoàn hảo.",
             author: "Hoàng Văn E",
             company: "E-commerce Platform"
         }
@@ -229,7 +229,7 @@ const TestimonialsSection = () => {
                         <div className="mb-6 lg:mb-0 p-4">
                             <p className="text-[15px] lg:text-[18px] text-white text-justify">
                                 Chúng tôi tự hào về những phản hồi tích cực từ khách hàng,
-                                là động lực để Nextgency không ngừng phát triển.
+                                là động lực để SRX Việt Nam không ngừng phát triển.
                             </p>
                         </div>
                     </div>

@@ -20,15 +20,16 @@ import { useCart } from '../contexts/CartContext.jsx';
 import HeaderSearchOverlay from './search/HeaderSearchOverlay.jsx';
 
 const navigationItems = [
-  { name: 'Về SRX', path: '/about-srx' },
+  { name: 'Về SRX', path: '/about' },
   { name: 'Sản phẩm', path: '/products' },
+  { name: 'Từ điển sản phẩm', path: '/key-srx' },
   {
     name: 'Theo dòng SRX',
     path: '/follow-srx',
     dropdown: [
       { name: 'Tin tức', path: '/follow-srx', icon: Globe },
       { name: 'Sự kiện', path: '/follow-srx', icon: Calendar1 },
-      { name: 'Kiến thức', path: '/follow-srx', icon: Book },
+      { name: 'Phân loại da - Vấn đề da', path: '/follow-srx', icon: Book },
     ],
   },
   {
@@ -40,8 +41,7 @@ const navigationItems = [
       { name: 'Quyền lợi', path: '/quyen-loi-affiliate', icon: CheckCircle },
       { name: 'Cách đăng ký', path: '/cach-dang-ky-affiliate', icon: CheckCircle },
     ],
-  },
-  { name: 'FAQs', path: '/faqs' },
+  }
 ];
 
 export default function Header() {

@@ -77,7 +77,7 @@ export default function Contact() {
                         Nhận tư vấn ngay
                     </h1>
                     <p className="text-[15px] sm:text-[18px] text-black max-w-3xl">
-                        Nextgency chân thành cảm ơn bạn đã dành thời gian liên hệ với chúng tôi. Đội ngũ của chúng tôi sẽ xem xét kỹ thông tin và liên hệ trong vòng 24h làm việc để tư vấn giải pháp phù hợp nhất.
+                        SRX Việt Nam chân thành cảm ơn bạn đã dành thời gian liên hệ với chúng tôi. Đội ngũ của chúng tôi sẽ xem xét kỹ thông tin và liên hệ trong vòng 24h làm việc để tư vấn giải pháp phù hợp nhất.
                     </p>
                 </div>
 

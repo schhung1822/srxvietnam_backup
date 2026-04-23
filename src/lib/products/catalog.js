@@ -1,4 +1,4 @@
-export const priceOptions = [
+﻿export const priceOptions = [
   { id: 'all', label: 'Tất cả mức giá' },
   { id: 'under-300', label: 'Dưới 300.000đ' },
   { id: '300-400', label: '300.000đ - 400.000đ' },
@@ -88,3 +88,4 @@ export function getRelatedProducts(products, product, limit = 3) {
 
   return [...sameCategory, ...fallback].slice(0, limit);
 }
+

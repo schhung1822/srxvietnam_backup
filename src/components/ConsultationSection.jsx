@@ -79,7 +79,7 @@ export default function ConsultationSection() {
                         Nhận tư vấn
                     </h2>
                     <p className="text-[15px] sm:text-[18px] text-white">
-                        Nextgency chân thành cảm ơn bạn đã dành thời gian điền bảng khảo sát này. Đội ngũ của chúng tôi sẽ xem xét kỹ thông tin và liên hệ trong vòng 24h làm việc để tư vấn giải pháp phù hợp nhất.
+                        SRX Việt Nam chân thành cảm ơn bạn đã dành thời gian điền bảng khảo sát này. Đội ngũ của chúng tôi sẽ xem xét kỹ thông tin và liên hệ trong vòng 24h làm việc để tư vấn giải pháp phù hợp nhất.
                     </p>
                 </div>
 

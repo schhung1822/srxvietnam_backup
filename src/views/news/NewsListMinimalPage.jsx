@@ -1,16 +1,15 @@
 "use client";
 
-import { startTransition, useDeferredValue, useMemo, useState } from "react";
+import { startTransition, useDeferredValue, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight, Search, SlidersHorizontal, X } from "lucide-react";
 import {
   ALL_NEWS_CATEGORY,
-  demoNews,
   filterNews,
   formatNewsDate,
-  newsCategories,
+  getNewsCategories,
   sortNewsByDate,
-} from "../../data/demoNews";
+} from "../../lib/news/articles.js";
 
 function NewsCard({ article }) {
   return (
@@ -56,16 +55,57 @@ function NewsCard({ article }) {
   );
 }
 
-export default function NewsListMinimalPage({ initialArticles = demoNews }) {
+export default function NewsListMinimalPage({ initialArticles = [] }) {
   const [activeCategory, setActiveCategory] = useState(ALL_NEWS_CATEGORY);
   const [searchValue, setSearchValue] = useState("");
+  const [articles, setArticles] = useState(initialArticles);
   const deferredSearchValue = useDeferredValue(searchValue);
   const trimmedSearch = deferredSearchValue.trim();
 
-  const allArticles = useMemo(() => {
-    const sourceArticles = initialArticles.length ? initialArticles : demoNews;
-    return sortNewsByDate(sourceArticles);
+  useEffect(() => {
+    setArticles(initialArticles);
   }, [initialArticles]);
+
+  useEffect(() => {
+    if (initialArticles.length) {
+      return undefined;
+    }
+
+    const controller = new AbortController();
+
+    async function loadArticles() {
+      try {
+        const response = await fetch("/api/news/latest?limit=24", {
+          cache: "no-store",
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const payload = await response.json();
+
+        if (Array.isArray(payload.articles) && payload.articles.length) {
+          setArticles(payload.articles);
+        }
+      } catch (error) {
+        if (error.name !== "AbortError") {
+          console.error("Failed to hydrate follow-srx news list:", error);
+        }
+      }
+    }
+
+    loadArticles();
+
+    return () => {
+      controller.abort();
+    };
+  }, [initialArticles]);
+
+  const allArticles = useMemo(() => {
+    return sortNewsByDate(articles);
+  }, [articles]);
   const filteredArticles = useMemo(
     () =>
       filterNews({
@@ -83,7 +123,7 @@ export default function NewsListMinimalPage({ initialArticles = demoNews }) {
   const archiveArticles = isFilteredView
     ? filteredArticles.slice(3)
     : allArticles.filter((article) => !article.featured);
-  const availableCategories = [ALL_NEWS_CATEGORY, ...newsCategories];
+  const availableCategories = [ALL_NEWS_CATEGORY, ...getNewsCategories(allArticles)];
 
   const handleSearchChange = (event) => {
     const nextValue = event.target.value;

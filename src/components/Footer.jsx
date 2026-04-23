@@ -6,7 +6,7 @@ import { ConsultationPopup } from "./ConsultationPopup.jsx";
 const srxLinks = [
   { to: "/services/about", label: "Về SRX" },
   { to: "/products", label: "Sản phẩm" },
-  { to: "/services/facebook-ads", label: "Từ điển sản phẩm" },
+  { to: "/services/key-srx", label: "Từ điển sản phẩm" },
   { to: "/services/follow-srx", label: "Theo dòng SRX" },
   { to: "/services/tin-tuc", label: "Tin tức" },
   { to: "/services/su-kien", label: "Sự kiện" },
@@ -21,7 +21,7 @@ const policyLinks = [
   { href: "/chinh-sach-giao-hang", label: "Chính sách giao hàng" },
   { href: "/chinh-sach-hoan-tra", label: "Chính sách hoàn trả" },
   { href: "/quy-dinh-thanh-toan", label: "Quy định về thanh toán" },
-  { href: "/chinh-sach-cho-affiliate", label: "Chính sách cho Affiliate" },
+  { href: "/chinh-sach-affiliate", label: "Chính sách cho Affiliate" },
   { href: "/cach-dang-ky-affiliate", label: "Cách đăng ký Affiliate" },
 ];
 
@@ -189,7 +189,7 @@ const Footer = () => {
             <p className="text-[13px] text-white lg:text-[14px]">
               © Bản quyền thuộc về & cung cấp bởi{" "}
               <a href="https://nextgency.vn/" className="text-white hover:text-bold" target="_blank" rel="noopener noreferrer">
-                Nextgency
+                SRX Việt Nam
               </a>
             </p>
           </div>
