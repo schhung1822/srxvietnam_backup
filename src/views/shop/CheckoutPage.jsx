@@ -18,6 +18,8 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
 import { getCheckoutTotals, getSepayPaymentDetails, paymentMethodOptions } from '../../lib/commerce/checkout';
+import AboutContactSection from "../../components/aboutus/AboutContactSection.jsx";
+
 
 const currencyFormatter = new Intl.NumberFormat('vi-VN', {
   style: 'currency',

@@ -2,6 +2,7 @@ import React from 'react';
 import SEOManager from "../components/SEO/SEOManager.jsx";
 import {seoConfigs} from "./seo-configs.js";
 import AboutBrandStorySection from "../components/aboutus/AboutBrandStorySection.jsx";
+import AboutContactSection from "../components/aboutus/AboutContactSection.jsx";
 import AboutFeaturedProductsSection from "../components/aboutus/AboutFeaturedProductsSection.jsx";
 import AboutHistorySection from "../components/aboutus/AboutHistorySection.jsx";
 import AboutIntroSection from "../components/aboutus/AboutIntroSection.jsx";
@@ -22,6 +23,7 @@ const About = () => {
             <AboutHistorySection />
             <AboutFeaturedProductsSection />
             <AboutTechnologyJourneySection />
+            <AboutContactSection />
             <SRXLogo/>
         </div> 
     );

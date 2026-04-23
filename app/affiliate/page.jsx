@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import AffiliatePage from '../../src/views/affiliate/AffiliatePage.jsx';
 
 export const metadata = {

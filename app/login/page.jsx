@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import { redirect } from 'next/navigation';
 
 export const metadata = {

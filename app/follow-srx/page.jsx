@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import NewsListMinimalPage from '../../src/views/news/NewsListMinimalPage.jsx';
 import { getPublishedNews } from '../../src/lib/server/news.js';
 

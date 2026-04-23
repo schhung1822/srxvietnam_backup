@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import { Suspense } from 'react';
 import AccountPage from '../../src/views/auth/AccountPage.jsx';
 

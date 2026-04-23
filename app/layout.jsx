@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import '../src/index.css';
 import AppShell from '../src/components/AppShell';
 

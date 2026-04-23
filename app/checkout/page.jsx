@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import CheckoutPage from '../../src/views/shop/CheckoutPage.jsx';
 
 export const metadata = {

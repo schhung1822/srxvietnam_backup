@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 import crypto from 'node:crypto';
 
 export const SESSION_COOKIE_NAME = 'srx_session';

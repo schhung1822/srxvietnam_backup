@@ -1,4 +1,3 @@
-﻿/* eslint-disable react-refresh/only-export-components */
 import ProductListPage from '../../src/views/shop/ProductListMinimalPage.jsx';
 import { getCatalogProducts } from '../../src/lib/server/products.js';
 
@@ -14,4 +13,3 @@ export default async function ProductsPage() {
 
   return <ProductListPage products={products} />;
 }
-

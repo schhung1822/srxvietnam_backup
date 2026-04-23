@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Copy, Minus, Plus, Star } from 'lucide-react';
+import { Minus, Plus, Star } from 'lucide-react';
 import ProductArtwork from '../../components/shop/ProductArtwork';
 import ProductCard from '../../components/shop/ProductCard';
 import { useCart } from '../../contexts/CartContext';
+import AboutContactSection from "../../components/aboutus/AboutContactSection.jsx";
+import SRXLogo from "../../components/home/SrxLogo.jsx";
 
 const moneyFormatter = new Intl.NumberFormat('vi-VN');
 
@@ -20,13 +22,11 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
   const [selectedSceneId, setSelectedSceneId] = useState(product.gallery[0]?.id ?? null);
   const [selectedVariantId, setSelectedVariantId] = useState(product.variants[0].id);
   const [quantity, setQuantity] = useState(1);
-  const [copyState, setCopyState] = useState('Sao chép link');
 
   useEffect(() => {
     setSelectedSceneId(product.gallery[0]?.id ?? null);
     setSelectedVariantId(product.variants[0].id);
     setQuantity(1);
-    setCopyState('Sao chép link');
   }, [product.slug, product.gallery, product.variants]);
 
   const selectedScene =
@@ -35,23 +35,6 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
 
   const increaseQuantity = () => setQuantity((current) => current + 1);
   const decreaseQuantity = () => setQuantity((current) => (current > 1 ? current - 1 : 1));
-
-  const copyProductLink = async () => {
-    const targetUrl =
-      typeof window !== 'undefined' ? window.location.href : `https://srx.vn/products/${product.slug}`;
-
-    try {
-      if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(targetUrl);
-      }
-
-      setCopyState('Đã sao chép');
-      window.setTimeout(() => setCopyState('Sao chép link'), 1800);
-    } catch {
-      setCopyState('Không thể sao chép');
-      window.setTimeout(() => setCopyState('Sao chép link'), 1800);
-    }
-  };
 
   return (
     <section className="bg-white pb-20 pt-8 md:pb-24">
@@ -284,6 +267,8 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
           </div>
         </div>
       </div>
+      <AboutContactSection />
+      <SRXLogo/>
     </section>
   );
 }

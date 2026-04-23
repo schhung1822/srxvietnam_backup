@@ -1,17 +1,8 @@
-/* eslint-disable react-refresh/only-export-components */
 import { notFound } from 'next/navigation';
 import NewsDetailMinimalPage from '../../../src/views/news/NewsDetailMinimalPage.jsx';
-import { getNewsArticleBySlug, getPublishedNews } from '../../../src/lib/server/news.js';
+import { getNewsArticleBySlug } from '../../../src/lib/server/news.js';
 
-export const revalidate = 60;
-
-export async function generateStaticParams() {
-  const articles = await getPublishedNews({ limit: 24 });
-
-  return articles.map((article) => ({
-    slug: article.slug,
-  }));
-}
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;

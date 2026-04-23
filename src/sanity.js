@@ -1,42 +1,48 @@
-// src/sanity.js - Cấu hình kết nối Sanity với Environment Variables
 import { createClient } from '@sanity/client';
 import imageUrlBuilder from '@sanity/image-url';
 
-// Kiểm tra environment variables
-const projectId = import.meta.env.VITE_SANITY_PROJECT_ID;
-const dataset = import.meta.env.VITE_SANITY_DATASET || 'production';
-const apiVersion = import.meta.env.VITE_SANITY_API_VERSION || '2024-01-01';
-const token = import.meta.env.VITE_SANITY_TOKEN;
+function readEnv(...names) {
+  for (const name of names) {
+    const value = process.env[name];
 
-// Validation
-if (!projectId) {
-    console.error('Missing VITE_SANITY_PROJECT_ID in environment variables');
-    console.error('Please add your Sanity Project ID to .env file');
+    if (typeof value === 'string' && value.trim()) {
+      return value.trim();
+    }
+  }
+
+  return '';
 }
 
-// Tạo Sanity client
-export const client = createClient({
-    projectId,
-    dataset,
-    useCdn: true, // Sử dụng CDN cho tốc độ nhanh hơn (production)
-    apiVersion,
+const projectId = readEnv('NEXT_PUBLIC_SANITY_PROJECT_ID', 'VITE_SANITY_PROJECT_ID');
+const dataset = readEnv('NEXT_PUBLIC_SANITY_DATASET', 'VITE_SANITY_DATASET') || 'production';
+const apiVersion = readEnv('NEXT_PUBLIC_SANITY_API_VERSION', 'VITE_SANITY_API_VERSION') || '2024-01-01';
+const token = readEnv('SANITY_TOKEN', 'VITE_SANITY_TOKEN');
 
-    // Nếu bạn cần write operations (create, update, delete)
-    ...(token && { token }),
+if (!projectId) {
+  console.error('Missing NEXT_PUBLIC_SANITY_PROJECT_ID in environment variables');
+  console.error('Please add your Sanity project ID to .env or your deployment environment settings');
+}
+
+export const client = createClient({
+  projectId,
+  dataset,
+  useCdn: true,
+  apiVersion,
+  ...(token && { token }),
 });
 
-// Helper để tạo image URLs
 const builder = imageUrlBuilder(client);
 
 export const urlFor = (source) => {
-    if (!source) return null;
-    return builder.image(source);
+  if (!source) {
+    return null;
+  }
+
+  return builder.image(source);
 };
 
-// Helper functions để query data
 export const queries = {
-    // Lấy tất cả bài viết được publish
-    allPosts: `*[_type == "post" && status == "published"] | order(publishedAt desc) {
+  allPosts: `*[_type == "post" && status == "published"] | order(publishedAt desc) {
     _id,
     title,
     slug,
@@ -60,8 +66,7 @@ export const queries = {
     seo
   }`,
 
-    // Lấy bài viết featured
-    featuredPosts: `*[_type == "post" && status == "published" && featured == true] | order(publishedAt desc) [0...3] {
+  featuredPosts: `*[_type == "post" && status == "published" && featured == true] | order(publishedAt desc) [0...3] {
     _id,
     title,
     slug,
@@ -82,8 +87,7 @@ export const queries = {
     readingTime
   }`,
 
-    // Lấy bài viết theo slug
-    postBySlug: `*[_type == "post" && slug.current == $slug && status == "published"][0] {
+  postBySlug: `*[_type == "post" && slug.current == $slug && status == "published"][0] {
     _id,
     title,
     slug,
@@ -118,8 +122,7 @@ export const queries = {
     }
   }`,
 
-    // Lấy tất cả categories
-    allCategories: `*[_type == "category" && isActive == true] | order(order asc) {
+  allCategories: `*[_type == "category" && isActive == true] | order(order asc) {
     _id,
     title,
     slug,
@@ -129,8 +132,7 @@ export const queries = {
     order
   }`,
 
-    // Lấy bài viết theo category
-    postsByCategory: `*[_type == "post" && status == "published" && references($categoryId)] | order(publishedAt desc) {
+  postsByCategory: `*[_type == "post" && status == "published" && references($categoryId)] | order(publishedAt desc) {
     _id,
     title,
     slug,
@@ -151,8 +153,7 @@ export const queries = {
     readingTime
   }`,
 
-    // Lấy tất cả authors
-    allAuthors: `*[_type == "author"] {
+  allAuthors: `*[_type == "author"] {
     _id,
     name,
     slug,
@@ -162,8 +163,7 @@ export const queries = {
     socialMedia
   }`,
 
-    // Search posts
-    searchPosts: `*[_type == "post" && status == "published" && (
+  searchPosts: `*[_type == "post" && status == "published" && (
     title match $searchTerm + "*" ||
     excerpt match $searchTerm + "*" ||
     tags[] match $searchTerm + "*"
@@ -186,46 +186,42 @@ export const queries = {
     },
     publishedAt,
     readingTime
-  }`
+  }`,
 };
 
-// Helper function để fetch data với error handling
 export const fetchSanityData = async (query, params = {}) => {
-    try {
-        // Kiểm tra xem có project ID không
-        if (!projectId) {
-            throw new Error('Sanity Project ID is missing. Please check your environment variables.');
-        }
-
-        const data = await client.fetch(query, params);
-        return data;
-    } catch (error) {
-        console.error('Sanity fetch error:', error);
-
-        // Log chi tiết hơn về lỗi
-        if (error.message.includes('project not found')) {
-            console.error('Project ID không tồn tại. Vui lòng kiểm tra VITE_SANITY_PROJECT_ID');
-        } else if (error.message.includes('dataset not found')) {
-            console.error('Dataset không tồn tại. Vui lòng kiểm tra VITE_SANITY_DATASET');
-        }
-
-        throw error;
+  try {
+    if (!projectId) {
+      throw new Error('Sanity project ID is missing. Please check your environment variables.');
     }
+
+    const data = await client.fetch(query, params);
+    return data;
+  } catch (error) {
+    console.error('Sanity fetch error:', error);
+
+    if (error.message.includes('project not found')) {
+      console.error('Project ID not found. Check NEXT_PUBLIC_SANITY_PROJECT_ID.');
+    } else if (error.message.includes('dataset not found')) {
+      console.error('Dataset not found. Check NEXT_PUBLIC_SANITY_DATASET.');
+    }
+
+    throw error;
+  }
 };
 
-// Helper để test kết nối
 export const testConnection = async () => {
-    try {
-        console.log('Testing Sanity connection...');
-        console.log('Project ID:', projectId);
-        console.log('Dataset:', dataset);
+  try {
+    console.log('Testing Sanity connection...');
+    console.log('Project ID:', projectId);
+    console.log('Dataset:', dataset);
 
-        const result = await client.fetch('*[_type == "post"][0...1]');
-        console.log('✅ Sanity connection successful!');
-        console.log('Sample data:', result);
-        return true;
-    } catch (error) {
-        console.error('❌ Sanity connection failed:', error);
-        return false;
-    }
+    const result = await client.fetch('*[_type == "post"][0...1]');
+    console.log('Sanity connection successful!');
+    console.log('Sample data:', result);
+    return true;
+  } catch (error) {
+    console.error('Sanity connection failed:', error);
+    return false;
+  }
 };

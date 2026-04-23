@@ -73,28 +73,30 @@ function TechnologyCard({
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0)_20%,rgba(0,0,0,0.3)_72%,rgba(0,0,0,0.7)_100%)] transition-opacity duration-500 group-hover:opacity-0" />
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.08)_0%,rgba(0,0,0,0.48)_48%,rgba(0,0,0,0.88)_100%)] opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
-      <div className="absolute inset-x-0 bottom-0 z-[2] flex h-full flex-col justify-end p-5 sm:p-6 lg:p-7">
-        <div className="flex items-end justify-between gap-4">
-          <h3
-            className="max-w-[85%] text-[26px] font-medium leading-[1.02] tracking-[-0.05em] text-white sm:text-[30px] lg:text-[34px]"
-            style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
-          >
-            {title}
-          </h3>
+      <div className="absolute inset-x-0 bottom-0 z-[2] p-5 sm:p-6 lg:p-7">
+        <div className="translate-y-0 transition-transform duration-500 ease-out group-hover:-translate-y-4">
+          <div className="flex items-end justify-between gap-4">
+            <h3
+              className="max-w-[85%] text-[18px] font-medium leading-[1.02] tracking-[-0.05em] text-white sm:text-[20px] lg:text-[22px]"
+              style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
+            >
+              {title}
+            </h3>
 
-          <span className="relative mb-1 block h-5 w-5 shrink-0 text-white transition-transform duration-300 group-hover:rotate-90">
-            <span className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-current" />
-            <span className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-current" />
-          </span>
-        </div>
+            <span className="relative mb-1 block h-5 w-5 shrink-0 text-white transition-transform duration-300 group-hover:rotate-90">
+              <span className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-current" />
+              <span className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-current" />
+            </span>
+          </div>
 
-        <div className="overflow-hidden">
-          <p
-            className="mt-5 max-w-[92%] text-[14px] leading-[1.55] text-white/90 sm:text-[15px] lg:mt-0 lg:translate-y-6 lg:opacity-0 lg:transition-all lg:duration-500 lg:group-hover:mt-5 lg:group-hover:translate-y-0 lg:group-hover:opacity-100"
-            style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
-          >
-            {description}
-          </p>
+          <div className="overflow-hidden">
+            <p
+              className="max-h-0 max-w-[92%] translate-y-3 pt-0 text-[14px] leading-[1.55] text-white/90 opacity-0 transition-all duration-500 ease-out group-hover:max-h-40 group-hover:translate-y-0 group-hover:pt-5 group-hover:opacity-100 sm:text-[15px]"
+              style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
+            >
+              {description}
+            </p>
+          </div>
         </div>
       </div>
     </article>

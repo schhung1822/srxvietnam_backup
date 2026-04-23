@@ -1,6 +1,4 @@
-// eslint-disable-next-line no-undef
 const fs = require('fs');
-// eslint-disable-next-line no-undef
 const path = require('path');
 
 // Generate sitemap
@@ -41,7 +39,6 @@ Sitemap: https://nextgency.vn/sitemap.xml`;
 };
 
 // Write files to public folder
-// eslint-disable-next-line no-undef
 const publicDir = path.join(__dirname, '..', 'public');
 
 fs.writeFileSync(path.join(publicDir, 'sitemap.xml'), generateSitemap());
