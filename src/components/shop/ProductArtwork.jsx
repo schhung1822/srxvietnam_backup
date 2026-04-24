@@ -22,6 +22,9 @@ export default function ProductArtwork({
   const isThumbnail = mode === 'thumbnail';
   const shapeClass = getShapeClass(mode);
   const borderClass = isCard ? 'border-0' : 'border border-[#eadfce]';
+  const badgeClasses = isCard
+    ? 'inline-flex rounded-[8px] bg-[#F9F9F9] px-4 py-2 text-[12px] font-bold tracking-[0.08em] text-[#E2000F]'
+    : 'inline-flex rounded-[8px] bg-[#F9F9F9] px-4 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#E2000F]';
   const canSwapImages =
     isCard &&
     scene?.image &&
@@ -52,7 +55,7 @@ export default function ProductArtwork({
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04)_0%,rgba(17,24,39,0.02)_48%,rgba(17,24,39,0.18)_100%)]" />
 
         {!isThumbnail ? (
-          <div className={`absolute left-[5%] top-[5%] ${isDetail ? 'right-[5%]' : 'right-[36%]'}`}>
+          <div className={`absolute left-[3%] top-[3%] ${isDetail ? 'right-[5%]' : 'right-[36%]'}`}>
             {isDetail && scene.eyebrow ? (
               <div className="inline-flex rounded-full border border-white/50 bg-white/82 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-[#2f3643] backdrop-blur">
                 {scene.eyebrow}
@@ -60,7 +63,7 @@ export default function ProductArtwork({
             ) : null}
 
             {badge ? (
-              <div className={`${isDetail && scene.eyebrow ? 'mt-3' : ''} inline-flex rounded-full bg-[#111111] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-white`}>
+              <div className={`${isDetail && scene.eyebrow ? 'mt-2' : ''} ${badgeClasses}`}>
                 {badge}
               </div>
             ) : null}
@@ -95,5 +98,4 @@ export default function ProductArtwork({
     </div>
   );
 }
-
 

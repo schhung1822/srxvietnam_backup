@@ -1,5 +1,8 @@
 ﻿import { getMissingDatabaseEnvNames, hasDatabaseConfig, query } from './db.js';
 
+import { readdir } from 'node:fs/promises';
+import path from 'node:path';
+
 let hasWarnedAboutMissingDbConfig = false;
 
 const categoryDisplayNames = {
@@ -17,6 +20,9 @@ const categoryFallbackImages = {
   'phac-do': '/assets/images/home/purble.webp',
   routine: '/assets/images/home/sl4.webp',
 };
+
+const postGalleryDirectory = path.join(process.cwd(), 'public', 'assets', 'images', 'post');
+const postGalleryExtensions = new Set(['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif']);
 
 function stripHtml(value = '') {
   return String(value)
@@ -89,6 +95,23 @@ function normalizeCoverImage({ coverImage, categorySlug }) {
   return '/assets/images/home/sl2.webp';
 }
 
+function formatPostGalleryAlt(fileName, index) {
+  const label = fileName
+    .replace(/\.[^.]+$/, '')
+    .replace(/[-_]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  if (!label) {
+    return `Hình ảnh bài viết ${index + 1}`;
+  }
+
+  return label
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
 function normalizeNewsArticle(row) {
   const content = row.content?.trim() || '';
   const plainTextContent = stripHtml(content);
@@ -102,6 +125,7 @@ function normalizeNewsArticle(row) {
       categorySlug: row.category_slug,
       categoryName: row.category_name,
     }),
+    categorySlug: row.category_slug ?? null,
     excerpt,
     content: content || excerpt,
     publishedAt: toDateString(row.published_at ?? row.publishedAt) || null,
@@ -153,6 +177,26 @@ const baseNewsGroupBy = `
 
 const baseNewsOrder = 'ORDER BY p.published_at DESC, p.id DESC';
 
+function getArticleDateKey(article) {
+  return article?.publishedAt || '0000-00-00';
+}
+
+function normalizeTagValue(value) {
+  return String(value ?? '').trim().toLowerCase();
+}
+
+function getSharedTagCount(currentTags = [], candidateTags = []) {
+  const currentTagSet = new Set(currentTags.map(normalizeTagValue).filter(Boolean));
+
+  if (!currentTagSet.size) {
+    return 0;
+  }
+
+  return candidateTags.reduce((count, tag) => {
+    return count + (currentTagSet.has(normalizeTagValue(tag)) ? 1 : 0);
+  }, 0);
+}
+
 function shouldUseFallbackArticles() {
   if (hasDatabaseConfig()) {
     return false;
@@ -168,22 +212,33 @@ function shouldUseFallbackArticles() {
   return true;
 }
 
-export async function getPublishedNews({ limit = 12 } = {}) {
+export async function getPublishedNews({ limit = 12, categorySlug, categorySlugs } = {}) {
   const safeLimit = Math.max(1, Number(limit) || 12);
+  const selectedCategorySlugs = [];
+
+  if (Array.isArray(categorySlugs)) {
+    selectedCategorySlugs.push(...categorySlugs.filter(Boolean));
+  } else if (categorySlug) {
+    selectedCategorySlugs.push(categorySlug);
+  }
 
   if (shouldUseFallbackArticles()) {
     return [];
   }
 
   try {
+    const categoryConditions = selectedCategorySlugs.length
+      ? ` AND ac.slug IN (${selectedCategorySlugs.map(() => '?').join(', ')})`
+      : '';
     const rows = await query(
       `
         ${baseNewsSelect}
+        ${categoryConditions}
         ${baseNewsGroupBy}
         ${baseNewsOrder}
         LIMIT ?
       `,
-      [safeLimit],
+      [...selectedCategorySlugs, safeLimit],
     );
 
     return rows.map(normalizeNewsArticle);
@@ -267,4 +322,84 @@ export async function searchPublishedNews(term = '', limit = 5) {
     console.error('Failed to search news from database:', error);
     return [];
   }
+}
+
+export async function getPostGalleryImages() {
+  try {
+    const entries = await readdir(postGalleryDirectory, { withFileTypes: true });
+
+    return entries
+      .filter((entry) => entry.isFile() && postGalleryExtensions.has(path.extname(entry.name).toLowerCase()))
+      .sort((left, right) => left.name.localeCompare(right.name, 'en', { numeric: true }))
+      .map((entry, index) => ({
+        src: `/assets/images/post/${entry.name}`,
+        alt: formatPostGalleryAlt(entry.name, index),
+      }));
+  } catch (error) {
+    console.error('Failed to load post gallery images:', error);
+    return [];
+  }
+}
+
+export async function getRelatedNewsArticles(currentArticle, { limit = 3 } = {}) {
+  if (!currentArticle?.slug) {
+    return [];
+  }
+
+  const safeLimit = Math.max(1, Number(limit) || 3);
+  const collectedArticles = new Map();
+
+  const categoryCandidates = currentArticle.categorySlug
+    ? await getPublishedNews({ limit: 24, categorySlug: currentArticle.categorySlug })
+    : [];
+
+  categoryCandidates.forEach((article) => {
+    collectedArticles.set(article.slug, article);
+  });
+
+  if (collectedArticles.size < safeLimit + 1) {
+    const supplementalCandidates = await getPublishedNews({ limit: 24 });
+
+    supplementalCandidates.forEach((article) => {
+      if (!collectedArticles.has(article.slug)) {
+        collectedArticles.set(article.slug, article);
+      }
+    });
+  }
+
+  return [...collectedArticles.values()]
+    .filter((article) => article.slug !== currentArticle.slug && article.id !== currentArticle.id)
+    .map((article) => ({
+      ...article,
+      _sameCategory: article.categorySlug && article.categorySlug === currentArticle.categorySlug ? 1 : 0,
+      _sharedTagCount: getSharedTagCount(currentArticle.tags, article.tags),
+    }))
+    .sort((left, right) => {
+      if (right._sameCategory !== left._sameCategory) {
+        return right._sameCategory - left._sameCategory;
+      }
+
+      if (right._sharedTagCount !== left._sharedTagCount) {
+        return right._sharedTagCount - left._sharedTagCount;
+      }
+
+      if (Number(right.featured) !== Number(left.featured)) {
+        return Number(right.featured) - Number(left.featured);
+      }
+
+      const dateComparison = getArticleDateKey(right).localeCompare(getArticleDateKey(left));
+
+      if (dateComparison !== 0) {
+        return dateComparison;
+      }
+
+      return Number(right.id ?? 0) - Number(left.id ?? 0);
+    })
+    .slice(0, safeLimit)
+    .map((article) => {
+      const sanitizedArticle = { ...article };
+      delete sanitizedArticle._sameCategory;
+      delete sanitizedArticle._sharedTagCount;
+      return sanitizedArticle;
+    });
 }

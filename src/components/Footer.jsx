@@ -10,7 +10,7 @@ const srxLinks = [
   { to: "/services/follow-srx", label: "Theo dòng SRX" },
   { to: "/services/tin-tuc", label: "Tin tức" },
   { to: "/services/su-kien", label: "Sự kiện" },
-  { to: "/services/kien-thuc", label: "kiến thức" },
+  { to: "/services/chu-de-khoa-hoc", label: "Chủ đề khoa học" },
   { to: "/affiliate", label: "Affiliate" },
   { to: "/faqs", label: "FAQs" },
 ];

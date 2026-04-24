@@ -17,29 +17,29 @@
 }
 
 .articleRich :global(h2) {
-  margin: 56px 0 20px;
+  margin: 44px 0 18px;
   border-left: 5px solid #4f67e8;
-  padding-left: 16px;
-  font-size: clamp(28px, 3vw, 42px);
-  line-height: 1.12;
-}
-
-.articleRich :global(h3) {
-  margin: 40px 0 18px;
-  font-size: clamp(24px, 2.4vw, 32px);
+  padding-left: 14px;
+  font-size: clamp(24px, 2.3vw, 32px);
   line-height: 1.2;
 }
 
+.articleRich :global(h3) {
+  margin: 32px 0 16px;
+  font-size: clamp(20px, 2vw, 26px);
+  line-height: 1.25;
+}
+
 .articleRich :global(h4) {
-  margin: 28px 0 16px;
-  font-size: 22px;
-  line-height: 1.28;
+  margin: 24px 0 14px;
+  font-size: 18px;
+  line-height: 1.35;
 }
 
 .articleRich :global(p),
 .articleRich :global(li) {
-  font-size: 18px;
-  line-height: 1.9;
+  font-size: 16px;
+  line-height: 1.85;
   color: #30374a;
 }
 
@@ -61,7 +61,7 @@
 .articleRich :global(figure) {
   margin: 32px 0;
   overflow: hidden;
-  border-radius: 28px;
+  border-radius: 12px;
   background: #eef2ff;
   box-shadow: 0 24px 70px rgba(79, 94, 147, 0.12);
 }
@@ -132,12 +132,16 @@
 
 @media (max-width: 1023px) {
   .articleRich :global(h2) {
-    margin-top: 40px;
-    font-size: 30px;
+    margin-top: 36px;
+    font-size: 24px;
   }
 
   .articleRich :global(h3) {
-    font-size: 24px;
+    font-size: 20px;
+  }
+
+  .articleRich :global(h4) {
+    font-size: 17px;
   }
 
   .articleRich :global(p),

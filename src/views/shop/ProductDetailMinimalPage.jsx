@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Minus, Plus, Star } from 'lucide-react';
 import ProductArtwork from '../../components/shop/ProductArtwork';
 import ProductCard from '../../components/shop/ProductCard';
+import ProductIngredientShowcase from '../../components/shop/ProductIngredientShowcase';
 import { useCart } from '../../contexts/CartContext';
 import AboutContactSection from "../../components/aboutus/AboutContactSection.jsx";
 import SRXLogo from "../../components/home/SrxLogo.jsx";
@@ -240,6 +241,12 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
             </div>
           </div>
         </div>
+
+        {product.tagEntries?.length ? (
+          <div className="border-t border-[#e9e3da] py-20">
+            <ProductIngredientShowcase productName={product.name} entries={product.tagEntries} />
+          </div>
+        ) : null}
 
         <div className="border-t border-[#e9e3da] py-10">
           <div className="mb-6 flex items-end justify-between gap-4">

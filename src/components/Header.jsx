@@ -27,9 +27,9 @@ const navigationItems = [
     name: 'Theo dòng SRX',
     path: '/follow-srx',
     dropdown: [
-      { name: 'Tin tức', path: '/follow-srx', icon: Globe },
-      { name: 'Sự kiện', path: '/follow-srx', icon: Calendar1 },
-      { name: 'Phân loại da - Vấn đề da', path: '/follow-srx', icon: Book },
+      { name: 'Tin tức', path: '/tin-tuc', icon: Globe },
+      { name: 'Sự kiện', path: '/su-kien', icon: Calendar1 },
+      { name: 'chủ đề khoa học', path: '/chu-de-khoa-hoc', icon: Book },
     ],
   },
   {

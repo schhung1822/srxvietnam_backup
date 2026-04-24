@@ -1,6 +1,11 @@
 ﻿import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight } from 'lucide-react';
 import { formatNewsDate } from '../../lib/news/articles.js';
+import { getPostGalleryImages, getRelatedNewsArticles } from '../../lib/server/news.js';
+import AboutContactSection from '../../components/aboutus/AboutContactSection.jsx';
+import NewsShareCopyButton from '../../components/news/NewsShareCopyButton.jsx';
+import PostImageGallery from '../../components/news/PostImageGallery.jsx';
+import SRXLogo from '../../components/home/SrxLogo.jsx';
 import styles from './NewsDetailMinimalPage.module.css';
 
 const ENTITY_MAP = {
@@ -161,11 +166,47 @@ function getTocIndent(level) {
   return 'pl-8';
 }
 
-export default function NewsDetailMinimalPage({ article }) {
+function RelatedNewsCard({ article }) {
+  return (
+    <Link href={`/follow-srx/${article.slug}`} className="group block">
+      <article className="flex h-full flex-col">
+        <div className="relative overflow-hidden rounded-[16px] bg-[#eef2ff] shadow-[0_20px_50px_rgba(79,94,147,0.08)]">
+          <div className="aspect-[1.15/1] overflow-hidden">
+            <img
+              src={article.coverImage}
+              alt={article.coverAlt}
+              className="h-full w-full object-cover transition duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
+            />
+          </div>
+          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(12,16,28,0.12)_100%)]" />
+          <div className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/92 text-[#1f2737] opacity-0 shadow-[0_18px_40px_rgba(0,0,0,0.12)] transition-all duration-500 group-hover:opacity-100">
+            <ArrowUpRight className="h-5 w-5" strokeWidth={1.8} />
+          </div>
+        </div>
+
+        <div className="px-1 pb-1 pt-4">
+          <div className="text-[12px] font-medium tracking-[0.01em] text-[#7f8495]">
+            {formatNewsDate(article.publishedAt)}
+          </div>
+          <h3 className="mt-3 line-clamp-2 text-[22px] font-medium leading-[1.14] tracking-[-0.05em] text-[#2b3140]">
+            {article.title}
+          </h3>
+          <p className="mt-3 line-clamp-2 text-[14px] leading-7 text-[#616777]">{article.excerpt}</p>
+        </div>
+      </article>
+    </Link>
+  );
+}
+
+export default async function NewsDetailMinimalPage({ article }) {
   const { html, headings } = normalizeArticleContent(article.content);
+  const [galleryImages, relatedArticles] = await Promise.all([
+    getPostGalleryImages(),
+    getRelatedNewsArticles(article, { limit: 3 }),
+  ]);
 
   return (
-    <section className="bg-[linear-gradient(180deg,#ffffff_0%,#f7f8ff_24%,#ffffff_100%)] pb-20 pt-8 md:pb-24 md:pt-8">
+    <section className="bg-[#fff] pb-20 pt-8 md:pb-24 md:pt-8">
       <div className="mx-auto max-w-[1280px] px-4 md:px-6 xl:px-0">
         <div>
           <div className="mt-14 grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start lg:gap-14">
@@ -201,7 +242,7 @@ export default function NewsDetailMinimalPage({ article }) {
               <p className="mt-6 w-full text-[16px] leading-9 text-[#5f687c]">{article.excerpt}</p>
 
               {(article.tags ?? []).length ? (
-                <div className="mt-8 flex flex-wrap gap-2">
+                <div className="my-6 flex flex-wrap gap-2">
                   {(article.tags ?? []).map((tag) => (
                     <span
                       key={tag}
@@ -214,12 +255,14 @@ export default function NewsDetailMinimalPage({ article }) {
               ) : null}
 
               {article.coverImage ? (
-                <figure className="mb-10 overflow-hidden rounded-[28px] bg-[#eef2ff] shadow-[0_24px_70px_rgba(79,94,147,0.12)]">
+                <figure className="mb-10 overflow-hidden rounded-[12px] bg-[#eef2ff] shadow-[0_24px_70px_rgba(79,94,147,0.12)]">
                   <img src={article.coverImage} alt={article.coverAlt} className="h-full w-full object-cover" />
                 </figure>
               ) : null}
 
               <div className={styles.articleRich} dangerouslySetInnerHTML={{ __html: html }} />
+
+              <NewsShareCopyButton title={article.title} />
 
               <Link
                 href="/follow-srx"
@@ -252,10 +295,42 @@ export default function NewsDetailMinimalPage({ article }) {
                   <p className="mt-5 text-[15px] leading-7 text-[#6f7890]">Bài viết này chưa có mục lục.</p>
                 )}
               </div>
+
+              {galleryImages.length ? <PostImageGallery images={galleryImages} /> : null}
             </aside>
           </div>
         </div>
+
+        {relatedArticles.length ? (
+          <div className="mt-20 border-t border-[#e8ebf7] pt-12">
+            <div className="mb-8 flex items-end justify-between gap-4">
+              <div>
+                <div className="text-[12px] font-semibold uppercase tracking-[0.22em] text-[#8a90ab]">
+                  Bài viết liên quan
+                </div>
+                <h2 className="mt-2 text-[28px] font-medium tracking-[-0.05em] text-[#252c3d] md:text-[34px]">
+                  Đọc thêm từ SRX
+                </h2>
+              </div>
+
+              <Link
+                href="/follow-srx"
+                className="text-[14px] font-semibold text-[#252c3d] transition hover:text-[#6b71d5]"
+              >
+                Xem tất cả
+              </Link>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {relatedArticles.map((relatedArticle) => (
+                <RelatedNewsCard key={relatedArticle.slug} article={relatedArticle} />
+              ))}
+            </div>
+          </div>
+        ) : null}
       </div>
+      <AboutContactSection />
+      <SRXLogo/>
     </section>
   );
 }

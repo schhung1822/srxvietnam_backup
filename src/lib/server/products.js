@@ -83,6 +83,20 @@ function uniqueInOrder(values) {
   });
 }
 
+function normalizeImagePath(path = '') {
+  const normalizedPath = String(path ?? '').trim();
+
+  if (!normalizedPath) {
+    return '';
+  }
+
+  if (/^https?:\/\//i.test(normalizedPath)) {
+    return normalizedPath;
+  }
+
+  return normalizedPath.startsWith('/') ? normalizedPath : `/${normalizedPath}`;
+}
+
 function formatAttributeLabel(attributeCode, attributeSlug, attributeValue) {
   if (attributeCode === 'skin_type') {
     return SKIN_TYPE_LABELS[attributeSlug] ?? attributeValue;
@@ -183,7 +197,31 @@ function mapVariant(variantRow, fallbackPrice, fallbackOriginalPrice) {
   };
 }
 
-function mapProduct(productRow, variantRows, imageRows, attributeRows) {
+function buildTagEntries(tagRows) {
+  const seen = new Set();
+
+  return tagRows
+    .filter((row) => row?.name)
+    .filter((row) => {
+      const key = `${row.id ?? row.slug ?? row.name}`;
+
+      if (seen.has(key)) {
+        return false;
+      }
+
+      seen.add(key);
+      return true;
+    })
+    .map((row) => ({
+      id: Number(row.id),
+      slug: row.slug ?? '',
+      name: row.name ?? '',
+      description: String(row.description ?? '').trim(),
+      image: normalizeImagePath(row.image_url),
+    }));
+}
+
+function mapProduct(productRow, variantRows, imageRows, attributeRows, tagRows) {
   const basePrice = Number(productRow.base_price ?? 0);
   const salePrice = Number(productRow.sale_price ?? productRow.base_price ?? 0);
   const variants = variantRows.length
@@ -217,6 +255,7 @@ function mapProduct(productRow, variantRows, imageRows, attributeRows) {
   );
   const totalStock = variants.reduce((sum, variant) => sum + Number(variant.stock ?? 0), 0);
   const gallery = buildGallery({ productRow, imageRows });
+  const tagEntries = buildTagEntries(tagRows);
 
   return {
     id: Number(productRow.id),
@@ -239,6 +278,7 @@ function mapProduct(productRow, variantRows, imageRows, attributeRows) {
       productRow.brand_name,
       productRow.category_name,
       ...ingredients,
+      ...tagEntries.map((entry) => entry.name),
       ...concerns,
       ...skinTypes,
       ...variantLabels,
@@ -260,6 +300,7 @@ function mapProduct(productRow, variantRows, imageRows, attributeRows) {
       variantLabels,
     }),
     ingredients,
+    tagEntries,
     howToUse: howToUse.length
       ? howToUse
       : productRow.short_description
@@ -275,12 +316,13 @@ async function fetchProductResources(productIds) {
       variantsByProductId: new Map(),
       imagesByProductId: new Map(),
       attributesByProductId: new Map(),
+      tagsByProductId: new Map(),
     };
   }
 
   const placeholders = createPlaceholders(productIds);
 
-  const [variantRows, imageRows, attributeRows] = await Promise.all([
+  const [variantRows, imageRows, attributeRows, tagRows] = await Promise.all([
     query(
       `
         SELECT
@@ -330,11 +372,29 @@ async function fetchProductResources(productIds) {
       `,
       productIds,
     ),
+    query(
+      `
+        SELECT
+          ptl.product_id,
+          pt.id,
+          pt.name,
+          pt.slug,
+          pt.\`desc\` AS description,
+          pt.img AS image_url
+        FROM product_tag_links ptl
+        INNER JOIN product_tags pt
+          ON pt.id = ptl.tag_id
+        WHERE ptl.product_id IN (${placeholders})
+        ORDER BY ptl.product_id ASC, pt.name ASC, pt.id ASC
+      `,
+      productIds,
+    ),
   ]);
 
   const variantsByProductId = new Map();
   const imagesByProductId = new Map();
   const attributesByProductId = new Map();
+  const tagsByProductId = new Map();
 
   variantRows.forEach((row) => {
     const productId = Number(row.product_id);
@@ -357,10 +417,18 @@ async function fetchProductResources(productIds) {
     attributesByProductId.set(productId, currentRows);
   });
 
+  tagRows.forEach((row) => {
+    const productId = Number(row.product_id);
+    const currentRows = tagsByProductId.get(productId) ?? [];
+    currentRows.push(row);
+    tagsByProductId.set(productId, currentRows);
+  });
+
   return {
     variantsByProductId,
     imagesByProductId,
     attributesByProductId,
+    tagsByProductId,
   };
 }
 
@@ -402,7 +470,7 @@ export const getCatalogProducts = cache(async () => {
     `);
 
     const productIds = productRows.map((row) => Number(row.id));
-    const { variantsByProductId, imagesByProductId, attributesByProductId } =
+    const { variantsByProductId, imagesByProductId, attributesByProductId, tagsByProductId } =
       await fetchProductResources(productIds);
 
     return productRows.map((productRow) =>
@@ -411,6 +479,7 @@ export const getCatalogProducts = cache(async () => {
         variantsByProductId.get(Number(productRow.id)) ?? [],
         imagesByProductId.get(Number(productRow.id)) ?? [],
         attributesByProductId.get(Number(productRow.id)) ?? [],
+        tagsByProductId.get(Number(productRow.id)) ?? [],
       ),
     );
   } catch (error) {
@@ -448,6 +517,53 @@ export async function searchCatalogProducts(term = '', limit = 5) {
 
   return filteredProducts.slice(0, Math.max(1, limit));
 }
+
+export const getProductTagDictionaryEntries = cache(async () => {
+  if (shouldUseFallbackProducts()) {
+    return [];
+  }
+
+  try {
+    const rows = await query(`
+      SELECT
+        pt.id,
+        pt.name,
+        pt.slug,
+        pt.\`desc\` AS description,
+        pt.img AS image_url,
+        pt.\`Tags\` AS tag_labels,
+        COUNT(DISTINCT p.id) AS linked_product_count
+      FROM product_tags pt
+      LEFT JOIN product_tag_links ptl
+        ON ptl.tag_id = pt.id
+      LEFT JOIN products p
+        ON p.id = ptl.product_id
+        AND p.status = 'active'
+        AND p.deleted_at IS NULL
+      GROUP BY
+        pt.id,
+        pt.name,
+        pt.slug,
+        pt.\`desc\`,
+        pt.img,
+        pt.\`Tags\`
+      ORDER BY pt.name ASC, pt.id ASC
+    `);
+
+    return rows.map((row) => ({
+      id: Number(row.id),
+      name: row.name ?? '',
+      slug: row.slug ?? '',
+      description: row.description ?? '',
+      image: row.image_url ?? '',
+      tags: row.tag_labels ?? '',
+      linkedProductCount: Number(row.linked_product_count ?? 0),
+    }));
+  } catch (error) {
+    console.error('Failed to load product tags from database:', error);
+    return [];
+  }
+});
 
 
 

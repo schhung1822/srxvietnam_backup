@@ -3,10 +3,23 @@ import ProductArtwork from './ProductArtwork';
 
 const moneyFormatter = new Intl.NumberFormat('vi-VN');
 
+function getDiscountPercent(originalPrice, salePrice) {
+  const original = Number(originalPrice);
+  const sale = Number(salePrice);
+
+  if (!original || original <= sale) {
+    return null;
+  }
+
+  return Math.max(1, Math.round(((original - sale) / original) * 100));
+}
+
 export default function ProductCard({ product, priority = false }) {
   const artwork = product.gallery[0];
   const hoverArtwork = product.gallery[1] ?? artwork;
   const hasDiscount = Number(product.originalPrice) > Number(product.price);
+  const discountPercent = getDiscountPercent(product.originalPrice, product.price);
+  const imageBadge = discountPercent ? `-${discountPercent}%` : '';
 
   return (
     <Link href={`/products/${product.slug}`} className="group block" prefetch={priority}>
@@ -14,7 +27,7 @@ export default function ProductCard({ product, priority = false }) {
         <ProductArtwork
           scene={artwork}
           hoverScene={hoverArtwork}
-          badge={product.badge}
+          badge={imageBadge}
           mode="card"
         />
       </div>
