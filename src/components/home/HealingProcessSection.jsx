@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import ScrollRevealHeading from "./ScrollRevealHeading.jsx";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -88,10 +89,12 @@ export default function HealingProcessSection({
 
   useEffect(() => {
     const ctx = gsap.context(() => {
+      const isMobile = window.matchMedia("(max-width: 767px)").matches;
+
       gsap.from("[data-healing-intro]", {
         opacity: 0,
-        y: 42,
-        duration: 0.8,
+        y: isMobile ? 0 : 42,
+        duration: isMobile ? 0.65 : 0.8,
         ease: "power3.out",
         scrollTrigger: {
           trigger: sectionRef.current,
@@ -101,8 +104,8 @@ export default function HealingProcessSection({
 
       gsap.from("[data-healing-panel]", {
         opacity: 0,
-        x: 54,
-        duration: 0.9,
+        x: isMobile ? 0 : 54,
+        duration: isMobile ? 0.7 : 0.9,
         ease: "power3.out",
         scrollTrigger: {
           trigger: sectionRef.current,
@@ -178,12 +181,18 @@ export default function HealingProcessSection({
           className="flex w-full flex-col gap-10 lg:min-h-[760px] lg:justify-between"
         >
           <div>
-            <h2
-              className="whitespace-pre-line text-[48px] font-medium leading-[1] tracking-[-0.05em] text-[#6e96fb] sm:text-[60px] lg:text-[74px]"
+            <ScrollRevealHeading
+              as="h2"
+              className="text-[48px] font-medium leading-[1] tracking-[-0.05em] sm:text-[60px] lg:text-[74px]"
+              revealedClassName="text-[#6e96fb]"
+              baseStyle={{ color: "rgba(110,150,251,0.18)" }}
+              blurPx={8}
+              start="top 88%"
+              end="top 44%"
               style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
             >
               {title}
-            </h2>
+            </ScrollRevealHeading>
           </div>
 
           <div className="flex flex-row gap-8 items-end justify-between">

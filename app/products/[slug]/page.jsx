@@ -33,7 +33,7 @@ export default async function ProductDetailRoute({ params }) {
     notFound();
   }
 
-  const relatedProducts = getRelatedProducts(products, product);
+  const relatedProducts = getRelatedProducts(products, product, 4);
 
   return <ProductDetailPage product={product} relatedProducts={relatedProducts} />;
 }

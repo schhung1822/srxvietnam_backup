@@ -71,7 +71,7 @@ export function buildProductFilterOptions(products) {
   };
 }
 
-export function getRelatedProducts(products, product, limit = 3) {
+export function getRelatedProducts(products, product, limit = 4) {
   const sameCategory = products.filter(
     (item) => item.slug !== product.slug && item.category === product.category,
   );

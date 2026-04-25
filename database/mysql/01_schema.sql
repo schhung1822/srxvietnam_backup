@@ -161,6 +161,7 @@ CREATE TABLE IF NOT EXISTS products (
   base_price DECIMAL(12,2) NOT NULL DEFAULT 0.00,
   sale_price DECIMAL(12,2) NULL,
   thumbnail_url VARCHAR(500) NULL,
+  info_img VARCHAR(500) NULL,
   rating_average DECIMAL(3,2) NOT NULL DEFAULT 0.00,
   rating_count INT UNSIGNED NOT NULL DEFAULT 0,
   sold_count INT UNSIGNED NOT NULL DEFAULT 0,

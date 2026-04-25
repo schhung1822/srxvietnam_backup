@@ -37,12 +37,12 @@ export default function ProductCard({ product, priority = false }) {
           <span>{product.category}</span>
           <span>{product.rating.toFixed(1)}</span>
         </div>
-        <h3 className="line-clamp-2 min-h-[48px] text-[18px] font-semibold leading-[1.4] text-[#171311] transition-colors group-hover:text-[#2540dd]">
+        <h3 className="line-clamp-2 min-h-[48px] text-[16px] font-semibold leading-[1.4] text-[#171311] transition-colors group-hover:text-[#2540dd]">
           {product.name}
         </h3>
 
         <div className="mt-3 flex items-center gap-3">
-          <span className="text-[22px] font-bold text-[#171311]">
+          <span className="text-[18px] font-bold text-[#171311]">
             {moneyFormatter.format(product.price)}đ
           </span>
           {hasDiscount ? (

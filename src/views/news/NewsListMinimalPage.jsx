@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowUpRight, Search, X } from "lucide-react";
 import AboutContactSection from "../../components/aboutus/AboutContactSection.jsx";
 import SRXLogo from "../../components/home/SrxLogo.jsx";
+import NewsTopFeatureSection from "../../components/news/NewsTopFeatureSection.jsx";
 import {
   ALL_NEWS_CATEGORY,
   filterNews,
@@ -63,6 +64,7 @@ export default function NewsListMinimalPage({
   showCategoryFilters = true,
   enableHydration = true,
   searchPlaceholder = "Tìm theo tiêu đề, chủ đề hoặc hoạt chất",
+  showTopFeatureSection = false,
 }) {
   const [activeCategory, setActiveCategory] = useState(ALL_NEWS_CATEGORY);
   const [searchValue, setSearchValue] = useState("");
@@ -123,12 +125,21 @@ export default function NewsListMinimalPage({
   );
 
   const isFilteredView = activeCategory !== ALL_NEWS_CATEGORY || Boolean(trimmedSearch);
+  const topFeatureArticle =
+    showTopFeatureSection && !isFilteredView && allArticles.length ? allArticles[0] : null;
+  const defaultArticles = topFeatureArticle
+    ? allArticles.filter((article) => article.slug !== topFeatureArticle.slug)
+    : allArticles;
+  const defaultFeaturedArticles = defaultArticles.filter((article) => article.featured).slice(0, 3);
   const featuredArticles = isFilteredView
     ? filteredArticles.slice(0, 3)
-    : allArticles.filter((article) => article.featured).slice(0, 3);
+    : defaultFeaturedArticles.length
+      ? defaultFeaturedArticles
+      : defaultArticles.slice(0, 3);
+  const featuredArticleSlugs = new Set(featuredArticles.map((article) => article.slug));
   const archiveArticles = isFilteredView
     ? filteredArticles.slice(3)
-    : allArticles.filter((article) => !article.featured);
+    : defaultArticles.filter((article) => !featuredArticleSlugs.has(article.slug));
   const availableCategories = [ALL_NEWS_CATEGORY, ...getNewsCategories(allArticles)];
   const resetLabel = showCategoryFilters ? "Xóa bộ lọc" : "Xóa tìm kiếm";
 
@@ -151,10 +162,14 @@ export default function NewsListMinimalPage({
       <div className="mx-auto max-w-[1640px] px-4 md:px-6 xl:px-8">
         {filteredArticles.length ? (
           <div className="mt-12 space-y-16">
+            {topFeatureArticle ? (
+              <NewsTopFeatureSection article={topFeatureArticle} />
+            ) : null}
+
             <div>
               <div className="mb-6 flex items-end justify-between gap-4">
                 <div>
-                  <h1 className="mt-2 text-[30px] max-w-[720px] font-medium tracking-[-0.05em] leading-1 text-[#252c3d] sm:text-[40px]">
+                  <h1 className="mt-2 max-w-[720px] text-[30px] font-medium leading-none tracking-[-0.05em] text-[#252c3d] sm:text-[40px]">
                     {pageTitle}
                   </h1>
                 </div>
@@ -221,11 +236,13 @@ export default function NewsListMinimalPage({
                 ) : null}
               </div>
 
-              <div className="grid gap-6 gap-y-10 md:grid-cols-2 xl:grid-cols-3">
-                {featuredArticles.map((article) => (
-                  <NewsCard key={article.slug} article={article} />
-                ))}
-              </div>
+              {featuredArticles.length ? (
+                <div className="grid gap-6 gap-y-10 md:grid-cols-2 xl:grid-cols-3">
+                  {featuredArticles.map((article) => (
+                    <NewsCard key={article.slug} article={article} />
+                  ))}
+                </div>
+              ) : null}
             </div>
 
             {archiveArticles.length ? (

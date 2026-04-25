@@ -273,6 +273,7 @@ function mapProduct(productRow, variantRows, imageRows, attributeRows, tagRows) 
     promoLabel: defaultVariant.label,
     shortDescription: productRow.short_description ?? '',
     description: productRow.description ?? productRow.short_description ?? '',
+    infoImage: normalizeImagePath(productRow.info_img),
     searchKeywords: uniqueInOrder([
       productRow.product_code,
       productRow.brand_name,
@@ -451,6 +452,7 @@ export const getCatalogProducts = cache(async () => {
         p.base_price,
         p.sale_price,
         p.thumbnail_url,
+        p.info_img,
         p.rating_average,
         p.rating_count,
         p.sold_count,

@@ -3,6 +3,10 @@
     return 'aspect-[6/7] rounded-[32px]';
   }
 
+  if (mode === 'cart-thumbnail') {
+    return 'aspect-square rounded-[14px]';
+  }
+
   if (mode === 'thumbnail') {
     return 'aspect-[4/5] rounded-[12px]';
   }
@@ -16,12 +20,19 @@ export default function ProductArtwork({
   promoLabel,
   badge,
   mode = 'card',
+  showEyebrow = true,
 }) {
   const isCard = mode === 'card';
   const isDetail = mode === 'detail';
   const isThumbnail = mode === 'thumbnail';
+  const isCartThumbnail = mode === 'cart-thumbnail';
+  const isCompactThumbnail = isThumbnail || isCartThumbnail;
   const shapeClass = getShapeClass(mode);
-  const borderClass = isCard ? 'border-0' : 'border border-[#eadfce]';
+  const borderClass = isCard
+    ? 'border-0'
+    : isCartThumbnail
+      ? 'border border-[#f7f7f7]'
+      : 'border border-[#eadfce]';
   const badgeClasses = isCard
     ? 'inline-flex rounded-[8px] bg-[#F9F9F9] px-4 py-2 text-[12px] font-bold tracking-[0.08em] text-[#E2000F]'
     : 'inline-flex rounded-[8px] bg-[#F9F9F9] px-4 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#E2000F]';
@@ -30,16 +41,24 @@ export default function ProductArtwork({
     scene?.image &&
     hoverScene?.image &&
     hoverScene.image !== scene.image;
+  const imageClass = isCartThumbnail
+    ? `absolute inset-0 h-full w-full object-contain transition-opacity duration-500 ease-out ${
+        canSwapImages ? 'opacity-100 group-hover:opacity-0' : ''
+      }`
+    : `absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ease-out ${
+        canSwapImages ? 'opacity-100 group-hover:opacity-0' : ''
+      }`;
+  const hoverImageClass = isCartThumbnail
+    ? 'absolute inset-0 h-full w-full object-contain p-3 opacity-0 transition-opacity duration-500 ease-out drop-shadow-[0_12px_22px_rgba(120,100,80,0.16)] group-hover:opacity-100'
+    : 'absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 ease-out group-hover:opacity-100';
 
   if (scene?.image) {
     return (
-      <div className={`relative overflow-hidden bg-[#f7f3ee] ${borderClass} ${shapeClass}`}>
+      <div className={`relative overflow-hidden ${borderClass} ${shapeClass}`}>
         <img
           src={scene.image}
           alt={scene.alt ?? scene.title ?? 'Product image'}
-          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ease-out ${
-            canSwapImages ? 'opacity-100 group-hover:opacity-0' : ''
-          }`}
+          className={imageClass}
           loading={isCard ? 'eager' : 'lazy'}
         />
 
@@ -47,23 +66,30 @@ export default function ProductArtwork({
           <img
             src={hoverScene.image}
             alt={hoverScene.alt ?? hoverScene.title ?? 'Product image hover'}
-            className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 ease-out group-hover:opacity-100"
+            className={hoverImageClass}
             loading="lazy"
           />
         ) : null}
 
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04)_0%,rgba(17,24,39,0.02)_48%,rgba(17,24,39,0.18)_100%)]" />
+        {isCartThumbnail ? (
+          <>
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.9),rgba(255,255,255,0)_58%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.08)_0%,rgba(105,82,63,0.06)_100%)]" />
+          </>
+        ) : (
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04)_0%,rgba(17,24,39,0.02)_48%,rgba(17,24,39,0.18)_100%)]" />
+        )}
 
-        {!isThumbnail ? (
+        {!isCompactThumbnail ? (
           <div className={`absolute left-[3%] top-[3%] ${isDetail ? 'right-[5%]' : 'right-[36%]'}`}>
-            {isDetail && scene.eyebrow ? (
+            {isDetail && showEyebrow && scene.eyebrow ? (
               <div className="inline-flex rounded-full border border-white/50 bg-white/82 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-[#2f3643] backdrop-blur">
                 {scene.eyebrow}
               </div>
             ) : null}
 
             {badge ? (
-              <div className={`${isDetail && scene.eyebrow ? 'mt-2' : ''} ${badgeClasses}`}>
+              <div className={`${isDetail && showEyebrow && scene.eyebrow ? 'mt-2' : ''} ${badgeClasses}`}>
                 {badge}
               </div>
             ) : null}
@@ -88,7 +114,7 @@ export default function ProductArtwork({
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.72),transparent_42%)]" />
       <div className="relative z-[1] px-4 text-[#8a7d70]">
-        {!isThumbnail ? (
+        {!isCompactThumbnail ? (
           <div className="text-[11px] font-semibold uppercase tracking-[0.24em]">SRX Beauty</div>
         ) : null}
         <div className={`mt-2 font-medium ${isDetail ? 'text-[18px]' : 'text-[13px]'}`}>
@@ -98,4 +124,3 @@ export default function ProductArtwork({
     </div>
   );
 }
-

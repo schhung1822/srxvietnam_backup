@@ -44,10 +44,12 @@ export default function HomeProductTechnologySection() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
+      const isMobile = window.matchMedia('(max-width: 767px)').matches;
+
       gsap.from('[data-tech-intro]', {
         opacity: 0,
-        y: 36,
-        duration: 0.9,
+        y: isMobile ? 0 : 36,
+        duration: isMobile ? 0.65 : 0.9,
         ease: 'power3.out',
         scrollTrigger: {
           trigger: sectionRef.current,
@@ -57,9 +59,9 @@ export default function HomeProductTechnologySection() {
 
       gsap.from('[data-tech-card]', {
         opacity: 0,
-        y: 42,
-        duration: 0.85,
-        stagger: 0.12,
+        y: isMobile ? 0 : 42,
+        duration: isMobile ? 0.65 : 0.85,
+        stagger: isMobile ? 0.08 : 0.12,
         ease: 'power3.out',
         scrollTrigger: {
           trigger: sectionRef.current,
@@ -69,8 +71,8 @@ export default function HomeProductTechnologySection() {
 
       gsap.from('[data-tech-cta]', {
         opacity: 0,
-        y: 24,
-        duration: 0.7,
+        y: isMobile ? 0 : 24,
+        duration: isMobile ? 0.55 : 0.7,
         ease: 'power2.out',
         scrollTrigger: {
           trigger: sectionRef.current,

@@ -31,7 +31,7 @@ export default function ProductIngredientShowcase({ productName, entries = [] })
   };
 
   return (
-    <section className="grid gap-8 xl:grid-cols-[minmax(0,0.95fr)_minmax(420px,1fr)] xl:items-start">
+    <section className="grid gap-8 xl:grid-cols-[minmax(0,0.95fr)_minmax(420px,1fr)] xl:items-center">
       <div className="order-2 xl:order-1">
         <div className="max-w-[560px]">
           <div className="text-[12px] font-semibold uppercase tracking-[0.22em] text-[#8d7f72]">

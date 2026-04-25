@@ -76,7 +76,7 @@ export default function CartDrawer() {
           <button
             type="button"
             onClick={closeCart}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-[#ddd3c6] text-[#15110d] transition hover:border-[#15110d]"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-[#d7d7d7] text-[#15110d] transition hover:border-[#15110d]"
           >
             <X className="h-5 w-5" />
           </button>
@@ -86,10 +86,10 @@ export default function CartDrawer() {
           {items.length ? (
             <div className="space-y-4">
               {items.map((item) => (
-                <div key={item.lineId} className="rounded-[24px] border border-[#ece4da] bg-[#fcfaf8] p-4">
+                <div key={item.lineId} className="border-b border-[#d7d7d7] pb-4">
                   <div className="flex gap-4">
-                    <div className="h-[96px] w-[82px] shrink-0 overflow-hidden rounded-[18px] bg-[#f3ede5]">
-                      <ProductArtwork scene={item.scene} badge={item.badge} mode="thumbnail" />
+                    <div className="h-[96px] w-[96px] shrink-0">
+                      <ProductArtwork scene={item.scene} badge={item.badge} mode="cart-thumbnail" />
                     </div>
 
                     <div className="min-w-0 flex-1">
@@ -111,7 +111,7 @@ export default function CartDrawer() {
                   </div>
 
                   <div className="mt-4 flex items-center justify-between">
-                    <div className="inline-flex items-center rounded-full border border-[#ddd3c6] bg-white p-1">
+                    <div className="inline-flex items-center rounded-full border border-[#d7d7d7] bg-white p-1">
                       <button
                         type="button"
                         onClick={() => updateQuantity(item.lineId, item.quantity - 1)}
@@ -134,7 +134,7 @@ export default function CartDrawer() {
                     <button
                       type="button"
                       onClick={() => removeItem(item.lineId)}
-                      className="inline-flex items-center gap-2 text-[13px] font-medium text-[#7e7165] transition hover:text-[#15110d]"
+                      className="inline-flex items-center gap-2 text-[13px] font-medium text-[#666] transition hover:text-[#15110d]"
                     >
                       <Trash2 className="h-4 w-4" />
                       Xóa
@@ -146,7 +146,7 @@ export default function CartDrawer() {
               <button
                 type="button"
                 onClick={clearCart}
-                className="text-[13px] font-medium text-[#7e7165] transition hover:text-[#15110d]"
+                className="text-[13px] font-medium text-[#666] transition hover:text-[#15110d]"
               >
                 Xóa toàn bộ giỏ hàng
               </button>
@@ -172,9 +172,9 @@ export default function CartDrawer() {
           )}
         </div>
 
-        <div className="border-t border-[#e9e3da] px-5 py-5">
-          <div className="rounded-[24px] border border-[#ece4da] bg-[#fcfaf8] p-4">
-            <div className="mb-3 flex items-center gap-2 text-[13px] font-semibold uppercase tracking-[0.16em] text-[#8d7f72]">
+        <div className="border-t border-[#d7d7d7] px-5 py-5">
+          <div className=" border-[#ece4da]">
+            <div className="mb-3 flex items-center gap-2 text-[13px] font-semibold uppercase tracking-[0.16em] text-[#333]">
               <TicketPercent className="h-4 w-4" />
               Mã giảm giá
             </div>
@@ -185,7 +185,7 @@ export default function CartDrawer() {
                 value={couponCode}
                 onChange={(event) => setCouponCode(event.target.value)}
                 placeholder="Ví dụ: SRX10"
-                className="min-w-0 flex-1 rounded-full border border-[#ddd3c6] bg-white px-4 py-3 text-[14px] text-[#15110d] outline-none transition focus:border-[#15110d]"
+                className="min-w-0 flex-1 rounded-full border border-[#d7d7d7] bg-white px-4 py-3 text-[14px] text-[#15110d] outline-none transition focus:border-[#15110d]"
               />
               <button
                 type="button"

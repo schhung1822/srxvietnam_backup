@@ -146,7 +146,7 @@ export default function Header() {
   return (
     <>
       <header
-        className={`fixed left-0 right-0 top-0 z-50 border-b-2 border-black bg-white transition-all duration-500 ${
+        className={`fixed left-0 right-0 top-0 z-50 drop-shadow bg-white transition-all duration-500 ${
           isVisible ? 'translate-y-0' : '-translate-y-full'
         }`}
       >
