@@ -1247,7 +1247,7 @@ export default function AccountPage() {
   };
 
   return (
-    <section className="bg-[#fcfaf8] py-12 md:py-20">
+    <section className="bg-[#f9f9f9] py-12 md:py-20">
       <div className="mx-auto max-w-[1280px] px-4 md:px-6">
         <div className="grid gap-8 lg:grid-cols-[0.92fr_1.08fr]">
           <div className="rounded-[32px] border border-[#ece4da] bg-white p-7 md:p-9">

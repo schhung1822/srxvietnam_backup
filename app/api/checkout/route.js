@@ -2,6 +2,12 @@ import crypto from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { getCheckoutTotals, getSepayPaymentDetails, isSupportedPaymentMethod } from '../../../src/lib/commerce/checkout.js';
 import { getAuthenticatedUserRow } from '../../../src/lib/server/account.js';
+import {
+  AFFILIATE_REFERRAL_COOKIE_NAME,
+  AFFILIATE_VISITOR_COOKIE_NAME,
+  normalizeAffiliateCode,
+  normalizeAffiliateVisitorToken,
+} from '../../../src/lib/server/affiliate.js';
 import { getDbPool } from '../../../src/lib/server/db.js';
 
 export const runtime = 'nodejs';
@@ -197,6 +203,100 @@ function buildCustomerFromForm(customer) {
   };
 }
 
+function calculateAffiliateCommissionAmount(baseAmount, commissionType, commissionRate) {
+  const normalizedBaseAmount = normalizePrice(baseAmount);
+  const normalizedCommissionRate = Number(commissionRate ?? 0);
+
+  if (!normalizedBaseAmount || !Number.isFinite(normalizedCommissionRate) || normalizedCommissionRate <= 0) {
+    return 0;
+  }
+
+  if (commissionType === 'fixed') {
+    return normalizedCommissionRate;
+  }
+
+  return Number(((normalizedBaseAmount * normalizedCommissionRate) / 100).toFixed(2));
+}
+
+async function getAffiliateAttributionForCheckout(connection, request, purchasingUserId) {
+  const affiliateCode = normalizeAffiliateCode(
+    request.cookies.get(AFFILIATE_REFERRAL_COOKIE_NAME)?.value,
+  );
+
+  if (!affiliateCode) {
+    return null;
+  }
+
+  const affiliateRows = await execute(
+    connection,
+    `
+      SELECT
+        id,
+        user_id,
+        affiliate_code,
+        commission_type,
+        commission_rate
+      FROM affiliate_accounts
+      WHERE affiliate_code = ?
+        AND status = 'active'
+      LIMIT 1
+    `,
+    [affiliateCode],
+  );
+
+  const affiliateAccount = affiliateRows[0] ?? null;
+
+  if (!affiliateAccount) {
+    return null;
+  }
+
+  if (purchasingUserId && Number(affiliateAccount.user_id) === Number(purchasingUserId)) {
+    return null;
+  }
+
+  const visitorToken = normalizeAffiliateVisitorToken(
+    request.cookies.get(AFFILIATE_VISITOR_COOKIE_NAME)?.value,
+  );
+
+  let clickId = null;
+
+  if (visitorToken || purchasingUserId) {
+    const clickQuerySegments = [
+      `
+        SELECT id
+        FROM affiliate_clicks
+        WHERE affiliate_account_id = ?
+          AND converted_order_id IS NULL
+      `,
+    ];
+    const clickParams = [affiliateAccount.id];
+
+    if (visitorToken && purchasingUserId) {
+      clickQuerySegments.push('AND (visitor_token = ? OR customer_user_id = ?)');
+      clickParams.push(visitorToken, purchasingUserId);
+    } else if (visitorToken) {
+      clickQuerySegments.push('AND visitor_token = ?');
+      clickParams.push(visitorToken);
+    } else {
+      clickQuerySegments.push('AND customer_user_id = ?');
+      clickParams.push(purchasingUserId);
+    }
+
+    clickQuerySegments.push('ORDER BY clicked_at DESC LIMIT 1');
+
+    const clickRows = await execute(connection, clickQuerySegments.join('\n'), clickParams);
+    clickId = clickRows[0]?.id ?? null;
+  }
+
+  return {
+    accountId: affiliateAccount.id,
+    affiliateLinkId: null,
+    clickId,
+    commissionType: affiliateAccount.commission_type,
+    commissionRate: Number(affiliateAccount.commission_rate ?? 0),
+  };
+}
+
 export async function POST(request) {
   const pool = getDbPool();
   const connection = await pool.getConnection();
@@ -224,6 +324,8 @@ export async function POST(request) {
     const lineItems = buildLineItems(items, totals.discountTotal, totals.subtotal);
 
     await connection.beginTransaction();
+
+    const affiliateAttribution = await getAffiliateAttributionForCheckout(connection, request, user?.id ?? null);
 
     let customer;
 
@@ -261,6 +363,8 @@ export async function POST(request) {
         INSERT INTO orders (
           order_number,
           user_id,
+          affiliate_account_id,
+          affiliate_link_id,
           customer_name,
           customer_email,
           customer_phone,
@@ -274,11 +378,13 @@ export async function POST(request) {
           grand_total,
           notes
         )
-        VALUES (?, ?, ?, ?, ?, 'pending', 'pending', ?, ?, ?, 0, 0, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', 'pending', ?, ?, ?, 0, 0, ?, ?)
       `,
       [
         orderNumber,
         user?.id ?? null,
+        affiliateAttribution?.accountId ?? null,
+        affiliateAttribution?.affiliateLinkId ?? null,
         customer.fullName,
         customer.email || null,
         customer.phone,
@@ -368,6 +474,66 @@ export async function POST(request) {
       `,
       [orderId, 'Created from website checkout.', user?.id ?? null],
     );
+
+    if (affiliateAttribution?.accountId) {
+      const commissionBaseAmount = totals.grandTotal;
+      const commissionAmount = calculateAffiliateCommissionAmount(
+        commissionBaseAmount,
+        affiliateAttribution.commissionType,
+        affiliateAttribution.commissionRate,
+      );
+
+      await execute(
+        connection,
+        `
+          INSERT INTO affiliate_referrals (
+            affiliate_account_id,
+            affiliate_link_id,
+            affiliate_click_id,
+            order_id,
+            customer_user_id,
+            commission_type,
+            commission_rate,
+            commission_base_amount,
+            commission_amount,
+            status,
+            notes
+          )
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)
+        `,
+        [
+          affiliateAttribution.accountId,
+          affiliateAttribution.affiliateLinkId,
+          affiliateAttribution.clickId,
+          orderId,
+          user?.id ?? null,
+          affiliateAttribution.commissionType,
+          affiliateAttribution.commissionRate,
+          commissionBaseAmount,
+          commissionAmount,
+          'Auto-generated from website checkout.',
+        ],
+      );
+
+      await execute(
+        connection,
+        `UPDATE affiliate_accounts SET total_orders = total_orders + 1 WHERE id = ?`,
+        [affiliateAttribution.accountId],
+      );
+
+      if (affiliateAttribution.clickId) {
+        await execute(
+          connection,
+          `
+            UPDATE affiliate_clicks
+            SET converted_order_id = ?
+            WHERE id = ?
+              AND converted_order_id IS NULL
+          `,
+          [orderId, affiliateAttribution.clickId],
+        );
+      }
+    }
 
     await connection.commit();
 

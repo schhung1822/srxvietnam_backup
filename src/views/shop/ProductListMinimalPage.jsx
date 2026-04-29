@@ -1,5 +1,6 @@
-'use client';
+﻿'use client';
 
+import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronDown, RotateCcw, SlidersHorizontal, X } from 'lucide-react';
 import ProductCard from '../../components/shop/ProductCard';
@@ -35,6 +36,19 @@ const UI_TEXT = {
   emptyBody:
     'H\u00e3y th\u1eed \u0111\u1ed5i ho\u1eb7c b\u1edbt b\u1ed9 l\u1ecdc \u0111\u1ec3 xem th\u00eam s\u1ea3n ph\u1ea9m.',
   closeFilters: '\u0110\u00f3ng b\u1ed9 l\u1ecdc',
+  ingredientEyebrow: 'Th\u00e0nh ph\u1ea7n n\u1ed5i b\u1eadt',
+  ingredientSummary:
+    'C\u00e1c s\u1ea3n ph\u1ea9m b\u00ean d\u01b0\u1edbi \u0111\u01b0\u1ee3c l\u1ecdc theo th\u00e0nh ph\u1ea7n n\u00e0y \u0111\u1ec3 b\u1ea1n xem nhanh nh\u1eefng l\u1ef1a ch\u1ecdn ph\u00f9 h\u1ee3p.',
+  ingredientBenefitTitle: 'C\u00f4ng d\u1ee5ng th\u00e0nh ph\u1ea7n',
+  ingredientProducts: 's\u1ea3n ph\u1ea9m ch\u1ee9a th\u00e0nh ph\u1ea7n n\u00e0y',
+  clearTag: 'Xem t\u1ea5t c\u1ea3 s\u1ea3n ph\u1ea9m',
+  viewingTag: '\u0110ang xem theo th\u00e0nh ph\u1ea7n',
+  clearTagShort: 'B\u1ecf l\u1ecdc th\u00e0nh ph\u1ea7n',
+  ingredientEmptyTitle: 'Kh\u00f4ng c\u00f3 s\u1ea3n ph\u1ea9m ph\u00f9 h\u1ee3p v\u1edbi th\u00e0nh ph\u1ea7n n\u00e0y',
+  ingredientEmptyBody:
+    'Th\u00e0nh ph\u1ea7n \u0111\u00e3 \u0111\u01b0\u1ee3c ch\u1ecdn nh\u01b0ng kh\u00f4ng c\u00f2n s\u1ea3n ph\u1ea9m ph\u00f9 h\u1ee3p sau khi \u00e1p d\u1ee5ng b\u1ed9 l\u1ecdc hi\u1ec7n t\u1ea1i.',
+  ingredientFallbackDescription:
+    'Danh s\u00e1ch \u0111ang hi\u1ec3n th\u1ecb c\u00e1c s\u1ea3n ph\u1ea9m c\u00f3 g\u1eafn th\u1ebb th\u00e0nh ph\u1ea7n t\u01b0\u01a1ng \u1ee9ng.',
 };
 
 const SORT_OPTIONS = [
@@ -44,6 +58,32 @@ const SORT_OPTIONS = [
   { id: 'rating', label: UI_TEXT.sortRating },
   { id: 'sold', label: UI_TEXT.sortSold },
 ];
+
+function normalizeValue(value = '') {
+  return String(value ?? '').trim().toLowerCase();
+}
+
+function normalizeImagePath(path = '') {
+  const normalizedPath = String(path ?? '').trim();
+
+  if (!normalizedPath) {
+    return '';
+  }
+
+  if (/^https?:\/\//i.test(normalizedPath)) {
+    return normalizedPath;
+  }
+
+  return normalizedPath.startsWith('/') ? normalizedPath : `/${normalizedPath}`;
+}
+
+function formatFallbackTagName(tagSlug = '') {
+  return String(tagSlug ?? '')
+    .split('-')
+    .filter(Boolean)
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join(' ');
+}
 
 function FilterGroup({ title, options, selectedValue, onChange, isOpen, onToggle }) {
   return (
@@ -336,7 +376,91 @@ function MobileFilterDrawer({
   );
 }
 
-export default function ProductListMinimalPage({ products = [] }) {
+function ProductHero({ featuredTag }) {
+  if (!featuredTag) {
+    return (
+      <div className="overflow-hidden">
+        <div className="grid gap-4 py-0 sm:py-8 md:grid-cols-2 md:py-10 xl:grid-cols-[0.95fr_1.02fr_0.68fr] xl:gap-6">
+          <div className="flex min-h-[280px] items-center py-0 sm:py-10 md:col-span-2 md:min-h-[400px] xl:col-span-1">
+            <div className="max-w-[400px]">
+              <h1 className="text-[42px] font-semibold tracking-[-0.05em] text-[#15110d] md:text-[52px]">
+                {UI_TEXT.productTitle}
+              </h1>
+              <p className="mt-5 max-w-[400px] text-[14px] leading-7 text-[#474747] sm:text-[15px]">
+                {UI_TEXT.intro}
+              </p>
+            </div>
+          </div>
+
+          <div className="hidden overflow-hidden rounded-[16px] bg-[#eef4ff] sm:block">
+            <img
+              src="/assets/images/products/banner_product2.webp"
+              alt="SRX product campaign"
+              className="h-full w-full object-cover"
+              loading="eager"
+            />
+          </div>
+
+          <div className="hidden overflow-hidden rounded-[16px] bg-[#eef4ff] sm:block">
+            <img
+              src="/assets/images/products/banner_product.webp"
+              alt="SRX skincare routine"
+              className="h-full w-full object-cover"
+              loading="eager"
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const title = featuredTag.name || formatFallbackTagName(featuredTag.slug);
+  const featuredImage = normalizeImagePath(featuredTag.image);
+  const featuredDescription =
+    String(featuredTag.description ?? '').trim() || UI_TEXT.ingredientFallbackDescription;
+
+  return (
+    <div className="overflow-hidden">
+      <div className="flex flex-col gap-4 py-0 py-8 justify-between sm:flex-row md:py-10 xl:gap-6">
+        <div className="flex items-center py-0 sm:py-10 md:col-span-2 xl:col-span-1">
+          <div className="max-w-[420px]">
+            <div className="text-[13px] font-medium uppercase tracking-[0.24em] text-[#8b7c6d]">
+              Sản phẩm chứa thành phần
+            </div>
+            <h1 className="mt-4 text-[42px] font-semibold tracking-[-0.05em] text-[#15110d] md:text-[52px]">
+              {title}
+            </h1>
+            <p className="mt-5 max-w-[420px] text-[14px] leading-7 text-[#474747] sm:text-[15px]">
+              {featuredDescription}
+            </p>
+          </div>
+        </div>
+
+        <div className="overflow-hidden max-h-[400px] max-w-[600px] text-left rounded-[16px] bg-[linear-gradient(180deg,#eef4ff,#f8efe8)]">
+          {featuredImage ? (
+            <img
+              src={featuredImage}
+              alt={title}
+              className="h-full w-full object-cover"
+              loading="eager"
+            />
+          ) : (
+            <div className="flex min-h-[320px] h-full items-center justify-center px-8 text-center text-[18px] font-medium text-[#6f6357]">
+              {title}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function ProductListMinimalPage({
+  products = [],
+  dictionaryEntries = [],
+  initialTagSlug = '',
+}) {
+  const selectedTagSlug = normalizeValue(initialTagSlug);
   const [category, setCategory] = useState(UI_TEXT.all);
   const [concern, setConcern] = useState(UI_TEXT.all);
   const [skinType, setSkinType] = useState(UI_TEXT.all);
@@ -350,15 +474,45 @@ export default function ProductListMinimalPage({ products = [] }) {
     price: true,
   });
 
+  const tagFilteredProducts = useMemo(() => {
+    if (!selectedTagSlug) {
+      return products;
+    }
+
+    return products.filter((product) =>
+      (product.tagEntries ?? []).some((entry) => normalizeValue(entry.slug) === selectedTagSlug),
+    );
+  }, [products, selectedTagSlug]);
+
+  const featuredTag = useMemo(() => {
+    if (!selectedTagSlug) {
+      return null;
+    }
+
+    const matchedEntry = dictionaryEntries.find(
+      (entry) => normalizeValue(entry.slug) === selectedTagSlug,
+    );
+
+    if (matchedEntry) {
+      return matchedEntry;
+    }
+
+    return {
+      slug: selectedTagSlug,
+      name: formatFallbackTagName(selectedTagSlug),
+      description: '',
+      image: '',
+    };
+  }, [dictionaryEntries, selectedTagSlug]);
   const { productCategories, concernOptions, skinTypeOptions } = useMemo(
-    () => buildProductFilterOptions(products),
-    [products],
+    () => buildProductFilterOptions(tagFilteredProducts),
+    [tagFilteredProducts],
   );
 
   const filteredProducts = useMemo(
     () =>
       sortProducts(
-        products.filter((product) => {
+        tagFilteredProducts.filter((product) => {
           const matchesCategory = category === UI_TEXT.all || product.category === category;
           const matchesConcern = concern === UI_TEXT.all || product.concerns.includes(concern);
           const matchesSkinType = skinType === UI_TEXT.all || product.skinTypes.includes(skinType);
@@ -369,7 +523,7 @@ export default function ProductListMinimalPage({ products = [] }) {
         }),
         sortBy,
       ),
-    [category, concern, price, products, skinType, sortBy],
+    [category, concern, price, skinType, sortBy, tagFilteredProducts],
   );
 
   useEffect(() => {
@@ -393,6 +547,21 @@ export default function ProductListMinimalPage({ products = [] }) {
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isMobileFiltersOpen]);
+
+  useEffect(() => {
+    setCategory(UI_TEXT.all);
+    setConcern(UI_TEXT.all);
+    setSkinType(UI_TEXT.all);
+    setPrice('all');
+    setSortBy('featured');
+    setIsMobileFiltersOpen(false);
+    setOpenGroups({
+      category: true,
+      concern: true,
+      skinType: true,
+      price: true,
+    });
+  }, [selectedTagSlug]);
 
   const resetFilters = () => {
     setCategory(UI_TEXT.all);
@@ -419,38 +588,7 @@ export default function ProductListMinimalPage({ products = [] }) {
     <>
       <section className="bg-[#fff] pb-10 pt-0 sm:pt-4 md:pb-12">
         <div className="mx-auto max-w-[1840px] px-4 md:px-6 xl:px-10">
-          <div className="overflow-hidden">
-            <div className="grid gap-4 py-0 sm:py-8 md:grid-cols-2 md:py-10 xl:grid-cols-[0.95fr_1.02fr_0.68fr] xl:gap-6">
-              <div className="flex min-h-[280px] items-center py-0 sm:py-10 md:col-span-2 md:min-h-[400px] xl:col-span-1">
-                <div className="max-w-[400px]">
-                  <h1 className="text-[42px] font-semibold tracking-[-0.05em] text-[#15110d] md:text-[52px]">
-                    {UI_TEXT.productTitle}
-                  </h1>
-                  <p className="mt-5 max-w-[400px] text-[14px] leading-7 text-[#474747] sm:text-[15px]">
-                    {UI_TEXT.intro}
-                  </p>
-                </div>
-              </div>
-
-              <div className="hidden overflow-hidden rounded-[16px] bg-[#eef4ff] sm:block">
-                <img
-                  src="/assets/images/products/banner_product2.webp"
-                  alt="SRX product campaign"
-                  className="h-full w-full object-cover"
-                  loading="eager"
-                />
-              </div>
-
-              <div className="hidden overflow-hidden rounded-[16px] bg-[#eef4ff] sm:block">
-                <img
-                  src="/assets/images/products/banner_product.webp"
-                  alt="SRX skincare routine"
-                  className="h-full w-full object-cover"
-                  loading="eager"
-                />
-              </div>
-            </div>
-          </div>
+          <ProductHero featuredTag={featuredTag} matchingProductCount={tagFilteredProducts.length} />
 
           <div className="mt-8 grid gap-10 xl:grid-cols-[240px_minmax(0,1fr)]">
             <aside className="hidden xl:sticky xl:top-[110px] xl:block xl:self-start">
@@ -496,15 +634,29 @@ export default function ProductListMinimalPage({ products = [] }) {
               </div>
 
               {filteredProducts.length ? (
-                <div className="grid gap-x-6 gap-y-10 md:grid-cols-2 xl:grid-cols-4">
+                <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:gap-x-6 sm:gap-y-10 md:grid-cols-2 xl:grid-cols-4">
                   {filteredProducts.map((product) => (
                     <ProductCard key={product.slug} product={product} />
                   ))}
                 </div>
               ) : (
-                <div className="border border-dashed border-[#d9cec1] px-6 py-16 text-center">
-                  <div className="text-[26px] font-semibold text-[#15110d]">{UI_TEXT.emptyTitle}</div>
-                  <p className="mt-3 text-[15px] leading-7 text-[#756858]">{UI_TEXT.emptyBody}</p>
+                <div className="px-6 py-16 text-center">
+                  <div className="text-[26px] font-semibold text-[#15110d]">
+                    {featuredTag ? UI_TEXT.ingredientEmptyTitle : UI_TEXT.emptyTitle}
+                  </div>
+                  <p className="mt-3 text-[15px] leading-7 text-[#756858]">
+                    {featuredTag ? UI_TEXT.ingredientEmptyBody : UI_TEXT.emptyBody}
+                  </p>
+                  {featuredTag ? (
+                    <div className="mt-6">
+                      <Link
+                        href="/products"
+                        className="inline-flex rounded-full border border-[#15110d] px-4 py-2 text-[13px] font-medium text-[#15110d] transition hover:bg-[#15110d] hover:text-white"
+                      >
+                        {UI_TEXT.clearTag}
+                      </Link>
+                    </div>
+                  ) : null}
                 </div>
               )}
             </div>

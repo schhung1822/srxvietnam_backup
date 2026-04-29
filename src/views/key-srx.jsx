@@ -1,5 +1,6 @@
-'use client';
+﻿'use client';
 
+import Link from 'next/link';
 import { useDeferredValue, useMemo, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import SRXLogo from '../components/home/SrxLogo.jsx';
@@ -12,9 +13,9 @@ const UI_TEXT = {
     'Mỗi thành phần hoạt động hài hòa để nuôi dưỡng, bảo vệ và phục hồi sự cân bằng tự nhiên của làn da. Khám phá những thành phần chính làm nên sự khác biệt thực sự của sản phẩm chúng tôi.',
   all: 'T\u1ea5t c\u1ea3',
   searchPlaceholder: 'T\u00ecm ki\u1ebfm',
-  emptyTitle: 'Kh\u00f4ng t\u00ecm th\u1ea5y th\u00e0nh ph\u1ea7n ph\u00f9 h\u1ee3p',
+  emptyTitle: 'Không tìm thấy thành phần phù hợp',
   emptyBody:
-    'H\u00e3y th\u1eed \u0111\u1ed5i t\u1eeb kh\u00f3a t\u00ecm ki\u1ebfm ho\u1eb7c ch\u1ecdn nh\u00f3m th\u00e0nh ph\u1ea7n kh\u00e1c.',
+    'Hãy thử đổi từ khóa tìm kiếm hoặc chọn nhóm thành phần khác.',
   previousTags: 'Cu\u1ed9n nh\u00f3m tr\u01b0\u1edbc',
   nextTags: 'Cu\u1ed9n nh\u00f3m ti\u1ebfp theo',
 };
@@ -93,32 +94,34 @@ function buildPreparedEntries(entries = []) {
 
 function IngredientCard({ entry }) {
   return (
-    <article className="group">
-      <div className="relative aspect-[0.96/1.06] overflow-hidden rounded-[12px] bg-[#f4f3f1]">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.9),transparent_55%)]" />
-        {entry.image ? (
-          <img
-            src={entry.image}
-            alt={entry.name}
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-            loading="lazy"
-          />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center p-8 text-center text-[14px] text-[#8a8379]">
-            {entry.name}
-          </div>
-        )}
-      </div>
+    <Link href={`/products/${encodeURIComponent(entry.slug)}`} className="group block">
+      <article>
+        <div className="relative aspect-[0.96/1.06] overflow-hidden rounded-[12px] bg-[#f4f3f1]">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.9),transparent_55%)]" />
+          {entry.image ? (
+            <img
+              src={entry.image}
+              alt={entry.name}
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+              loading="lazy"
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center p-8 text-center text-[14px] text-[#8a8379]">
+              {entry.name}
+            </div>
+          )}
+        </div>
 
-      <div className="mt-4">
-        <h2 className="text-[20px] font-semibold tracking-[-0.03em] text-[#15110d]">
-          {entry.name}
-        </h2>
-        <p className="mt-2 text-[14px] leading-6 text-[#6f685f]">
-          {entry.description}
-        </p>
-      </div>
-    </article>
+        <div className="mt-4">
+          <h2 className="text-[20px] font-semibold tracking-[-0.03em] text-[#15110d] transition-colors group-hover:text-[#7C93F1]">
+            {entry.name}
+          </h2>
+          <p className="mt-2 text-[14px] leading-6 text-[#6f685f]">
+            {entry.description}
+          </p>
+        </div>
+      </article>
+    </Link>
   );
 }
 
@@ -263,7 +266,7 @@ export default function KeySRXPage({ entries = [] }) {
               ))}
             </div>
           ) : (
-            <div className="mt-10 rounded-[24px] border border-dashed border-[#dad3ca] px-6 py-16 text-center">
+            <div className="mt-10 px-6 py-16 text-center">
               <div className="text-[28px] font-semibold tracking-[-0.04em] text-[#15110d]">
                 {UI_TEXT.emptyTitle}
               </div>
@@ -280,3 +283,4 @@ export default function KeySRXPage({ entries = [] }) {
     </section>
   );
 }
+

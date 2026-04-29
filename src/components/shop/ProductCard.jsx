@@ -33,20 +33,20 @@ export default function ProductCard({ product, priority = false }) {
       </div>
 
       <div className="px-1 pt-2">
-        <div className="mt-2 flex items-center justify-between text-[13px] text-[#726351]">
+        <div className="mt-2 flex items-center justify-between text-[11px] text-[#726351] sm:text-[13px]">
           <span>{product.category}</span>
           <span>{product.rating.toFixed(1)}</span>
         </div>
-        <h3 className="line-clamp-2 min-h-[48px] text-[16px] font-semibold leading-[1.4] text-[#171311] transition-colors group-hover:text-[#2540dd]">
+        <h3 className="line-clamp-2 min-h-[40px] text-[14px] font-semibold leading-[1.4] text-[#171311] transition-colors group-hover:text-[#2540dd] sm:min-h-[48px] sm:text-[16px]">
           {product.name}
         </h3>
 
-        <div className="mt-3 flex items-center gap-3">
-          <span className="text-[18px] font-bold text-[#171311]">
+        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1">
+          <span className="text-[15px] font-bold text-[#171311] sm:text-[18px]">
             {moneyFormatter.format(product.price)}đ
           </span>
           {hasDiscount ? (
-            <span className="text-[14px] text-[#9e8d7b] line-through">
+            <span className="text-[12px] text-[#9e8d7b] line-through sm:text-[14px]">
               {moneyFormatter.format(product.originalPrice)}đ
             </span>
           ) : null}
@@ -55,4 +55,3 @@ export default function ProductCard({ product, priority = false }) {
     </Link>
   );
 }
-

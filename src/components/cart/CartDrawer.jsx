@@ -152,7 +152,7 @@ export default function CartDrawer() {
               </button>
             </div>
           ) : (
-            <div className="flex h-full min-h-[320px] flex-col items-center justify-center rounded-[28px] border border-dashed border-[#ddd3c6] bg-[#fcfaf8] px-6 text-center">
+            <div className="flex h-full min-h-[320px] flex-col items-center justify-center px-6 text-center">
               <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#15110d] text-white">
                 <ShoppingBag className="h-6 w-6" />
               </div>
@@ -229,7 +229,7 @@ export default function CartDrawer() {
             <button
               type="button"
               disabled
-              className="mt-5 flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-full bg-[#cfc5bb] px-6 py-4 text-[15px] font-semibold text-white"
+              className="mt-5 flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-full bg-[#c9bbcf] px-6 py-4 text-[15px] font-semibold text-white"
             >
               Thanh toán
               <ArrowRight className="h-4 w-4" />

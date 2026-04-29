@@ -253,3 +253,4 @@ LEFT JOIN product_attribute_values pav
  AND pav.attribute_id = a.id
  AND pav.attribute_value_id = av.id
 WHERE pav.id IS NULL;
+

@@ -1,10 +1,19 @@
+import crypto from 'node:crypto';
 import { formatUser, normalizeEmail, SESSION_COOKIE_NAME, validateName } from './auth.js';
 import { query } from './db.js';
 
 const allowedGenders = new Set(['male', 'female', 'other', 'prefer_not_to_say']);
+export const AFFILIATE_REFERRAL_COOKIE_NAME = 'srx_affiliate_ref';
+export const AFFILIATE_VISITOR_COOKIE_NAME = 'srx_affiliate_visitor';
+const MAX_AFFILIATE_COOKIE_DAYS = 90;
 
 function safeString(value) {
   return String(value ?? '').trim();
+}
+
+function truncateString(value, maxLength) {
+  const normalized = safeString(value);
+  return normalized ? normalized.slice(0, maxLength) : null;
 }
 
 function safeNullableString(value) {
@@ -34,6 +43,141 @@ function normalizeUrl(value) {
 function normalizeNationalId(value) {
   const nextValue = safeString(value).replace(/\s+/g, '');
   return nextValue || null;
+}
+
+export function normalizeAffiliateCode(value) {
+  return safeString(value).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 40).toUpperCase();
+}
+
+export function normalizeAffiliateVisitorToken(value) {
+  const normalized = safeString(value).toLowerCase();
+  return /^[a-f0-9]{64}$/u.test(normalized) ? normalized : null;
+}
+
+function getAffiliateCookieDurationDays(value) {
+  const normalized = Number(value);
+
+  if (!Number.isFinite(normalized) || normalized <= 0) {
+    return 30;
+  }
+
+  return Math.min(Math.round(normalized), MAX_AFFILIATE_COOKIE_DAYS);
+}
+
+export function getAffiliateCookieMaxAgeSeconds(days) {
+  return getAffiliateCookieDurationDays(days) * 24 * 60 * 60;
+}
+
+function createAffiliateVisitorToken() {
+  return crypto.randomBytes(32).toString('hex');
+}
+
+function getRequestIpAddress(request) {
+  const forwardedFor = request.headers.get('x-forwarded-for');
+
+  if (forwardedFor) {
+    const firstIp = forwardedFor.split(',')[0]?.trim();
+
+    if (firstIp) {
+      return firstIp.slice(0, 45);
+    }
+  }
+
+  return truncateString(request.headers.get('x-real-ip'), 45);
+}
+
+export async function resolveAffiliateAccountByCode(affiliateCode) {
+  const normalizedAffiliateCode = normalizeAffiliateCode(affiliateCode);
+
+  if (!normalizedAffiliateCode) {
+    return null;
+  }
+
+  const rows = await query(
+    `
+      SELECT
+        id,
+        user_id,
+        affiliate_code,
+        status,
+        commission_type,
+        commission_rate,
+        cookie_duration_days
+      FROM affiliate_accounts
+      WHERE affiliate_code = ?
+        AND status = 'active'
+      LIMIT 1
+    `,
+    [normalizedAffiliateCode],
+  );
+
+  return rows[0] ?? null;
+}
+
+export async function registerAffiliateClickFromRequest({
+  request,
+  affiliateCode,
+  customerUserId = null,
+  visitorToken = null,
+  landingUrl = null,
+  referrerUrl = null,
+}) {
+  const account = await resolveAffiliateAccountByCode(affiliateCode);
+
+  if (!account) {
+    return null;
+  }
+
+  if (customerUserId && Number(account.user_id) === Number(customerUserId)) {
+    return {
+      status: 'ignored',
+      reason: 'self_referral',
+      account,
+      visitorToken: normalizeAffiliateVisitorToken(visitorToken) ?? createAffiliateVisitorToken(),
+      cookieDurationDays: getAffiliateCookieDurationDays(account.cookie_duration_days),
+    };
+  }
+
+  const nextVisitorToken = normalizeAffiliateVisitorToken(visitorToken) ?? createAffiliateVisitorToken();
+  const userAgent = truncateString(request.headers.get('user-agent'), 500);
+  const ipAddress = getRequestIpAddress(request);
+  const normalizedLandingUrl = truncateString(landingUrl, 500);
+  const normalizedReferrerUrl = truncateString(referrerUrl, 500);
+
+  const clickResult = await query(
+    `
+      INSERT INTO affiliate_clicks (
+        affiliate_account_id,
+        affiliate_link_id,
+        visitor_token,
+        customer_user_id,
+        ip_address,
+        user_agent,
+        referrer_url,
+        landing_url
+      )
+      VALUES (?, NULL, ?, ?, ?, ?, ?, ?)
+    `,
+    [
+      account.id,
+      nextVisitorToken,
+      customerUserId,
+      ipAddress,
+      userAgent,
+      normalizedReferrerUrl,
+      normalizedLandingUrl,
+    ],
+  );
+
+  await query(`UPDATE affiliate_accounts SET total_clicks = total_clicks + 1 WHERE id = ?`, [account.id]);
+
+  return {
+    status: 'tracked',
+    account,
+    clickId: clickResult.insertId ?? null,
+    visitorToken: nextVisitorToken,
+    cookieDurationDays: getAffiliateCookieDurationDays(account.cookie_duration_days),
+  };
 }
 
 function validateAffiliatePayload(payload) {

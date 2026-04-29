@@ -557,7 +557,7 @@ export const getProductTagDictionaryEntries = cache(async () => {
       name: row.name ?? '',
       slug: row.slug ?? '',
       description: row.description ?? '',
-      image: row.image_url ?? '',
+      image: normalizeImagePath(row.image_url),
       tags: row.tag_labels ?? '',
       linkedProductCount: Number(row.linked_product_count ?? 0),
     }));

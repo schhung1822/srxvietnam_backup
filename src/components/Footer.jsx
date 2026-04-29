@@ -12,7 +12,6 @@ const srxLinks = [
   { to: "/services/su-kien", label: "Sự kiện" },
   { to: "/services/chu-de-khoa-hoc", label: "Chủ đề khoa học" },
   { to: "/affiliate", label: "Affiliate" },
-  { to: "/faqs", label: "FAQs" },
 ];
 
 const policyLinks = [
@@ -22,7 +21,7 @@ const policyLinks = [
   { href: "/chinh-sach-hoan-tra", label: "Chính sách hoàn trả" },
   { href: "/quy-dinh-thanh-toan", label: "Quy định về thanh toán" },
   { href: "/chinh-sach-affiliate", label: "Chính sách cho Affiliate" },
-  { href: "/cach-dang-ky-affiliate", label: "Cách đăng ký Affiliate" },
+  { href: "/contact", label: "Liên hệ hợp tác" },
 ];
 
 const footerChevronClass =

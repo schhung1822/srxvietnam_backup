@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ChevronDown, Contrast, Droplets, Minus, Plus, ShieldCheck, Sparkles, Star } from 'lucide-react';
+import { Minus, Plus, Star } from 'lucide-react';
 import ProductArtwork from '../../components/shop/ProductArtwork';
 import ProductCard from '../../components/shop/ProductCard';
 import ProductIngredientShowcase from '../../components/shop/ProductIngredientShowcase';
@@ -351,25 +351,25 @@ function buildBenefitItems(product) {
 
   return [
     {
-      icon: Sparkles,
+      icon_img: '/assets/images/products/Vector.webp',
       label: /(tái tạo|chống lão hóa|phục hồi|retinol|peptide)/iu.test(searchableText)
         ? 'Tái tạo & trẻ hóa'
         : 'Hiệu quả nổi bật',
     },
     {
-      icon: Droplets,
+      icon_img: '/assets/images/products/Vector1.webp',
       label: /(cấp ẩm|hyalur|panthenol|ceramide|betaine|glycerin|dưỡng ẩm)/iu.test(searchableText)
         ? 'Siêu cấp ẩm'
         : 'Nuôi dưỡng mềm mượt',
     },
     {
-      icon: ShieldCheck,
+      icon_img: '/assets/images/products/Vector2.webp',
       label: /(bảo vệ|uv|chống nắng|barrier|ceramide|nhạy cảm)/iu.test(searchableText)
         ? 'Bảo vệ toàn diện'
         : 'Bảo vệ hàng rào da',
     },
     {
-      icon: Contrast,
+      icon_img: '/assets/images/products/Vector3.webp',
       label: /(kiểm soát dầu|làm sáng|mụn|niacinamide|acid|bã nhờn)/iu.test(searchableText)
         ? 'Kiểm soát dầu & dưỡng sáng'
         : 'Làm dịu & cân bằng',
@@ -382,13 +382,13 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
   const [selectedSceneId, setSelectedSceneId] = useState(product.gallery[0]?.id ?? null);
   const [selectedVariantId, setSelectedVariantId] = useState(product.variants[0].id);
   const [quantity, setQuantity] = useState(1);
-  const [openInfoPanelId, setOpenInfoPanelId] = useState('description');
+  const [openInfoPanelId, setOpenInfoPanelId] = useState('info');
 
   useEffect(() => {
     setSelectedSceneId(product.gallery[0]?.id ?? null);
     setSelectedVariantId(product.variants[0].id);
     setQuantity(1);
-    setOpenInfoPanelId('description');
+    setOpenInfoPanelId('info');
   }, [product.slug, product.gallery, product.variants]);
 
   const selectedScene =
@@ -409,26 +409,43 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
     parsedInfoContent.intro ||
     splitTextSentences(descriptionText).slice(0, 3).join(' ') ||
     shortDescriptionText;
+  const benefitSection =
+    parsedInfoContent.sections.find((section) => /công dụng|chỉ định/iu.test(section.title)) ?? null;
+  const ingredientSection =
+    parsedInfoContent.sections.find((section) => /thành phần/iu.test(section.title)) ?? null;
+  const accordionBenefitItems = uniqueTextItems([
+    ...(benefitSection?.paragraphs ?? []),
+    ...(benefitSection?.items ?? []),
+    ...infoIndications,
+    ...infoBenefits.map((benefit) => benefit.label),
+  ]).slice(0, 5);
+  const accordionIngredientItems = uniqueTextItems([
+    ...(ingredientSection?.items ?? []),
+    ...(ingredientSection?.paragraphs ?? []),
+    ...(product.ingredients ?? []),
+    ...(product.tagEntries?.map((entry) => entry.name) ?? []),
+  ]).slice(0, 8);
   const topInfoPanels = [
     {
-      id: 'description',
-      title: 'Mô tả sản phẩm',
+      id: 'info',
+      title: 'THÔNG TIN',
       description: accordionDescription,
       items: [],
     },
     {
-      id: 'usage',
-      title: 'Cách sử dụng',
+      id: 'benefits',
+      title: 'LỢI ÍCH',
       description: '',
-      items: product.howToUse.slice(0, 3).map((step, index) => `Bước ${index + 1}: ${step}`),
+      items: accordionBenefitItems,
     },
     {
-      id: 'purchase',
-      title: 'Thông tin mua hàng',
+      id: 'ingredients',
+      title: 'THÀNH PHẦN',
       description: '',
-      items: purchaseNotes,
+      items: accordionIngredientItems,
     },
   ].filter((panel) => panel.description || panel.items.length);
+  const hasDiscount = Number(selectedVariant.originalPrice) > Number(selectedVariant.price);
 
   const increaseQuantity = () => setQuantity((current) => current + 1);
   const decreaseQuantity = () => setQuantity((current) => (current > 1 ? current - 1 : 1));
@@ -448,17 +465,17 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
           <span className="text-[#15110d]">{product.name}</span>
         </div>
 
-        <div className="max-w-[1440px] mx-auto grid gap-8 pt-8 pb-20 xl:grid-cols-[88px_minmax(0,1fr)_420px]">
-          <div className="order-2 flex gap-3 overflow-x-auto xl:order-1 xl:flex-col">
+        <div className="max-w-[1440px] mx-auto grid gap-8 pt-8 pb-20 xl:grid-cols-[100px_minmax(0,1fr)_minmax(380px,500px)] xl:gap-10">
+          <div className="order-2 flex gap-3 overflow-x-auto xl:order-1 xl:flex-col xl:gap-4">
             {product.gallery.map((scene) => (
               <button
                 key={scene.id}
                 type="button"
                 onClick={() => setSelectedSceneId(scene.id)}
-                className={`min-w-[76px] rounded-[12px] border transition ${
+                className={`min-w-[78px] overflow-hidden rounded-[16px] border bg-white transition ${
                   selectedSceneId === scene.id
-                    ? 'border-[#7C93F1] '
-                    : 'border-[#F6BFDF] hover:border-[#7C93F1]'
+                    ? 'border-[#15110d] opacity-100'
+                    : 'border-[#CFC4C5] opacity-80 hover:border-[#cdbfb2] hover:opacity-100'
                 }`}
               >
                 <ProductArtwork scene={scene} mode="thumbnail" />
@@ -467,21 +484,37 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
           </div>
 
           <div className="order-1 xl:order-2">
-            <div className="overflow-hidden rounded-[24px] bg-[#f6f3ee]">
+            <div className="overflow-hidden rounded-[28px] border border-[#CFC4C5] bg-white">
               <ProductArtwork scene={selectedScene} badge={product.badge} mode="detail" showEyebrow={false} />
             </div>
           </div>
 
-          <div className="order-3">
-            <div className="text-[12px] font-semibold uppercase tracking-[0.22em] text-[#8d7f72]">
-              {product.brand}
+          <div className="order-3 pt-1 xl:pt-0">
+            <div className="text-[12px] font-medium uppercase tracking-[0.18em] text-[#a29a91]">
+              {product.category}
             </div>
 
-            <h1 className="mt-3 text-[34px] font-semibold leading-tight tracking-[-0.04em] text-[#15110d]">
+            <h1 className="mt-2 text-[26px] font-semibold leading-[1.04] tracking-[-0.06em] text-[#15110d] md:text-[44px]">
               {product.name}
             </h1>
 
-            <div className="mt-4 flex flex-wrap items-center gap-4 text-[14px] text-[#6b5f53]">
+            <div className="mt-5 flex items-end gap-3">
+              <div className="text-[26px] font-semibold tracking-[-0.05em] text-[#15110d] md:text-[42px]">
+                {moneyFormatter.format(selectedVariant.price)}đ
+              </div>
+              {hasDiscount ? (
+                <div className="pb-1 text-[15px] text-[#9a8c7f] line-through">
+                  {moneyFormatter.format(selectedVariant.originalPrice)}đ
+                </div>
+              ) : null}
+            </div>
+
+            <p className="mt-6 max-w-[520px] text-[14px] leading-[1.45] text-[#2b251f] md:text-[15px]">
+              {shortDescriptionText}
+            </p>
+
+            <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] text-[#6f6357]">
+              <span className="text-[#15110d]">{product.brand}</span>
               <span className="inline-flex items-center gap-2">
                 <Star className="h-4 w-4 fill-current text-[#15110d]" />
                 <span className="font-medium text-[#15110d]">{product.rating.toFixed(1)}</span>
@@ -490,20 +523,9 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
               <span>{product.soldCount}+ đã bán</span>
             </div>
 
-            <div className="mt-6 flex items-end gap-3">
-              <div className="text-[36px] font-bold text-[#15110d]">
-                {moneyFormatter.format(selectedVariant.price)}đ
-              </div>
-              <div className="pb-1 text-[17px] text-[#9a8c7f] line-through">
-                {moneyFormatter.format(selectedVariant.originalPrice)}đ
-              </div>
-            </div>
-
-            <p className="mt-6 text-[15px] leading-7 text-[#6f6357]">{shortDescriptionText}</p>
-
-            <div className="mt-8 border-t border-[#ebe4da] pt-6">
-              <div className="mb-3 text-[13px] font-semibold uppercase tracking-[0.18em] text-[#8d7f72]">
-                Dung tích / phiên bản
+            <div className="mt-12">
+              <div className="mb-4 text-[18px] font-medium text-[#15110d]">
+                Size
               </div>
               <div className="flex flex-wrap gap-3">
                 {product.variants.map((variant) => {
@@ -514,9 +536,9 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
                       key={variant.id}
                       type="button"
                       onClick={() => setSelectedVariantId(variant.id)}
-                      className={`rounded-full border px-4 py-2.5 text-[14px] font-medium transition ${
+                      className={`min-w-[80px] rounded-[10px] border px-5 py-3 text-[14px] font-medium uppercase transition ${
                         active
-                          ? 'border-[#15110d] bg-[#15110d] text-white'
+                          ? 'border-[#15110d] bg-white text-[#15110d]'
                           : 'border-[#ddd3c6] bg-white text-[#2b251f] hover:border-[#15110d]'
                       }`}
                     >
@@ -527,21 +549,21 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
               </div>
             </div>
 
-            <div className="mt-6 border-t border-[#ebe4da] pt-6">
-              <div className="flex flex-wrap items-center gap-4">
-                <div className="inline-flex items-center rounded-full border border-[#ddd3c6] bg-white p-1">
+            <div className="mt-8">
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="grid min-h-[54px] min-w-[132px] grid-cols-[44px_1fr_44px] items-center rounded-[12px] bg-[#edf0ff]">
                   <button
                     type="button"
                     onClick={decreaseQuantity}
-                    className="flex h-10 w-10 items-center justify-center rounded-full text-[#15110d] transition hover:bg-[#f3ede5]"
+                    className="flex h-full items-center justify-center text-[#15110d] transition hover:text-[#6f6357]"
                   >
                     <Minus className="h-4 w-4" />
                   </button>
-                  <span className="min-w-[44px] text-center text-[16px] font-semibold text-[#15110d]">{quantity}</span>
+                  <span className="text-center text-[16px] font-semibold text-[#15110d]">{quantity}</span>
                   <button
                     type="button"
                     onClick={increaseQuantity}
-                    className="flex h-10 w-10 items-center justify-center rounded-full text-[#15110d] transition hover:bg-[#f3ede5]"
+                    className="flex h-full items-center justify-center text-[#15110d] transition hover:text-[#6f6357]"
                   >
                     <Plus className="h-4 w-4" />
                   </button>
@@ -550,39 +572,42 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
                 <button
                   type="button"
                   onClick={() => addItem({ product, variant: selectedVariant, quantity })}
-                  className="flex-1 rounded-full bg-[#15110d] px-6 py-4 text-[15px] font-semibold text-white transition hover:bg-[#2b2520]"
+                  className="flex-1 rounded-[12px] bg-[linear-gradient(90deg,#7d91eb_0%,#efb6df_100%)] px-6 py-4 text-[12px] font-semibold uppercase tracking-[0.24em] text-white transition hover:opacity-95"
                 >
-                  Thêm vào giỏ
+                  Thêm vào giỏ →
                 </button>
+              </div>
+
+              <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-[13px] text-[#7b7064]">
+                {purchaseNotes.map((note) => (
+                  <span key={note}>{note}</span>
+                ))}
               </div>
             </div>
 
-            <div className="mt-6 border-t border-[#ebe4da] pt-6">
-              <div className="overflow-hidden rounded-[22px] border border-[#ebe4da] bg-[#fcfbf8]">
+            <div className="mt-16 border-t border-[#e8ddd0]">
+              <div>
                 {topInfoPanels.map((panel) => {
                   const isOpen = openInfoPanelId === panel.id;
 
                   return (
-                    <div
-                      key={panel.id}
-                      className={panel.id === topInfoPanels[topInfoPanels.length - 1]?.id ? '' : 'border-b border-[#ebe4da]'}
-                    >
+                    <div key={panel.id} className="border-b border-[#e8ddd0]">
                       <button
                         type="button"
                         onClick={() =>
                           setOpenInfoPanelId((current) => (current === panel.id ? '' : panel.id))
                         }
-                        className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition hover:bg-[#f7f3ee]"
+                        className="flex w-full items-center justify-between gap-4 py-5 text-left"
                         aria-expanded={isOpen}
                       >
-                        <span className="text-[13px] font-semibold uppercase tracking-[0.16em] text-[#15110d]">
+                        <span className="text-[13px] font-semibold uppercase tracking-[0.18em] text-[#15110d]">
                           {panel.title}
                         </span>
-                        <ChevronDown
-                          className={`h-4 w-4 shrink-0 text-[#6f6357] transition-transform duration-300 ${
-                            isOpen ? 'rotate-180' : ''
-                          }`}
-                        />
+                        {isOpen ? (
+                          <Minus className="h-4 w-4 shrink-0 text-[#15110d]" />
+                        ) : (
+                          <Plus className="h-4 w-4 shrink-0 text-[#15110d]" />
+                        )}
                       </button>
 
                       <div
@@ -591,7 +616,7 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
                         }`}
                       >
                         <div className="overflow-hidden">
-                          <div className="px-5 pb-5 text-[14px] leading-7 text-[#6f6357]">
+                          <div className="pb-5 pr-4 text-[14px] leading-7 text-[#6f6357]">
                             {panel.description ? <p>{toSentence(panel.description)}</p> : null}
 
                             {panel.items.length ? (
@@ -637,11 +662,11 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
               )}
             </div>
 
-            <div className="max-w-[500px] xl:justify-self-end">
+            <div className="max-w-[540px] mx-auto">
               {hasStructuredInfoContent ? (
                 <>
                   {infoIntro ? (
-                    <p className="text-[15px] leading-8 text-[#5f5449]">
+                    <p className="text-[15px] leading-8 text-[#111]">
                       {toSentence(infoIntro)}
                     </p>
                   ) : null}
@@ -657,7 +682,7 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
                           </div>
 
                           {section.paragraphs.length ? (
-                            <div className="mt-4 space-y-3 text-[14px] leading-7 text-[#5f5449]">
+                            <div className="mt-4 space-y-3 text-[14px] leading-7 text-[#111]">
                               {section.paragraphs.map((paragraph, paragraphIndex) => (
                                 <p key={`${section.title}-paragraph-${paragraphIndex}`}>{toSentence(paragraph)}</p>
                               ))}
@@ -753,16 +778,19 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
             </div>
           </div>
 
-          <div className="mt-12 grid grid-cols-2 gap-x-6 gap-y-10 pt-10 md:grid-cols-4 md:gap-x-8">
+          <div className="max-w-[1440px] mx-auto mt-12 grid grid-cols-2 gap-x-6 gap-y-10 pt-10 md:grid-cols-4 md:gap-x-8">
             {infoBenefits.map((benefit) => {
-              const Icon = benefit.icon;
-
               return (
                 <div key={benefit.label} className="flex flex-col items-center text-center">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f5f7ff] text-[#6e82ff]">
-                    <Icon className="h-5 w-5" strokeWidth={2} />
+                  <div className="flex h-12 w-12 items-center justify-center">
+                    <img
+                      src={benefit.icon_img}
+                      alt={benefit.label}
+                      className="h-10 w-10 object-contain"
+                      loading="lazy"
+                    />
                   </div>
-                  <div className="mt-3 text-[13px] leading-6 text-[#5f5449]">{benefit.label}</div>
+                  <div className="mt-3 text-[15px] leading-6 text-[#585858]">{benefit.label}</div>
                 </div>
               );
             })}

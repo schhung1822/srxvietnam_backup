@@ -1,10 +1,12 @@
 'use client';
 
+import { Suspense } from 'react';
 import { usePathname } from 'next/navigation';
 import Header from './Header';
 import Footer from './Footer';
 import PageTransition from './PageTransition';
 import CartDrawer from './cart/CartDrawer';
+import AffiliateReferralTracker from './affiliate/AffiliateReferralTracker';
 import { AuthProvider } from '../contexts/AuthContext';
 import { CartProvider } from '../contexts/CartContext';
 import { usePageTransition } from '../hooks/usePageTransition';
@@ -22,6 +24,9 @@ export default function AppShell({ children }) {
     <AuthProvider>
       <CartProvider>
         <div className="App min-h-screen flex flex-col">
+          <Suspense fallback={null}>
+            <AffiliateReferralTracker />
+          </Suspense>
           {!isVerificationPage && <Header />}
 
           <main className={isVerificationPage ? 'flex-1' : 'page-content flex-1 pt-[70px] lg:pt-[85px]'}>

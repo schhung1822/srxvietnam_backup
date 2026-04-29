@@ -117,7 +117,7 @@ function AboutContactPopup({ isOpen, onClose }) {
     >
       <div className="flex min-h-screen items-center justify-center p-4 sm:p-6">
         <div
-          className={`relative my-auto w-full max-w-[1100px] rounded-[22px] border border-[#c9ae74] bg-[#fbf7ee] p-5 shadow-[0_30px_120px_rgba(0,0,0,0.24)] transition-all duration-300 sm:p-7 lg:max-h-[calc(100vh-48px)] lg:p-10 ${
+          className={`relative my-auto w-full max-w-[1100px] rounded-[22px] border border-[#FFF9FD] bg-[#fff] p-5 shadow-[0_30px_120px_rgba(0,0,0,0.24)] transition-all duration-300 sm:p-7 lg:max-h-[calc(100vh-48px)] lg:p-10 ${
             isVisible ? 'translate-y-0 opacity-100' : 'translate-y-5 opacity-0'
           }`}
           onClick={(event) => event.stopPropagation()}
@@ -125,7 +125,7 @@ function AboutContactPopup({ isOpen, onClose }) {
           <button
             type="button"
             onClick={handleClose}
-            className="absolute right-5 top-5 flex h-11 w-11 items-center justify-center rounded-full text-[#4e4a44] transition-colors duration-200 hover:bg-[#efe5d1]"
+            className="absolute right-5 top-5 flex h-11 w-11 items-center justify-center rounded-full text-[#4e4a44] transition-colors duration-200 hover:bg-[#D2D1F3]"
             aria-label="Đóng popup liên hệ"
           >
             <X className="h-6 w-6" strokeWidth={1.8} />
@@ -160,7 +160,7 @@ function AboutContactPopup({ isOpen, onClose }) {
                 <div className="grid gap-6 md:grid-cols-2">
                   <label className="block">
                     <span
-                      className="block text-[15px] text-[#d0ab63] sm:text-[16px]"
+                      className="block text-[15px] text-[#333] sm:text-[16px]"
                       style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
                     >
                       Nhập tên của bạn*
@@ -171,13 +171,13 @@ function AboutContactPopup({ isOpen, onClose }) {
                       value={formData.customer_name}
                       onChange={handleInputChange}
                       required
-                      className="mt-3 w-full border-b border-[#ead9b9] bg-transparent pb-3 text-[16px] text-[#2b241a] outline-none transition-colors duration-200 placeholder:text-[#cdb68e] focus:border-[#b9934c]"
+                      className="mt-3 w-full border-b border-[#D2D1F3] bg-transparent pb-3 text-[16px] text-[#2b241a] outline-none transition-colors duration-200 placeholder:text-[#CFC4C5] focus:border-[#787878]"
                     />
                   </label>
 
                   <label className="block">
                     <span
-                      className="block text-[15px] text-[#d0ab63] sm:text-[16px]"
+                      className="block text-[15px] text-[#111] sm:text-[16px]"
                       style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
                     >
                       Nhập số điện thoại*
@@ -188,14 +188,14 @@ function AboutContactPopup({ isOpen, onClose }) {
                       value={formData.phone}
                       onChange={handleInputChange}
                       required
-                      className="mt-3 w-full border-b border-[#ead9b9] bg-transparent pb-3 text-[16px] text-[#2b241a] outline-none transition-colors duration-200 placeholder:text-[#cdb68e] focus:border-[#b9934c]"
+                      className="mt-3 w-full border-b border-[#D2D1F3] bg-transparent pb-3 text-[16px] text-[#2b241a] outline-none transition-colors duration-200 placeholder:text-[#CFC4C5] focus:border-[#787878]"
                     />
                   </label>
                 </div>
 
                 <label className="mt-8 block">
                   <span
-                    className="block text-[15px] text-[#d0ab63] sm:text-[16px]"
+                    className="block text-[15px] text-[#111] sm:text-[16px]"
                     style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
                   >
                     Nhập địa chỉ email*
@@ -206,13 +206,13 @@ function AboutContactPopup({ isOpen, onClose }) {
                     value={formData.email}
                     onChange={handleInputChange}
                     required
-                    className="mt-3 w-full border-b border-[#ead9b9] bg-transparent pb-3 text-[16px] text-[#2b241a] outline-none transition-colors duration-200 placeholder:text-[#cdb68e] focus:border-[#b9934c]"
+                    className="mt-3 w-full border-b border-[#D2D1F3] bg-transparent pb-3 text-[16px] text-[#2b241a] outline-none transition-colors duration-200 placeholder:text-[#CFC4C5] focus:border-[#787878]"
                   />
                 </label>
 
                 <label className="mt-8 block">
                   <span
-                    className="block text-[15px] text-[#d0ab63] sm:text-[16px]"
+                    className="block text-[15px] text-[#111] sm:text-[16px]"
                     style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
                   >
                     Nhập câu hỏi của bạn ở đây:*
@@ -223,7 +223,7 @@ function AboutContactPopup({ isOpen, onClose }) {
                     value={formData.consultation_request}
                     onChange={handleInputChange}
                     required
-                    className="mt-3 w-full resize-none border-b border-[#ead9b9] bg-transparent pb-3 text-[16px] text-[#2b241a] outline-none transition-colors duration-200 placeholder:text-[#cdb68e] focus:border-[#b9934c]"
+                    className="mt-3 w-full resize-none border-b border-[#D2D1F3] bg-transparent pb-3 text-[16px] text-[#2b241a] outline-none transition-colors duration-200 placeholder:text-[#CFC4C5] focus:border-[#787878]"
                   />
                 </label>
 
@@ -231,16 +231,16 @@ function AboutContactPopup({ isOpen, onClose }) {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex min-h-[70px] items-center justify-center rounded-[6px] bg-[#1f1a14] px-6 text-center text-[20px] font-medium uppercase tracking-[-0.03em] text-white transition-transform duration-200 hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-60"
-                    style={{ fontFamily: '"Bebas Neue", "Manrope", sans-serif' }}
+                    className="flex min-h-[70px] items-center justify-center rounded-[6px] bg-[#1f1a14] hover:bg-[#302a22] px-6 text-center text-[20px] font-medium uppercase tracking-[-0.03em] text-white transition-transform duration-200 disabled:cursor-not-allowed disabled:opacity-60"
+                    style={{ fontFamily: '"Inter", "Manrope", sans-serif' }}
                   >
                     {isSubmitting ? 'Đang gửi...' : 'Gửi cho SRX'}
                   </button>
 
                   <a
                     href="tel:+84903010692"
-                    className="flex min-h-[70px] items-center justify-center gap-3 rounded-[6px] border border-[#d7b36c] px-6 text-center text-[20px] font-medium uppercase tracking-[-0.03em] text-[#2b241a] transition-colors duration-200 hover:bg-[#f3ead9]"
-                    style={{ fontFamily: '"Bebas Neue", "Manrope", sans-serif' }}
+                    className="flex min-h-[70px] items-center justify-center gap-3 rounded-[6px] border border-[#969DEE] px-6 text-center text-[20px] font-medium uppercase tracking-[-0.03em] text-[#2b241a] transition-colors duration-200 hover:bg-[#D2D1F3]"
+                    style={{ fontFamily: '"Inter", "Manrope", sans-serif' }}
                   >
                     <Phone className="h-5 w-5" strokeWidth={1.9} />
                     <span>Gọi cho SRX</span>

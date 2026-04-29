@@ -9,10 +9,15 @@ import {
   Calendar1,
   CheckCircle,
   ChevronDown,
+  CreditCard,
+  FileText,
   Globe,
   Menu,
+  RotateCcw,
   Search,
   ShoppingBag,
+  ShieldCheck,
+  Truck,
   UserRound,
   X,
 } from 'lucide-react';
@@ -38,8 +43,6 @@ const navigationItems = [
     dropdown: [
       { name: 'Tổng quan', path: '/affiliate', icon: BarChart3 },
       { name: 'Chính sách', path: '/chinh-sach-affiliate', icon: CheckCircle },
-      { name: 'Quyền lợi', path: '/quyen-loi-affiliate', icon: CheckCircle },
-      { name: 'Cách đăng ký', path: '/cach-dang-ky-affiliate', icon: CheckCircle },
     ],
   }
 ];

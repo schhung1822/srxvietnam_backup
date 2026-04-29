@@ -33,11 +33,11 @@ export default function ProductIngredientShowcase({ productName, entries = [] })
   return (
     <section className="grid gap-8 xl:grid-cols-[minmax(0,0.95fr)_minmax(420px,1fr)] xl:items-center">
       <div className="order-2 xl:order-1">
-        <div className="max-w-[560px]">
-          <div className="text-[12px] font-semibold uppercase tracking-[0.22em] text-[#8d7f72]">
+        <div className="max-w-[560px] mb-16">
+          <div className="text-[14px] font-semibold uppercase tracking-[0.22em] text-[#000000] font-weight-700">
             Bảng thành phần
           </div>
-          <p className="mt-4 text-[15px] leading-7 text-[#5f5449]">
+          <p className="mt-4 text-[16px] leading-7 text-[#000000] font-weight-700">
             Sự kết hợp của các hoạt chất sinh học trong {productName} mang lại hiệu quả nuôi dưỡng,
             phục hồi và tái tạo da theo từng vai trò riêng biệt.
           </p>
@@ -52,13 +52,13 @@ export default function ProductIngredientShowcase({ productName, entries = [] })
                 key={entry.id || entry.slug || entry.name}
                 type="button"
                 onClick={() => goToSlide(index)}
-                className="block w-full border-b border-[#ebe4da] py-5 text-left transition first:pt-0 last:border-b-0 last:pb-0"
+                className="block w-full border-b border-[#E6E6E6] py-5 text-left transition first:pt-0 last:border-b-0 last:pb-0"
               >
                 <div
                   className={`transition ${
                     isActive
-                      ? 'text-[22px] font-semibold tracking-[-0.04em] text-[#15110d]'
-                      : 'text-[18px] font-semibold tracking-[-0.03em] text-[#9a938a]'
+                      ? 'text-[22px] font-semibold tracking-[-0.04em] text-[#111111]'
+                      : 'text-[18px] font-semibold tracking-[-0.03em] text-[#787878]'
                   }`}
                 >
                   {entry.name}
