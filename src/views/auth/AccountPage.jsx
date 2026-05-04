@@ -1126,12 +1126,12 @@ export default function AccountPage() {
                       <div className="mt-2 text-[24px] font-semibold tracking-[-0.03em] text-[#15110d]">
                         #{order.orderNumber}
                       </div>
-                      <div className="mt-3 text-[14px] text-[#665a4e]">
-                        Đặt ngày{' '}
-                        {new Intl.DateTimeFormat('vi-VN', {
-                          dateStyle: 'medium',
-                          timeStyle: 'short',
-                        }).format(new Date(order.placedAt))}
+                        <div className="font-['Inter',_sans-serif] mt-3 text-[14px] text-[#665a4e]">
+                          Đặt ngày{' '}
+                          {new Intl.DateTimeFormat('vi-VN', {
+                            dateStyle: 'medium',
+                            timeStyle: 'short',
+                          }).format(new Date(order.placedAt))}
                       </div>
                     </div>
 
@@ -1152,7 +1152,7 @@ export default function AccountPage() {
                   <div className="mt-5 grid gap-4 md:grid-cols-3">
                     <div className="rounded-[20px] border border-[#ece4da] bg-white p-4">
                       <div className="text-[12px] uppercase tracking-[0.18em] text-[#8d7f72]">Tổng thanh toán</div>
-                      <div className="mt-2 text-[20px] font-semibold text-[#15110d]">
+                      <div className="font-['Inter',_sans-serif] mt-2 text-[20px] font-semibold text-[#15110d]">
                         {currencyFormatter.format(order.grandTotal)}
                       </div>
                     </div>

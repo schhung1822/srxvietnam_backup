@@ -183,7 +183,7 @@ export default function HeaderSearchOverlay({ isOpen, onClose }) {
                         </div>
                         <div className="mt-2 flex items-center justify-between gap-4 text-[14px] text-[#6f6357]">
                           <span>{product.category}</span>
-                          <span className="font-semibold text-[#15110d]">
+                          <span className="font-['Inter',_sans-serif] font-semibold text-[#15110d]">
                             {moneyFormatter.format(product.price)}đ
                           </span>
                         </div>

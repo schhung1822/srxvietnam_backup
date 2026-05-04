@@ -162,7 +162,7 @@ function SepayPanel({ payment, showHeading = true }) {
         <div className="space-y-3">
           <div className="rounded-[20px] border border-[#ece4da] bg-[#fcfaf8] p-4">
             <div className="text-[12px] uppercase tracking-[0.18em] text-[#8d7f72]">Số tiền</div>
-            <div className="mt-2 text-[24px] font-semibold text-[#15110d]">
+            <div className="font-['Inter',_sans-serif] mt-2 text-[24px] font-semibold text-[#15110d]">
               {currencyFormatter.format(payment.amount)}
             </div>
           </div>
@@ -455,7 +455,7 @@ export default function CheckoutPage() {
               <div className="mt-8 grid gap-4 md:grid-cols-2">
                 <div className="rounded-[22px] border border-[#ece4da] bg-[#fcfaf8] p-5">
                   <div className="text-[12px] uppercase tracking-[0.18em] text-[#8d7f72]">Tổng thanh toán</div>
-                  <div className="mt-2 text-[24px] font-semibold text-[#15110d]">
+                  <div className="font-['Inter',_sans-serif] mt-2 text-[24px] font-semibold text-[#15110d]">
                     {currencyFormatter.format(completedCheckout.order.grandTotal)}
                   </div>
                 </div>
@@ -806,7 +806,7 @@ export default function CheckoutPage() {
                       </div>
                       <div className="flex-shrink-0 text-[14px] text-[#665a4e]">x{item.quantity}</div>
                     </div>
-                    <div className="mt-3 text-[15px] font-semibold text-[#15110d]">
+                    <div className="font-['Inter',_sans-serif] mt-3 text-[15px] font-semibold text-[#15110d]">
                       {currencyFormatter.format(item.price * item.quantity)}
                     </div>
                   </div>
@@ -856,11 +856,11 @@ export default function CheckoutPage() {
               <div className="mt-6 space-y-3 text-[15px] text-[#665a4e]">
                 <div className="flex items-center justify-between">
                   <span>Tạm tính</span>
-                  <span className="font-medium text-[#15110d]">{currencyFormatter.format(totals.subtotal)}</span>
+                  <span className="font-['Inter',_sans-serif] font-medium text-[#15110d]">{currencyFormatter.format(totals.subtotal)}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span>Giảm giá</span>
-                  <span className="font-medium text-[#15110d]">-{currencyFormatter.format(totals.discountTotal)}</span>
+                  <span className="font-['Inter',_sans-serif] font-medium text-[#15110d]">-{currencyFormatter.format(totals.discountTotal)}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span>Phí vận chuyển</span>
@@ -868,7 +868,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex items-center justify-between border-t border-[#ece4da] pt-4 text-[20px] font-semibold text-[#15110d]">
                   <span>Tổng cộng</span>
-                  <span>{currencyFormatter.format(totals.grandTotal)}</span>
+                  <span className="font-['Inter',_sans-serif]">{currencyFormatter.format(totals.grandTotal)}</span>
                 </div>
               </div>
 

@@ -147,7 +147,7 @@ function HeroEventsSlider({ events = [] }) {
 
         <div className="absolute inset-x-0 bottom-0 z-20 px-5 pb-7 pt-24">
           <div className="max-w-[92%]">
-            <div className="text-[13px] font-medium text-white">{formatHeroDateLabel(activeEvent.publishedAt)}</div>
+            <div className="font-['Inter',_sans-serif] text-[13px] font-medium text-white">{formatHeroDateLabel(activeEvent.publishedAt)}</div>
             <h1 className="mt-4 text-[24px] font-semibold leading-[1.08] tracking-[-0.05em] text-white sm:text-[28px]">
               {activeEvent.title}
             </h1>
@@ -221,7 +221,7 @@ function HeroEventsSlider({ events = [] }) {
           style={{ background: activeBackground }}
         >
           <div className="relative z-10 max-w-full">
-            <div className="text-[13px] font-medium text-[#7c7890]">{formatHeroDateLabel(activeEvent.publishedAt)}</div>
+            <div className="font-['Inter',_sans-serif] text-[13px] font-medium text-[#7c7890]">{formatHeroDateLabel(activeEvent.publishedAt)}</div>
             <h1 className="mt-4 max-w-full text-[24px] font-semibold leading-[1.12] tracking-[-0.05em] text-[#171b25] md:text-[30px] xl:text-[36px]">
               {activeEvent.title}
             </h1>
@@ -270,7 +270,7 @@ function EventCard({ article }) {
 
       <div className="flex flex-1 flex-col px-2 pb-1 pt-4">
         <div className="flex items-center justify-between gap-3 text-[10px] uppercase tracking-[0.18em] text-[#74798a]">
-          <span>{formatEventDateLabel(article.publishedAt)}</span>
+          <span className="font-['Inter',_sans-serif]">{formatEventDateLabel(article.publishedAt)}</span>
           <CalendarDays className="h-3.5 w-3.5 shrink-0" />
         </div>
 

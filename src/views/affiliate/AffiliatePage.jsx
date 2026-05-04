@@ -1074,12 +1074,12 @@ export default function AffiliatePage() {
 
           <div className="rounded-[26px] border border-[#ece4da] bg-white p-5">
             <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#8d7f72]">Ngày gửi hồ sơ</div>
-            <div className="mt-2 text-[20px] font-semibold text-[#15110d]">{formatDate(snapshot?.application?.createdAt)}</div>
+            <div className="font-['Inter',_sans-serif] mt-2 text-[20px] font-semibold text-[#15110d]">{formatDate(snapshot?.application?.createdAt)}</div>
           </div>
 
           <div className="rounded-[26px] border border-[#ece4da] bg-white p-5">
             <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#8d7f72]">Ngày xét duyệt</div>
-            <div className="mt-2 text-[20px] font-semibold text-[#15110d]">
+            <div className="font-['Inter',_sans-serif] mt-2 text-[20px] font-semibold text-[#15110d]">
               {formatDate(snapshot?.account?.approvedAt ?? snapshot?.application?.reviewedAt)}
             </div>
           </div>
@@ -1121,7 +1121,7 @@ export default function AffiliatePage() {
 
               <div className="rounded-[26px] border border-[#ece4da] bg-[#fcfaf8] p-5">
                 <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#8d7f72]">Lần cập nhật gần nhất</div>
-                <div className="mt-2 text-[20px] font-semibold text-[#15110d]">{formatDate(snapshot?.bankAccount?.updatedAt)}</div>
+                <div className="font-['Inter',_sans-serif] mt-2 text-[20px] font-semibold text-[#15110d]">{formatDate(snapshot?.bankAccount?.updatedAt)}</div>
                 <div className="mt-3 text-[14px] leading-7 text-[#665a4e]">
                   Hãy kiểm tra kỹ số tài khoản và tên chủ tài khoản trước khi lưu.
                 </div>

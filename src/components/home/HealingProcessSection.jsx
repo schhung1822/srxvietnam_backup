@@ -181,9 +181,16 @@ export default function HealingProcessSection({
           className="flex w-full flex-col gap-10 lg:min-h-[760px] lg:justify-between"
         >
           <div>
+            <h2
+              className="whitespace-pre-line text-[48px] font-medium leading-[1] tracking-[-0.05em] text-[#6e96fb] md:hidden sm:text-[60px]"
+              style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
+            >
+              {title}
+            </h2>
+
             <ScrollRevealHeading
               as="h2"
-              className="text-[48px] font-medium leading-[1] tracking-[-0.05em] sm:text-[60px] lg:text-[74px]"
+              className="hidden text-[48px] font-medium leading-[1] tracking-[-0.05em] md:block sm:text-[60px] lg:text-[74px]"
               revealedClassName="text-[#6e96fb]"
               baseStyle={{ color: "rgba(110,150,251,0.18)" }}
               blurPx={8}
@@ -257,8 +264,10 @@ export default function HealingProcessSection({
               return (
                 <article
                   key={slide.id}
-                  className={`absolute inset-0 transition-opacity duration-500 ease-out ${
-                    isActive ? "opacity-100" : "pointer-events-none opacity-0"
+                  className={`transition-opacity duration-500 ease-out ${
+                    isActive
+                      ? "relative z-10 opacity-100"
+                      : "pointer-events-none absolute inset-0 opacity-0"
                   }`}
                   aria-hidden={!isActive}
                 >
@@ -272,7 +281,7 @@ export default function HealingProcessSection({
 
                     <div className="mt-4 overflow-hidden bg-white/30">
                       <div
-                        className="mx-auto w-full max-w-[640px] shrink-0 overflow-hidden"
+                        className="w-full shrink-0 overflow-hidden"
                         style={{ aspectRatio: "5 / 4" }}
                       >
                         <SlideMedia

@@ -42,11 +42,11 @@ export default function ProductCard({ product, priority = false }) {
         </h3>
 
         <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1">
-          <span className="text-[15px] font-bold text-[#171311] sm:text-[18px]">
+          <span className="font-['Inter',_sans-serif] text-[15px] font-bold text-[#171311] sm:text-[18px]">
             {moneyFormatter.format(product.price)}đ
           </span>
           {hasDiscount ? (
-            <span className="text-[12px] text-[#9e8d7b] line-through sm:text-[14px]">
+            <span className="font-['Inter',_sans-serif] text-[12px] text-[#9e8d7b] line-through sm:text-[14px]">
               {moneyFormatter.format(product.originalPrice)}đ
             </span>
           ) : null}

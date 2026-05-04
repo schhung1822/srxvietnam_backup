@@ -56,7 +56,7 @@ export default function NewsTopFeatureSection({ article }) {
         />
 
         <div className="rounded-[18px] bg-white px-1 py-2 sm:col-span-2 xl:col-span-1 xl:px-4">
-          <div className="text-[14px] font-normal tracking-[-0.02em] text-[#8a8a8a] sm:text-[15px]">
+          <div className="font-['Inter',_sans-serif] text-[14px] font-normal tracking-[-0.02em] text-[#8a8a8a] sm:text-[15px]">
             {formatFeatureDate(article.publishedAt)}
           </div>
 

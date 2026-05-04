@@ -35,7 +35,7 @@ function ScientificTopicCard({ article }) {
         </div>
 
         <div className="px-2 pb-2 pt-5">
-          <div className="text-[12px] font-medium tracking-[0.01em] text-[#7f8495]">
+          <div className="font-['Inter',_sans-serif] text-[12px] font-medium tracking-[0.01em] text-[#7f8495]">
             {formatNewsDate(article.publishedAt)}
           </div>
           <h3

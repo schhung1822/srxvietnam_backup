@@ -499,11 +499,11 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
             </h1>
 
             <div className="mt-5 flex items-end gap-3">
-              <div className="text-[26px] font-semibold tracking-[-0.05em] text-[#15110d] md:text-[42px]">
+              <div className="font-['Inter',_sans-serif] text-[26px] font-semibold tracking-[-0.05em] text-[#15110d] md:text-[42px]">
                 {moneyFormatter.format(selectedVariant.price)}đ
               </div>
               {hasDiscount ? (
-                <div className="pb-1 text-[15px] text-[#9a8c7f] line-through">
+                <div className="font-['Inter',_sans-serif] pb-1 text-[15px] text-[#9a8c7f] line-through">
                   {moneyFormatter.format(selectedVariant.originalPrice)}đ
                 </div>
               ) : null}

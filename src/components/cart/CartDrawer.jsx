@@ -104,7 +104,7 @@ export default function CartDrawer() {
                         {item.name}
                       </Link>
                       <div className="mt-1 text-[13px] text-[#75695d]">{item.variantLabel}</div>
-                      <div className="mt-2 text-[15px] font-semibold text-[#15110d]">
+                      <div className="font-['Inter',_sans-serif] mt-2 text-[15px] font-semibold text-[#15110d]">
                         {moneyFormatter.format(item.price)}đ
                       </div>
                     </div>
@@ -204,15 +204,15 @@ export default function CartDrawer() {
           <div className="mt-4 space-y-2 text-[14px] text-[#6d6053]">
             <div className="flex items-center justify-between">
               <span>Tạm tính</span>
-              <span className="font-medium text-[#15110d]">{moneyFormatter.format(subtotal)}đ</span>
+              <span className="font-['Inter',_sans-serif] font-medium text-[#15110d]">{moneyFormatter.format(subtotal)}đ</span>
             </div>
             <div className="flex items-center justify-between">
               <span>Giảm giá</span>
-              <span className="font-medium text-[#15110d]">-{moneyFormatter.format(discountAmount)}đ</span>
+              <span className="font-['Inter',_sans-serif] font-medium text-[#15110d]">-{moneyFormatter.format(discountAmount)}đ</span>
             </div>
             <div className="flex items-center justify-between pt-2 text-[18px] font-semibold text-[#15110d]">
               <span>Tổng cộng</span>
-              <span>{moneyFormatter.format(total)}đ</span>
+              <span className="font-['Inter',_sans-serif]">{moneyFormatter.format(total)}đ</span>
             </div>
           </div>
 

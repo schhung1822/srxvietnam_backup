@@ -185,7 +185,7 @@ function RelatedNewsCard({ article }) {
         </div>
 
         <div className="px-1 pb-1 pt-4">
-          <div className="text-[12px] font-medium tracking-[0.01em] text-[#7f8495]">
+          <div className="font-['Inter',_sans-serif] text-[12px] font-medium tracking-[0.01em] text-[#7f8495]">
             {formatNewsDate(article.publishedAt)}
           </div>
           <h3 className="mt-3 line-clamp-2 text-[22px] font-medium leading-[1.14] tracking-[-0.05em] text-[#2b3140]">
@@ -234,7 +234,7 @@ export default async function NewsDetailMinimalPage({ article }) {
                   {article.category}
                 </div>
                 <span className="h-1 w-1 rounded-full bg-[#b3bad1]" />
-                <span>{formatNewsDate(article.publishedAt)}</span>
+                <span className="font-['Inter',_sans-serif]">{formatNewsDate(article.publishedAt)}</span>
                 <span className="h-1 w-1 rounded-full bg-[#b3bad1]" />
                 <span>{article.readTime}</span>
               </div>

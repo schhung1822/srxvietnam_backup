@@ -303,12 +303,12 @@ export default function ClinicalProofSection({
                 href={activeSlide.href}
                 className="block transition-transform duration-300 hover:-translate-y-0.5"
               >
-                <p
-                  className="text-[12px] font-medium uppercase tracking-[0.08em] text-white sm:text-[14px]"
-                  style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
-                >
-                  {activeSlide.date}
-                </p>
+                  <p
+                    className="font-['Inter',_sans-serif] text-[12px] font-medium uppercase tracking-[0.08em] text-white sm:text-[14px]"
+                    style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
+                  >
+                    {activeSlide.date}
+                  </p>
 
                 <div className="mt-3 flex items-start justify-between gap-4 sm:gap-8">
                   <div className="min-w-0">
