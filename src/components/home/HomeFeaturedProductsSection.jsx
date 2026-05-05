@@ -30,9 +30,9 @@ export default function HomeFeaturedProductsSection({ products = [] }) {
             className="mt-4 text-[30px] font-medium leading-[1.3] tracking-[-0.05em] sm:text-[48px] lg:text-[60px]"
             revealedClassName="text-[#6e96fb]"
             baseStyle={{ color: 'rgba(110,150,251,0.18)' }}
-            blurPx={8}
-            start="top 88%"
-            end="top 44%"
+            blurPx={4}
+            start="top 90%"
+            end="top 38%"
             style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
           >
             {sectionTitle}

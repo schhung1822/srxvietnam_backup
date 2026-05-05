@@ -47,22 +47,28 @@ const defaultSlides = [
   },
 ];
 
-function SlideMedia({ slide, index, isActive, videoRefs }) {
+function SlideMedia({ slide, index, videoRefs }) {
   if (slide.media.type === "video") {
     return (
       <video
         ref={(element) => {
           videoRefs.current[index] = element;
         }}
-        className="h-full w-full object-cover"
-        autoPlay={isActive}
+        className="h-full w-full object-cover pointer-events-none"
+        autoPlay
         muted
         loop
         playsInline
+        webkit-playsinline="true"
         preload="metadata"
         poster={slide.media.poster}
+        controls={false}
+        disablePictureInPicture
+        controlsList="nodownload nofullscreen noremoteplayback"
+        tabIndex={-1}
+        onContextMenu={(event) => event.preventDefault()}
       >
-        <source src={slide.media.src} />
+        <source src={slide.media.src} type="video/mp4" />
       </video>
     );
   }
@@ -127,7 +133,7 @@ export default function HealingProcessSection({
         const playback = video.play();
 
         if (playback && typeof playback.catch === "function") {
-          playback.catch(() => {});
+          playback.catch(() => { });
         }
       } else {
         video.pause();
@@ -193,9 +199,9 @@ export default function HealingProcessSection({
               className="hidden text-[48px] font-medium leading-[1] tracking-[-0.05em] md:block sm:text-[60px] lg:text-[74px]"
               revealedClassName="text-[#6e96fb]"
               baseStyle={{ color: "rgba(110,150,251,0.18)" }}
-              blurPx={8}
-              start="top 88%"
-              end="top 44%"
+              blurPx={4}
+              start="top 90%"
+              end="top 38%"
               style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
             >
               {title}
@@ -212,9 +218,8 @@ export default function HealingProcessSection({
                     key={slide.id}
                     type="button"
                     onClick={() => goToSlide(index)}
-                    className={`block text-left text-[16px] leading-[1.7] tracking-[-0.02em] transition-colors duration-300 ${
-                      isActive ? "text-[#ff5be2]" : "text-[#7f7f7f]"
-                    }`}
+                    className={`block text-left text-[16px] leading-[1.7] tracking-[-0.02em] transition-colors duration-300 ${isActive ? "text-[#ff5be2]" : "text-[#7f7f7f]"
+                      }`}
                     style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
                   >
                     {slide.stageLabel}
@@ -264,11 +269,10 @@ export default function HealingProcessSection({
               return (
                 <article
                   key={slide.id}
-                  className={`transition-opacity duration-500 ease-out ${
-                    isActive
+                  className={`transition-opacity duration-500 ease-out ${isActive
                       ? "relative z-10 opacity-100"
                       : "pointer-events-none absolute inset-0 opacity-0"
-                  }`}
+                    }`}
                   aria-hidden={!isActive}
                 >
                   <div className="flex h-full flex-col">
@@ -287,7 +291,6 @@ export default function HealingProcessSection({
                         <SlideMedia
                           slide={slide}
                           index={index}
-                          isActive={isActive}
                           videoRefs={videoRefs}
                         />
                       </div>

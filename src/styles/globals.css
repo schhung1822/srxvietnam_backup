@@ -37,6 +37,7 @@ body.transition-active {
 
 /* Mobile optimizations */
 @media (max-width: 768px) {
+
     /* Faster transitions on mobile for better UX */
     .page-transition {
         transition-duration: 0.25s;
@@ -85,7 +86,7 @@ body.transition-active {
 }
 
 /* Prevent flash of unstyled content */
-.page-content > * {
+.page-content>* {
     opacity: 1;
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
@@ -131,4 +132,41 @@ img {
 
 .transition-slow {
     transition-duration: 0.5s !important;
+}
+
+video::-webkit-media-controls {
+    display: none !important;
+}
+
+video::-webkit-media-controls-panel {
+    display: none !important;
+}
+
+video::-webkit-media-controls-play-button {
+    display: none !important;
+}
+
+video::-webkit-media-controls-timeline {
+    display: none !important;
+}
+
+video::-webkit-media-controls-current-time-display,
+video::-webkit-media-controls-time-remaining-display {
+    display: none !important;
+}
+
+video::-webkit-media-controls-fullscreen-button {
+    display: none !important;
+}
+
+video::-webkit-media-controls,
+video::-webkit-media-controls-panel,
+video::-webkit-media-controls-play-button,
+video::-webkit-media-controls-timeline,
+video::-webkit-media-controls-current-time-display,
+video::-webkit-media-controls-time-remaining-display,
+video::-webkit-media-controls-fullscreen-button {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
 }

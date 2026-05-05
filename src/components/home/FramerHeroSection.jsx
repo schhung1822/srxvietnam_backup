@@ -155,8 +155,15 @@ const FramerHeroSection = () => {
           muted
           loop
           playsInline
+          webkit-playsinline="true"
           preload="auto"
-          className="absolute inset-0 h-full w-full object-cover opacity-[0.81] [filter:saturate(0.88)]"
+          controls={false}
+          disablePictureInPicture
+          controlsList="nodownload nofullscreen noremoteplayback"
+          tabIndex={-1}
+          aria-hidden="true"
+          onContextMenu={(event) => event.preventDefault()}
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-[0.81] [filter:saturate(0.88)]"
         >
           <source src={HERO_ASSETS.backgroundVideo} type="video/mp4" />
         </video>
@@ -292,32 +299,32 @@ const FramerHeroSection = () => {
             </div>
 
             <div className="relative z-[5] block sm:hidden flex w-full flex-wrap items-start justify-center px-0 pt-6 sm:px-1 sm:pt-8">
-                  <div className="flex w-full gap-3 justify-center sm:w-auto sm:flex-row sm:flex-wrap sm:gap-[18px]">
-                    <Link
-                      data-hero-cta
-                      to="/products"
-                      className={`${homePrimaryButtonClass} justify-center shrink-0 min-w-[116px] sm:w-auto sm:min-w-[118px]`}
-                      style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
-                    >
-                      <span className={homeButtonHighlightClass} />
-                      <span className={homeButtonSheenClass} />
-                      <span className="relative z-[1]">Khám phá ngay</span>
-                    </Link>
+              <div className="flex w-full gap-3 justify-center sm:w-auto sm:flex-row sm:flex-wrap sm:gap-[18px]">
+                <Link
+                  data-hero-cta
+                  to="/products"
+                  className={`${homePrimaryButtonClass} justify-center shrink-0 min-w-[116px] sm:w-auto sm:min-w-[118px]`}
+                  style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
+                >
+                  <span className={homeButtonHighlightClass} />
+                  <span className={homeButtonSheenClass} />
+                  <span className="relative z-[1]">Khám phá ngay</span>
+                </Link>
 
-                    <Link
-                      data-hero-cta
-                      to="/contact"
-                      className={`${homeSecondaryButtonClass} justify-center shrink-0 min-w-[206px] px-6 sm:w-auto sm:min-w-[210px] sm:px-7`}
-                      style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
-                    >
-                      <span className={homeButtonHighlightClass} />
-                      <span className={homeButtonSheenClass} />
-                      <span className="relative z-[1]">
-                        Nâng cấp làn da của bạn
-                      </span>
-                    </Link>
-                  </div>
-                </div>
+                <Link
+                  data-hero-cta
+                  to="/contact"
+                  className={`${homeSecondaryButtonClass} justify-center shrink-0 min-w-[206px] px-6 sm:w-auto sm:min-w-[210px] sm:px-7`}
+                  style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
+                >
+                  <span className={homeButtonHighlightClass} />
+                  <span className={homeButtonSheenClass} />
+                  <span className="relative z-[1]">
+                    Nâng cấp làn da của bạn
+                  </span>
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </div>
