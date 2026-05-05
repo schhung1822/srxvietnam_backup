@@ -125,14 +125,14 @@ function FilterGroup({ title, options, selectedValue, onChange, isOpen, onToggle
                   type="button"
                   onClick={() => onChange(value)}
                   tabIndex={isOpen ? 0 : -1}
-                  className="flex w-full items-center gap-3 text-left text-[14px] text-[#5e5246] transition hover:text-[#15110d]"
+                  className="font-['Inter',_sans-serif] flex w-full items-center gap-3 text-left text-[14px] text-[#5e5246] transition hover:text-[#15110d]"
                 >
                   <span
                     className={`h-[18px] w-[18px] rounded-full border transition ${
                       active ? 'border-[#15110d] bg-[#15110d]' : 'border-[#cfc2b2] bg-white'
                     }`}
                   />
-                  <span>{label}</span>
+                  <span className="font-['Inter',_sans-serif]">{label}</span>
                 </button>
               );
             })}
@@ -183,7 +183,7 @@ function FilterPanelContent({
         </button>
       </div>
 
-      <div className="space-y-6 pt-6">
+      <div className="space-y-6 pt-6 font-['Inter',_sans-serif]">
         <FilterGroup
           title={UI_TEXT.category}
           options={productCategories}

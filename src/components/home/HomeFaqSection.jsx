@@ -212,19 +212,17 @@ export default function HomeFaqSection({
                     className="grid min-h-[64px] grid-cols-[56px_minmax(0,1fr)_40px] items-center gap-3 px-0 transition-[color,min-height] duration-300 sm:min-h-[82px] sm:grid-cols-[92px_minmax(0,1fr)_64px] sm:gap-8 lg:min-h-[88px] lg:grid-cols-[110px_minmax(0,1fr)_88px] lg:px-0"
                   >
                     <div
-                      className={`text-[26px] font-semibold leading-none tracking-[-0.04em] sm:text-[38px] lg:text-[42px] ${
+                      className={`text-[26px] font-semibold leading-none tracking-[-0.04em] sm:text-[38px] lg:text-[42px] font-['Inter',_sans-serif] ${
                         isActive ? "text-black" : "text-[#bcbcbc]"
                       }`}
-                      style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
                     >
                       {item.number}
                     </div>
 
                     <div
-                      className={`min-w-0 text-[14px] font-semibold leading-[1.18] tracking-[-0.04em] sm:text-[24px] lg:text-[26px] ${
+                      className={`min-w-0 text-[14px] font-semibold leading-[1.18] tracking-[-0.04em] sm:text-[24px] lg:text-[26px] font-['Inter',_sans-serif] ${
                         isActive ? "text-black" : "text-[#b9b9b9]"
                       }`}
-                      style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
                     >
                       {item.question}
                     </div>
@@ -252,8 +250,14 @@ export default function HomeFaqSection({
                     <div className="pb-5 sm:grid sm:grid-cols-[92px_minmax(0,1fr)_64px] sm:gap-8 sm:pb-7 lg:grid-cols-[110px_minmax(0,1fr)_88px] lg:pb-8">
                       <div className="hidden sm:block" />
 
-                      <div className={hasImage ? "lg:grid lg:grid-cols-[minmax(0,1fr)_280px] lg:items-start lg:gap-10" : ""}>
-                        <div className="min-h-0 overflow-hidden">
+                      <div
+                        className={
+                          hasImage
+                            ? "lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(280px,340px)] lg:items-center lg:gap-12"
+                            : ""
+                        }
+                      >
+                        <div className="min-h-0 overflow-hidden pt-2">
                           <p
                             className="max-w-[760px] text-[14px] leading-[1.7] text-black/92 sm:text-[18px]"
                             style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
@@ -263,7 +267,7 @@ export default function HomeFaqSection({
                         </div>
 
                         {hasImage ? (
-                          <div className="min-h-0 overflow-hidden lg:block">
+                          <div className="min-h-0 lg:block">
                             <div
                               className={`mt-6 flex justify-start transition-[transform,opacity] duration-500 ease-out lg:mt-0 lg:justify-end ${
                                 isActive
@@ -271,13 +275,17 @@ export default function HomeFaqSection({
                                   : "translate-y-6 opacity-0"
                               }`}
                             >
-                              <div className="animate-faq-thumb-float hidden sm:block overflow-hidden rounded-[6px] shadow-[0_16px_36px_rgba(78,96,173,0.16)] ring-1 ring-black/4">
-                                <img
-                                  src={item.image}
-                                  alt={item.question}
-                                  className="h-[120px] w-[190px] rotate-[-5deg] object-cover sm:h-[168px] sm:w-[280px]"
-                                  loading="lazy"
-                                />
+                              <div className="hidden sm:block px-3 py-4">
+                                <figure className="rotate-[-6deg] animate-faq-thumb-float w-[210px] sm:w-[280px] lg:w-[320px]">
+                                  <div className="aspect-[16/9]  overflow-hidden rounded-[10px] bg-white shadow-[0_18px_40px_rgba(78,96,173,0.18)] ring-1 ring-black/5">
+                                    <img
+                                      src={item.image}
+                                      alt={item.question}
+                                      className="h-full w-full object-cover object-center"
+                                      loading="lazy"
+                                    />
+                                  </div>
+                                </figure>
                               </div>
                             </div>
                           </div>

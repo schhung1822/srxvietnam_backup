@@ -125,23 +125,38 @@ export default function Header() {
   const renderDropdownLinks = (dropdownItems, { mobile = false } = {}) =>
     dropdownItems.map((dropdownItem) => {
       const Icon = dropdownItem.icon;
-      const baseClasses = mobile
-        ? 'flex items-center gap-2 rounded-3xl border border-[#111111] px-3 py-2 text-[13px] transition-all duration-200'
-        : 'flex items-center gap-2 rounded-3xl border-[1.5px] border-[#111111] px-3 py-2.5 text-[14px] transition-colors duration-200';
-      const activeClasses = isActiveRoute(dropdownItem.path)
-        ? 'bg-black text-white hover:bg-black'
-        : mobile
-          ? 'text-black hover:bg-white'
-          : 'text-black hover:bg-[#111111] hover:text-white';
+      const isActive = isActiveRoute(dropdownItem.path);
+
+      if (mobile) {
+        return (
+          <Link
+            key={`${dropdownItem.path}-${dropdownItem.name}`}
+            href={dropdownItem.path}
+            className={`grid w-full grid-cols-[12px_minmax(0,1fr)] items-center gap-3 rounded-3xl border border-[#111111] px-4 py-3 transition-all duration-200 ${
+              isActive ? 'bg-black text-white hover:bg-black' : 'bg-white text-black hover:bg-white'
+            }`}
+          >
+            <Icon className="h-3 w-3 shrink-0" />
+            <span
+              className="block min-w-0 whitespace-nowrap text-left text-[13px] leading-[1.35] text-inherit"
+              style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
+            >
+              {dropdownItem.name}
+            </span>
+          </Link>
+        );
+      }
 
       return (
         <Link
           key={`${dropdownItem.path}-${dropdownItem.name}`}
           href={dropdownItem.path}
-          className={`${baseClasses} ${activeClasses}`}
+          className={`flex items-center gap-2 rounded-3xl border-[1.5px] border-[#111111] px-3 py-2.5 text-[14px] transition-colors duration-200 ${
+            isActive ? 'bg-black text-white hover:bg-black' : 'text-black hover:bg-[#111111] hover:text-white'
+          }`}
         >
-          <Icon className={mobile ? 'h-3 w-3 shrink-0' : 'h-3.5 w-3.5 shrink-0'} />
-          <span className={mobile ? 'truncate' : ''}>{dropdownItem.name}</span>
+          <Icon className="h-3.5 w-3.5 shrink-0" />
+          <span>{dropdownItem.name}</span>
         </Link>
       );
     });

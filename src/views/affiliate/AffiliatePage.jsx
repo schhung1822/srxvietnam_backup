@@ -223,7 +223,7 @@ function InputField({ label, error, className = '', ...props }) {
       <span className="mb-2 block text-[14px] font-medium text-[#3d332a]">{label}</span>
       <input
         {...props}
-        className="h-[52px] w-full rounded-[18px] border border-[#ddd3c6] bg-[#fcfaf8] px-4 text-[15px] text-[#16110d] outline-none transition placeholder:text-[#9e9489] focus:border-[#15110d]"
+        className="h-[52px] w-full rounded-[18px] border border-[#ddd3c6] bg-[#fcfaf8] px-4 text-[15px] text-[#16110d] outline-none transition placeholder:text-[#9e9489] focus:border-[#15110d] font-['Inter',_sans-serif]"
       />
       {error ? <span className="mt-2 block text-[13px] text-[#b42318]">{error}</span> : null}
     </label>
@@ -267,7 +267,7 @@ function MetricCard({ icon, label, value, helper }) {
         <IconComponent className="h-5 w-5" />
       </div>
       <div className="mt-4 text-[13px] uppercase tracking-[0.16em] text-[#8d7f72]">{label}</div>
-      <div className="mt-2 text-[30px] font-semibold tracking-[-0.05em] text-[#15110d]">{value}</div>
+      <div className="mt-2 text-[30px] font-semibold tracking-[-0.05em] text-[#15110d] font-['Inter',_sans-serif]">{value}</div>
       <div className="mt-2 text-[14px] leading-6 text-[#6a5e53]">{helper}</div>
     </div>
   );
@@ -726,17 +726,17 @@ export default function AffiliatePage() {
           <div className="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_360px]">
             <div className="rounded-[26px] border border-[#ece4da] bg-[#fcfaf8] p-5 md:p-6">
               <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#8d7f72]">Link giới thiệu chính</div>
-              <div className="mt-3 break-all text-[15px] leading-7 text-[#15110d]">{snapshot.account.referralLink}</div>
+              <div className="mt-3 break-all text-[15px] leading-7 text-[#15110d] font-['Inter',_sans-serif]">{snapshot.account.referralLink}</div>
               <div className="mt-6 grid gap-4 md:grid-cols-2">
                 <div className="rounded-[20px] border border-[#e8dfd4] bg-white p-4">
                   <div className="text-[12px] uppercase tracking-[0.16em] text-[#8d7f72]">Mã affiliate</div>
-                  <div className="mt-2 text-[24px] font-semibold tracking-[0.04em] text-[#15110d]">
+                  <div className="font-['Inter',_sans-serif] mt-2 text-[22px] font-semibold tracking-[0.04em] text-[#15110d]">
                     {snapshot.account.affiliateCode}
                   </div>
                 </div>
                 <div className="rounded-[20px] border border-[#e8dfd4] bg-white p-4">
                   <div className="text-[12px] uppercase tracking-[0.16em] text-[#8d7f72]">Cách tính commission</div>
-                  <div className="mt-2 text-[18px] font-semibold leading-7 text-[#15110d]">
+                  <div className="font-['Inter',_sans-serif] mt-2 text-[18px] font-semibold leading-7 text-[#15110d]">
                     {snapshot.account.commissionType === 'percent'
                       ? `${snapshot.account.commissionRate}% / đơn hợp lệ`
                       : `${formatCurrency(snapshot.account.commissionRate)} / đơn hợp lệ`}
@@ -757,7 +757,7 @@ export default function AffiliatePage() {
 
               <div className="rounded-[26px] border border-[#ece4da] bg-[#15110d] p-5 text-white">
                 <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-white/70">Cookie ghi nhận</div>
-                <div className="mt-2 text-[28px] font-semibold tracking-[-0.04em]">
+                <div className="mt-2 text-[28px] font-semibold tracking-[-0.04em] font-['Inter',_sans-serif]">
                   {snapshot.account.cookieDurationDays} ngày
                 </div>
                 <div className="mt-3 text-[14px] leading-7 text-white/75">
@@ -816,21 +816,21 @@ export default function AffiliatePage() {
               <div className="mt-4 grid gap-4 md:grid-cols-3">
                 <div className="rounded-[20px] border border-[#e9dfd4] bg-white p-4">
                   <div className="text-[13px] uppercase tracking-[0.14em] text-[#8d7f72]">Click</div>
-                  <div className="mt-2 text-[28px] font-semibold tracking-[-0.04em] text-[#15110d]">
+                  <div className="mt-2 text-[28px] font-semibold tracking-[-0.04em] text-[#15110d] font-['Inter',_sans-serif]">
                     {formatNumber(performanceStats.clicks)}
                   </div>
                   <p className="mt-2 text-[13px] leading-6 text-[#6a5e53]">Lượng truy cập từ social, bài viết và landing page của bạn.</p>
                 </div>
                 <div className="rounded-[20px] border border-[#e9dfd4] bg-white p-4">
                   <div className="text-[13px] uppercase tracking-[0.14em] text-[#8d7f72]">Mua hàng</div>
-                  <div className="mt-2 text-[28px] font-semibold tracking-[-0.04em] text-[#15110d]">
+                  <div className="mt-2 text-[28px] font-semibold tracking-[-0.04em] text-[#15110d] font-['Inter',_sans-serif]">
                     {formatNumber(performanceStats.orders)}
                   </div>
                   <p className="mt-2 text-[13px] leading-6 text-[#6a5e53]">Đơn hàng hợp lệ được hệ thống ghi nhận cho mã affiliate.</p>
                 </div>
                 <div className="rounded-[20px] border border-[#e9dfd4] bg-white p-4">
                   <div className="text-[13px] uppercase tracking-[0.14em] text-[#8d7f72]">Chuyển đổi</div>
-                  <div className="mt-2 text-[28px] font-semibold tracking-[-0.04em] text-[#15110d]">
+                  <div className="mt-2 text-[28px] font-semibold tracking-[-0.04em] text-[#15110d] font-['Inter',_sans-serif]">
                     {performanceStats.conversionRate}
                   </div>
                   <p className="mt-2 text-[13px] leading-6 text-[#6a5e53]">Chỉ số chuyển đổi tổng hợp dựa trên click và số đơn ghi nhận.</p>
@@ -841,7 +841,7 @@ export default function AffiliatePage() {
             <div className="space-y-4">
               <div className="rounded-[26px] border border-[#ece4da] bg-white p-5">
                 <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#8d7f72]">Commission chờ duyệt</div>
-                <div className="mt-2 text-[28px] font-semibold tracking-[-0.04em] text-[#15110d]">
+                <div className="mt-2 text-[28px] font-semibold tracking-[-0.04em] text-[#15110d] font-['Inter',_sans-serif]">
                   {formatCurrency(performanceStats.pendingCommission)}
                 </div>
                 <div className="mt-3 text-[14px] leading-7 text-[#665a4e]">Đơn đang chờ hoàn tất điều kiện để được tính vào đối soát.</div>
@@ -899,7 +899,7 @@ export default function AffiliatePage() {
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_360px]">
             <div className="rounded-[26px] border border-[#ece4da] bg-[#fcfaf8] p-5 md:p-6">
               <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#8d7f72]">Link chính</div>
-              <div className="mt-3 break-all rounded-[20px] border border-[#e8dfd4] bg-white px-4 py-4 text-[15px] leading-7 text-[#15110d]">
+              <div className="mt-3 break-all rounded-[20px] border border-[#e8dfd4] bg-white px-4 py-4 text-[15px] leading-7 text-[#15110d] font-['Inter',_sans-serif]">
                 {snapshot.account.referralLink}
               </div>
               {copyMessage ? <div className="mt-3 text-[13px] text-[#665a4e]">{copyMessage}</div> : null}
@@ -907,13 +907,13 @@ export default function AffiliatePage() {
               <div className="mt-6 grid gap-4 md:grid-cols-2">
                 <div className="rounded-[20px] border border-[#e8dfd4] bg-white p-4">
                   <div className="text-[12px] uppercase tracking-[0.16em] text-[#8d7f72]">Mã affiliate</div>
-                  <div className="mt-2 text-[24px] font-semibold tracking-[0.04em] text-[#15110d]">
+                  <div className="mt-2 text-[24px] font-semibold tracking-[0.04em] text-[#15110d] font-['Inter',_sans-serif]">
                     {snapshot.account.affiliateCode}
                   </div>
                 </div>
                 <div className="rounded-[20px] border border-[#e8dfd4] bg-white p-4">
                   <div className="text-[12px] uppercase tracking-[0.16em] text-[#8d7f72]">Cookie</div>
-                  <div className="mt-2 text-[24px] font-semibold tracking-[0.04em] text-[#15110d]">
+                  <div className="mt-2 text-[24px] font-semibold tracking-[0.04em] text-[#15110d] font-['Inter',_sans-serif]">
                     {snapshot.account.cookieDurationDays} ngày
                   </div>
                 </div>
@@ -1293,7 +1293,7 @@ export default function AffiliatePage() {
           ) : (
             <div className="grid gap-8 xl:grid-cols-[320px_minmax(0,1fr)]">
               <aside className="space-y-5">
-                <div className="rounded-[30px] border border-[#ece4da] bg-white p-5 shadow-[0_18px_50px_rgba(22,17,13,0.05)]">
+                <div className="rounded-[20px] border border-[#ece4da] bg-white p-5 shadow-[0_18px_50px_rgba(22,17,13,0.05)]">
                   <div className="flex items-center justify-between gap-4">
                     <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#15110d] text-white">
                       <UserRound className="h-6 w-6" />
@@ -1307,11 +1307,11 @@ export default function AffiliatePage() {
                     {affiliateUser?.fullName || affiliateUser?.displayName || affiliateUser?.email}
                   </div>
                   <div className="mt-2 text-[14px] text-[#665a4e]">{affiliateUser?.email}</div>
-                  {affiliateUser?.phone ? <div className="mt-1 text-[14px] text-[#665a4e]">{affiliateUser.phone}</div> : null}
+                  {affiliateUser?.phone ? <div className="font-['Inter',_sans-serif] mt-1 text-[14px] text-[#665a4e]">{affiliateUser.phone}</div> : null}
 
                 </div>
 
-                <div className="rounded-[30px] border border-[#ece4da] bg-white p-3 shadow-[0_18px_50px_rgba(22,17,13,0.05)]">
+                <div className="rounded-[20px] border border-[#ece4da] bg-white p-3 shadow-[0_18px_50px_rgba(22,17,13,0.05)]">
                   <div className="mb-2 px-3 pt-3 text-[12px] font-semibold uppercase tracking-[0.2em] text-[#8d7f72]">
                     Khu vực affiliate
                   </div>

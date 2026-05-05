@@ -92,15 +92,15 @@ const Footer = () => {
               <div className="space-y-3">
                 <div className="text-[14px] text-white">
                   <span className="font-medium">Hotline:</span>
-                  <div className="text-white">+84 903.010.692</div>
+                  <div className="text-white font-['Inter',_sans-serif]">+84 903.010.692</div>
                 </div>
                 <div className="text-[14px] text-white">
                   <span className="font-medium">Email:</span>
-                  <div className="text-white">eacgroup.vn@gmail.com</div>
+                  <div className="text-white font-['Inter',_sans-serif]">eacgroup.vn@gmail.com</div>
                 </div>
                 <div className="text-[14px] text-white">
                   <span className="font-medium">Address:</span>
-                  <div className="text-white">
+                  <div className="text-white font-['Inter',_sans-serif]">
                     58 Phước Hưng, Phường 08, Quận 5, Thành phố Hồ Chí Minh, Việt Nam
                   </div>
                 </div>
@@ -188,7 +188,7 @@ const Footer = () => {
             <p className="text-[13px] text-white lg:text-[14px]">
               © Bản quyền thuộc về & cung cấp bởi{" "}
               <a href="https://nextgency.vn/" className="text-white hover:text-bold" target="_blank" rel="noopener noreferrer">
-                SRX Việt Nam
+                Nextgency
               </a>
             </p>
           </div>

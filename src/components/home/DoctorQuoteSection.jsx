@@ -28,7 +28,7 @@ export default function DoctorQuoteSection({
       <div className="relative z-10 mx-auto max-w-[1680px] px-4 sm:px-6 lg:px-8">
         <div className="relative flex min-h-[470px] items-end sm:min-h-[620px] lg:min-h-[760px]">
           <div className="relative w-full">
-            <div className="relative ml-0 mr-0 rounded-[34px] bg-[linear-gradient(90deg,#6f8ff8_0%,#8ea0f1_36%,#efb2e8_100%)] px-5 pb-14 pt-8 text-white shadow-[0_28px_80px_rgba(120,148,236,0.2)] sm:rounded-[60px] sm:px-8 sm:pb-36 sm:pt-16 lg:mb-20 lg:mr-[17%] lg:rounded-[80px] lg:px-12 lg:py-20">
+            <div className="relative ml-0 mr-0 rounded-[34px] bg-[linear-gradient(90deg,#6f8ff8_0%,#8ea0f1_36%,#efb2e8_100%)] px-5 pb-14 pt-8 text-white shadow-[0_28px_80px_rgba(120,148,236,0.2)] sm:rounded-[60px] sm:px-8 sm:pb-36 sm:pt-16 lg:mb-20 lg:rounded-[80px] lg:px-12 lg:py-20 lg:pr-[clamp(240px,31vw,520px)] xl:pr-[clamp(320px,34vw,620px)]">
               <div
                 className="pointer-events-none absolute left-4 top-[-20px] text-[82px] font-semibold leading-[82px] text-white/95 sm:left-8 sm:top-[-24px] sm:text-[128px] lg:left-14 lg:top-[-10px] lg:text-[190px]"
                 style={{ fontFamily: '"Macondo Swash Caps", "Times New Roman", serif' }}
@@ -38,14 +38,14 @@ export default function DoctorQuoteSection({
               </div>
 
               <p
-                className="relative max-w-[980px] text-[15px] font-medium leading-[1.75] tracking-[-0.03em] text-white sm:text-[20px] sm:leading-[1.65] lg:text-[24px] lg:leading-[1.58]"
+                className="relative max-w-[980px] text-[15px] font-medium leading-[1.75] tracking-[-0.03em] text-white sm:text-[20px] sm:leading-[1.65] lg:max-w-none lg:text-[24px] lg:leading-[1.58]"
                 style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
               >
                 <b>Thạc sĩ, Bác sĩ Nội trú chuyên ngành Da liễu Hoàng Văn Tâm:</b> Bác sĩ đánh giá rất cao các giải pháp chăm sóc da của hãng. Đặc biệt, sản phẩm <b>SRX Nourishing Ampoule đã được đích thân Bác sĩ Tâm gợi ý sử dụng trong cuốn sách cẩm nang <i>"Chăm sóc da trọn đời"</i></b>. Ngoài ra, Bác sĩ Tâm còn trực tiếp đồng hành cùng nhãn hàng trong chiến dịch "SRX Việt Nam đồng hành cùng Bác sĩ Hoàng Văn Tâm - Lan tỏa giá trị chăm sóc da khoa học" nhằm lan tỏa những kiến thức chuẩn y khoa đến cộng đồng.
               </p>
             </div>
 
-            <div className="pointer-events-none relative mx-auto mt-[-28px] flex max-w-[420px] justify-center sm:mt-[-48px] sm:max-w-[540px] lg:absolute lg:bottom-0 lg:right-0 lg:mt-0 lg:max-w-[800px] xl:max-w-[800px]">
+            <div className="pointer-events-none relative mx-auto mt-[-28px] flex max-w-[420px] justify-center sm:mt-[-48px] sm:max-w-[540px] lg:absolute lg:bottom-0 lg:right-0 lg:mt-0 lg:max-w-[clamp(260px,30vw,520px)] xl:max-w-[clamp(320px,34vw,620px)]">
               <img
                 src={doctorImage}
                 alt={doctorAlt}

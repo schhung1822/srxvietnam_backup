@@ -266,7 +266,7 @@ export default function KeySRXPage({ entries = [] }) {
               ))}
             </div>
           ) : (
-            <div className="mt-10 px-6 py-16 text-center">
+            <div className="mt-10        px-6 py-16 text-center">
               <div className="text-[28px] font-semibold tracking-[-0.04em] text-[#15110d]">
                 {UI_TEXT.emptyTitle}
               </div>
@@ -277,7 +277,6 @@ export default function KeySRXPage({ entries = [] }) {
           )}
         </section>
       </div>
-
       <AboutContactSection />
       <SRXLogo />
     </section>
