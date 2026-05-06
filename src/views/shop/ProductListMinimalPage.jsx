@@ -381,7 +381,7 @@ function ProductHero({ featuredTag }) {
     return (
       <div className="overflow-hidden">
         <div className="grid gap-4 py-0 sm:py-8 md:grid-cols-2 md:py-10 xl:grid-cols-[0.95fr_1.02fr_0.68fr] xl:gap-6">
-          <div className="flex min-h-[280px] items-center py-0 sm:py-10 md:col-span-2 md:min-h-[400px] xl:col-span-1">
+          <div className="flex min-h-[240px] items-center py-0 sm:py-10 md:col-span-2 md:min-h-[400px] xl:col-span-1">
             <div className="max-w-[400px]">
               <h1 className="text-[42px] font-semibold tracking-[-0.05em] text-[#15110d] md:text-[52px]">
                 {UI_TEXT.productTitle}
@@ -459,9 +459,14 @@ export default function ProductListMinimalPage({
   products = [],
   dictionaryEntries = [],
   initialTagSlug = '',
+  initialCategory = '',
 }) {
   const selectedTagSlug = normalizeValue(initialTagSlug);
-  const [category, setCategory] = useState(UI_TEXT.all);
+  const resolvedInitialCategory =
+    normalizeValue(initialCategory) && normalizeValue(initialCategory) !== normalizeValue(UI_TEXT.all)
+      ? initialCategory
+      : UI_TEXT.all;
+  const [category, setCategory] = useState(resolvedInitialCategory);
   const [concern, setConcern] = useState(UI_TEXT.all);
   const [skinType, setSkinType] = useState(UI_TEXT.all);
   const [price, setPrice] = useState('all');
@@ -549,7 +554,7 @@ export default function ProductListMinimalPage({
   }, [isMobileFiltersOpen]);
 
   useEffect(() => {
-    setCategory(UI_TEXT.all);
+    setCategory(resolvedInitialCategory);
     setConcern(UI_TEXT.all);
     setSkinType(UI_TEXT.all);
     setPrice('all');
@@ -561,7 +566,7 @@ export default function ProductListMinimalPage({
       skinType: true,
       price: true,
     });
-  }, [selectedTagSlug]);
+  }, [resolvedInitialCategory, selectedTagSlug]);
 
   const resetFilters = () => {
     setCategory(UI_TEXT.all);

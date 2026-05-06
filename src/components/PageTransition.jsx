@@ -10,12 +10,14 @@ const PageTransition = ({
 
   const animationClass =
     transitionPhase === "covering"
-      ? "animate-page-transition-cover"
-      : "animate-page-transition-reveal";
+      ? "animate-page-transition-fade-in"
+      : "animate-page-transition-fade-out";
 
   return (
     <>
-      <div className={`page-transition fixed inset-0 z-[9999] flex items-center justify-center bg-white ${animationClass}`}>
+      <div
+        className={`page-transition fixed inset-0 z-[9999] flex items-center justify-center bg-white/95 backdrop-blur-sm ${animationClass}`}
+      >
         <div className="flex items-center justify-center">
           <img
             src={logoSrc}
@@ -24,8 +26,8 @@ const PageTransition = ({
             style={{
               animation:
                 transitionPhase === "covering"
-                  ? "pageTransitionLogoIn 0.45s ease-out forwards"
-                  : "pageTransitionLogoOut 0.35s ease-in forwards",
+                  ? "pageTransitionLogoFadeIn 0.28s ease-out forwards"
+                  : "pageTransitionLogoFadeOut 0.24s ease-in forwards",
             }}
             onError={(event) => {
               event.currentTarget.style.display = "none";
@@ -35,28 +37,28 @@ const PageTransition = ({
       </div>
 
       <style jsx>{`
-        @keyframes pageTransitionCover {
-          from {
-            transform: translate3d(100%, 0, 0);
-          }
-          to {
-            transform: translate3d(0, 0, 0);
-          }
-        }
-
-        @keyframes pageTransitionReveal {
-          from {
-            transform: translate3d(0, 0, 0);
-          }
-          to {
-            transform: translate3d(-100%, 0, 0);
-          }
-        }
-
-        @keyframes pageTransitionLogoIn {
+        @keyframes pageTransitionFadeIn {
           from {
             opacity: 0;
-            transform: scale(0.84);
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
+        @keyframes pageTransitionFadeOut {
+          from {
+            opacity: 1;
+          }
+          to {
+            opacity: 0;
+          }
+        }
+
+        @keyframes pageTransitionLogoFadeIn {
+          from {
+            opacity: 0;
+            transform: scale(0.94);
           }
           to {
             opacity: 0.92;
@@ -64,23 +66,23 @@ const PageTransition = ({
           }
         }
 
-        @keyframes pageTransitionLogoOut {
+        @keyframes pageTransitionLogoFadeOut {
           from {
             opacity: 0.92;
             transform: scale(1);
           }
           to {
-            opacity: 0.64;
-            transform: scale(0.96);
+            opacity: 0;
+            transform: scale(1.04);
           }
         }
 
-        .animate-page-transition-cover {
-          animation: pageTransitionCover 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        .animate-page-transition-fade-in {
+          animation: pageTransitionFadeIn 0.24s ease-out forwards;
         }
 
-        .animate-page-transition-reveal {
-          animation: pageTransitionReveal 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        .animate-page-transition-fade-out {
+          animation: pageTransitionFadeOut 0.3s ease-in forwards;
         }
       `}</style>
     </>

@@ -1,10 +1,13 @@
 import { Suspense } from 'react';
 import AccountPage from '../../src/views/auth/AccountPage.jsx';
+import { buildMetadata } from '../../src/lib/seo.js';
 
-export const metadata = {
-  title: 'Tài khoản | SRX Beauty',
-  description: 'Đăng nhập, đăng ký và quản lý tài khoản SRX Beauty.',
-};
+export const metadata = buildMetadata({
+  title: 'Tài khoản',
+  description: 'Đăng nhập, đăng ký và quản lý tài khoản SRX Việt Nam.',
+  path: '/account',
+  noIndex: true,
+});
 
 export default function AccountRoute() {
   return (

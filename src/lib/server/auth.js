@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 
 export const SESSION_COOKIE_NAME = 'srx_session';
 export const SESSION_DURATION_DAYS = 30;
+export const PASSWORD_RESET_DURATION_MINUTES = 60;
 
 export function normalizeEmail(email) {
   return String(email ?? '')
@@ -35,6 +36,23 @@ export function verifyPassword(password, storedHash) {
 
 export function createSessionToken() {
   return crypto.randomBytes(32).toString('hex');
+}
+
+export function createPasswordResetToken() {
+  return crypto.randomBytes(32).toString('hex');
+}
+
+export function hashPasswordResetToken(token) {
+  return crypto.createHash('sha256').update(String(token ?? '').trim()).digest('hex');
+}
+
+export function normalizePasswordResetToken(token) {
+  const normalized = String(token ?? '').trim().toLowerCase();
+  return /^[a-f0-9]{64}$/u.test(normalized) ? normalized : '';
+}
+
+export function getPasswordResetExpiryDate() {
+  return new Date(Date.now() + PASSWORD_RESET_DURATION_MINUTES * 60 * 1000);
 }
 
 export function getSessionExpiryDate() {

@@ -1,6 +1,11 @@
 import crypto from 'node:crypto';
 import { NextResponse } from 'next/server';
-import { getCheckoutTotals, getSepayPaymentDetails, isSupportedPaymentMethod } from '../../../src/lib/commerce/checkout.js';
+import {
+  getCheckoutTotals,
+  getSepayPaymentDetails,
+  isSupportedPaymentMethod,
+  paymentMethodOptions,
+} from '../../../src/lib/commerce/checkout.js';
 import { getAuthenticatedUserRow } from '../../../src/lib/server/account.js';
 import {
   AFFILIATE_REFERRAL_COOKIE_NAME,
@@ -9,6 +14,8 @@ import {
   normalizeAffiliateVisitorToken,
 } from '../../../src/lib/server/affiliate.js';
 import { getDbPool } from '../../../src/lib/server/db.js';
+import { sendOrderPlacedNotification } from '../../../src/lib/server/lark.js';
+import { sendOrderConfirmationEmail } from '../../../src/lib/server/mail.js';
 
 export const runtime = 'nodejs';
 
@@ -536,6 +543,58 @@ export async function POST(request) {
     }
 
     await connection.commit();
+    const paymentMethodLabel =
+      paymentMethodOptions.find((method) => method.id === paymentMethod)?.label || paymentMethod;
+    const paymentDetails =
+      paymentMethod === 'bank_transfer'
+        ? getSepayPaymentDetails({
+            amount: totals.grandTotal,
+            orderNumber,
+          })
+        : null;
+    const orderSummary = {
+      id: orderId,
+      orderNumber,
+      paymentMethod,
+      paymentStatus: 'pending',
+      grandTotal: totals.grandTotal,
+      discountTotal: totals.discountTotal,
+      subtotal: totals.subtotal,
+      totalItems: items.length,
+      totalQuantity: items.reduce((total, item) => total + item.quantity, 0),
+    };
+
+    try {
+      await sendOrderPlacedNotification({
+        orderNumber,
+        customer,
+        items: lineItems,
+        grandTotal: totals.grandTotal,
+        paymentMethodLabel,
+        notes: notes || 'Không có',
+        source: 'Website SRX Việt Nam',
+      });
+    } catch (notificationError) {
+      console.error('Order Lark notification error:', notificationError);
+    }
+
+    try {
+      await sendOrderConfirmationEmail({
+        to: customer.email,
+        orderNumber,
+        customer,
+        items: lineItems,
+        subtotal: totals.subtotal,
+        discountTotal: totals.discountTotal,
+        grandTotal: totals.grandTotal,
+        paymentMethodLabel,
+        notes,
+        paymentDetails,
+        siteOrigin: request.nextUrl.origin,
+      });
+    } catch (mailError) {
+      console.error('Order confirmation email error:', mailError);
+    }
 
     return NextResponse.json(
       {
@@ -543,24 +602,8 @@ export async function POST(request) {
           paymentMethod === 'bank_transfer'
             ? 'Đơn hàng đã được tạo. Vui lòng thanh toán bằng QR để hoàn tất.'
             : 'Đơn hàng đã được ghi nhận thành công.',
-        order: {
-          id: orderId,
-          orderNumber,
-          paymentMethod,
-          paymentStatus: 'pending',
-          grandTotal: totals.grandTotal,
-          discountTotal: totals.discountTotal,
-          subtotal: totals.subtotal,
-          totalItems: items.length,
-          totalQuantity: items.reduce((total, item) => total + item.quantity, 0),
-        },
-        payment:
-          paymentMethod === 'bank_transfer'
-            ? getSepayPaymentDetails({
-                amount: totals.grandTotal,
-                orderNumber,
-              })
-            : null,
+        order: orderSummary,
+        payment: paymentDetails,
       },
       { status: 201 },
     );

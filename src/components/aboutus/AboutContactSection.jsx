@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Phone, X } from 'lucide-react';
+import { submitLeadForm } from '../../lib/lead-form.js';
 
 const initialFormData = {
   customer_name: '',
@@ -63,28 +64,15 @@ function AboutContactPopup({ isOpen, onClose }) {
     setSubmitStatus(null);
 
     try {
-      const response = await fetch(
-        'https://data.nextgency.vn/api/v1/db/data/noco/pt23og868jycyzo/mmw1iwmnal17i0t',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'xc-token': 'dY0LCW8ChnwtfC6KiA94S17SaBax6RGRaZ4LMaHb',
-          },
-          body: JSON.stringify({
-            customer_name: formData.customer_name,
-            phone: formData.phone,
-            email: formData.email,
-            consultation_request: formData.consultation_request,
-            created_at: new Date().toISOString(),
-            status: 'New',
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to submit');
-      }
+      await submitLeadForm({
+        formType: 'contact',
+        sourceKey: 'about-contact-popup',
+        sourceLabel: 'Popup liên hệ trang giới thiệu',
+        customer_name: formData.customer_name,
+        phone: formData.phone,
+        email: formData.email,
+        consultation_request: formData.consultation_request,
+      });
 
       setSubmitStatus('success');
       setFormData(initialFormData);

@@ -133,14 +133,33 @@ export default function PrivacyPolicyPage() {
 
 
                             <h2 className="text-[20px] lg:text-[24px] font-bold text-black mb-4 mt-8">
-                                I. Cách đăng kí
+                                II. Cách đăng kí
                             </h2>
                             <div className="space-y-4 text-[15px] lg:text-[16px] text-gray-800 leading-relaxed">
                                 <ul>
-                                    <li>Bước 1: Truy cập website srxvietnam.vn tạo tài khoản và đăng nhập web</li>
-                                    <li>Bước 2: Mở trang Afiliate, điền thông tin nộp hồ sơ xét duyệt</li>
-                                    <li>Bước 3: Quản trị viên duyệt sẽ xem xét hồ sơ và kích hoạt tài khoản affiliate của bạn.</li>
-                                    <li>Bước 4: Sau khi trở thành affiliate bạn có thể bắt đầu hành trình của mình</li>
+                                    <li><strong>Bước 1:</strong> Đăng ký tài khoản thành viên và đăng nhập vào hệ thống.</li>
+                                    <li><strong>Bước 2:</strong> Mở trang Affiliate, điền thông tin nộp hồ sơ xét duyệt.</li>
+                                    <li><strong>Bước 3:</strong> Quản trị viên sẽ xem xét hồ sơ và kích hoạt tài khoản affiliate của bạn.</li>
+                                    <li><strong>Bước 4:</strong> Sau khi tài khoản được kích hoạt, bạn có thể lấy link và bắt đầu hành trình tiếp thị của mình.</li>
+                                </ul>
+                            </div>
+
+                            <h2 className="text-[20px] lg:text-[24px] font-bold text-black mb-4 mt-8">
+                                III. thanh toán hoa hồng
+                            </h2>
+                            <div className="space-y-4 text-[15px] lg:text-[16px] text-gray-800 leading-relaxed">
+                                <ul className="space-y-2">
+                                    <li>
+                                        <strong>Điều kiện thanh toán:</strong> Số dư hoa hồng trong tài khoản phải lớn hơn 1.000.000đ. Hoa hồng sẽ được đối soát và thanh toán định kỳ vào ngày 15 hàng tháng 
+                                        (nếu đạt điều kiện về số dư).  
+                                    </li>
+                                    <li>
+                                        Hoa hồng sẽ được tính dựa theo các đơn hàng đã được phát sinh từ tháng trước đó để chúng tôi có thể đối soát đầy đủ
+                                        (Hiểu đơn giản thì hoa hồng của tháng trước sẽ được thanh toán vào 15 hàng tháng nếu đạt điều kiện về số dư).
+                                    </li>
+                                    <li>
+                                        <i>Lưu ý: Hoa hồng chỉ được tính hợp lệ đối với các đơn hàng đã giao thành công và không phát sinh yêu cầu đổi/trả.</i>
+                                    </li>
                                 </ul>
                             </div>
 

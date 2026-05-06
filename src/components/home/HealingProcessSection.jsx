@@ -94,13 +94,46 @@ export default function HealingProcessSection({
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      const isMobile = window.matchMedia("(max-width: 767px)").matches;
+    const selector = gsap.utils.selector(sectionRef);
+    const mm = gsap.matchMedia();
 
-      gsap.from("[data-healing-intro]", {
+    mm.add("(max-width: 767px)", () => {
+      gsap.fromTo(
+        selector("[data-healing-intro]"),
+        { autoAlpha: 0 },
+        {
+          autoAlpha: 1,
+          duration: 0.55,
+          ease: "power2.out",
+          clearProps: "opacity,visibility",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top 82%",
+          },
+        },
+      );
+
+      gsap.fromTo(
+        selector("[data-healing-panel]"),
+        { autoAlpha: 0 },
+        {
+          autoAlpha: 1,
+          duration: 0.6,
+          ease: "power2.out",
+          clearProps: "opacity,visibility",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top 78%",
+          },
+        },
+      );
+    });
+
+    mm.add("(min-width: 768px)", () => {
+      gsap.from(selector("[data-healing-intro]"), {
         opacity: 0,
-        y: isMobile ? 0 : 42,
-        duration: isMobile ? 0.65 : 0.8,
+        y: 42,
+        duration: 0.8,
         ease: "power3.out",
         scrollTrigger: {
           trigger: sectionRef.current,
@@ -108,19 +141,19 @@ export default function HealingProcessSection({
         },
       });
 
-      gsap.from("[data-healing-panel]", {
+      gsap.from(selector("[data-healing-panel]"), {
         opacity: 0,
-        x: isMobile ? 0 : 54,
-        duration: isMobile ? 0.7 : 0.9,
+        x: 54,
+        duration: 0.9,
         ease: "power3.out",
         scrollTrigger: {
           trigger: sectionRef.current,
           start: "top 72%",
         },
       });
-    }, sectionRef);
+    });
 
-    return () => ctx.revert();
+    return () => mm.revert();
   }, []);
 
   useEffect(() => {
@@ -179,7 +212,7 @@ export default function HealingProcessSection({
   return (
     <section
       ref={sectionRef}
-      className="bg-white px-4 py-16 sm:px-6 lg:px-8 lg:py-24"
+      className="overflow-x-hidden bg-white px-4 py-16 sm:px-6 lg:px-8 lg:py-24"
     >
       <div className="mx-auto grid max-w-[1800px] gap-10 lg:grid-cols-2 lg:gap-8">
         <div

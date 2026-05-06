@@ -1,4 +1,7 @@
-﻿import React, { useState } from 'react';
+'use client';
+
+import React, { useState } from 'react';
+import { submitLeadForm } from '../lib/lead-form.js';
 
 export default function Contact() {
     const [formData, setFormData] = useState({
@@ -26,39 +29,28 @@ export default function Contact() {
         setSubmitStatus(null);
 
         try {
-            const response = await fetch('https://data.nextgency.vn/api/v1/db/data/noco/pt23og868jycyzo/mmw1iwmnal17i0t', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'xc-token': 'dY0LCW8ChnwtfC6KiA94S17SaBax6RGRaZ4LMaHb'
-                },
-                body: JSON.stringify({
-                    customer_name: formData.customer_name,
-                    phone: formData.phone,
-                    email: formData.email,
-                    business_field: formData.business_field,
-                    brand_name: formData.brand_name,
-                    consultation_request: formData.consultation_request,
-                    created_at: new Date().toISOString(),
-                    status: 'New'
-                })
+            await submitLeadForm({
+                formType: 'contact',
+                sourceKey: 'contact-page-form',
+                sourceLabel: 'Trang liên hệ',
+                customer_name: formData.customer_name,
+                phone: formData.phone,
+                email: formData.email,
+                business_field: formData.business_field,
+                brand_name: formData.brand_name,
+                consultation_request: formData.consultation_request,
+            });
+            setSubmitStatus('success');
+            setFormData({
+                customer_name: '',
+                phone: '',
+                email: '',
+                business_field: '',
+                brand_name: '',
+                consultation_request: ''
             });
 
-            if (response.ok) {
-                setSubmitStatus('success');
-                setFormData({
-                    customer_name: '',
-                    phone: '',
-                    email: '',
-                    business_field: '',
-                    brand_name: '',
-                    consultation_request: ''
-                });
-
-                setTimeout(() => setSubmitStatus(null), 5000);
-            } else {
-                throw new Error('Failed to submit');
-            }
+            setTimeout(() => setSubmitStatus(null), 5000);
         } catch (error) {
             console.error('Error submitting form:', error);
             setSubmitStatus('error');

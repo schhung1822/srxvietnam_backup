@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Star, CheckCircle, Target } from 'lucide-react';
+import { submitLeadForm } from '../lib/lead-form.js';
 
 export default function ConsultationSectionPrimary() {
     const [formData, setFormData] = useState({
@@ -27,40 +28,29 @@ export default function ConsultationSectionPrimary() {
         setSubmitStatus(null);
 
         try {
-            const response = await fetch('https://data.nextgency.vn/api/v1/db/data/noco/pt23og868jycyzo/mmw1iwmnal17i0t', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'xc-token': 'dY0LCW8ChnwtfC6KiA94S17SaBax6RGRaZ4LMaHb'
-                },
-                body: JSON.stringify({
-                    customer_name: formData.customer_name,
-                    phone: formData.phone,
-                    email: formData.email,
-                    business_field: formData.business_field,
-                    brand_name: formData.brand_name,
-                    consultation_request: formData.consultation_request,
-                    created_at: new Date().toISOString(),
-                    status: 'New'
-                })
+            await submitLeadForm({
+                formType: 'consultation',
+                sourceKey: 'consultation-section-primary',
+                sourceLabel: 'Khối tư vấn chính',
+                customer_name: formData.customer_name,
+                phone: formData.phone,
+                email: formData.email,
+                business_field: formData.business_field,
+                brand_name: formData.brand_name,
+                consultation_request: formData.consultation_request,
+            });
+            setSubmitStatus('success');
+            setFormData({
+                customer_name: '',
+                phone: '',
+                email: '',
+                business_field: '',
+                brand_name: '',
+                consultation_request: ''
             });
 
-            if (response.ok) {
-                setSubmitStatus('success');
-                setFormData({
-                    customer_name: '',
-                    phone: '',
-                    email: '',
-                    business_field: '',
-                    brand_name: '',
-                    consultation_request: ''
-                });
-
-                // Auto hide success message after 5 seconds
-                setTimeout(() => setSubmitStatus(null), 5000);
-            } else {
-                throw new Error('Failed to submit');
-            }
+            // Auto hide success message after 5 seconds
+            setTimeout(() => setSubmitStatus(null), 5000);
         } catch (error) {
             console.error('Error submitting form:', error);
             setSubmitStatus('error');

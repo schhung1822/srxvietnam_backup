@@ -10,16 +10,16 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transform: translateX(100%);
-    transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .page-transition.entering {
-    transform: translateX(0);
+    opacity: 1;
 }
 
 .page-transition.exiting {
-    transform: translateX(-100%);
+    opacity: 0;
 }
 
 /* Content Overlay */
@@ -81,7 +81,7 @@ body.transition-active {
 /* Hardware acceleration for smooth transitions */
 .page-transition,
 .content-overlay {
-    will-change: transform, opacity;
+    will-change: opacity;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
 }
@@ -89,7 +89,7 @@ body.transition-active {
 /* Mobile optimizations */
 @media (max-width: 768px) {
     .page-transition {
-        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: opacity 0.25s ease;
     }
 
     .transition-logo {

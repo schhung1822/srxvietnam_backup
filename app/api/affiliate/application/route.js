@@ -5,6 +5,8 @@ import {
   getAuthenticatedUserFromRequest,
   upsertAffiliateApplicationForUser,
 } from '../../../../src/lib/server/affiliate.js';
+import { sendAffiliateApplicationSubmittedNotification } from '../../../../src/lib/server/lark.js';
+import { sendAffiliateApplicationReceivedEmail } from '../../../../src/lib/server/mail.js';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -26,6 +28,50 @@ async function handleUpsert(request) {
       phone: normalizedPayload.contactPhone,
       gender: normalizedPayload.gender,
     };
+
+    if (normalizedPayload.shouldNotifyPendingReview) {
+      try {
+        await sendAffiliateApplicationSubmittedNotification({
+          user: updatedUser,
+          application: snapshot?.application ?? {
+            legalFullName: normalizedPayload.legalFullName,
+            permanentAddress: normalizedPayload.permanentAddress,
+            nationalIdNumber: normalizedPayload.nationalIdNumber,
+            contactPhone: normalizedPayload.contactPhone,
+            contactEmail: normalizedPayload.contactEmail,
+            gender: normalizedPayload.gender,
+            facebookUrl: normalizedPayload.facebookUrl,
+            tiktokUrl: normalizedPayload.tiktokUrl,
+            status: normalizedPayload.currentStatus,
+          },
+          source: 'Website SRX Viet Nam',
+          resubmitted: normalizedPayload.isResubmission,
+        });
+        console.log('Affiliate application Lark notification sent:', normalizedPayload.contactEmail);
+      } catch (notificationError) {
+        console.error('Affiliate application Lark notification error:', notificationError);
+      }
+
+      try {
+        await sendAffiliateApplicationReceivedEmail({
+          to: normalizedPayload.contactEmail,
+          application: snapshot?.application ?? {
+            legalFullName: normalizedPayload.legalFullName,
+            permanentAddress: normalizedPayload.permanentAddress,
+            nationalIdNumber: normalizedPayload.nationalIdNumber,
+            contactPhone: normalizedPayload.contactPhone,
+            contactEmail: normalizedPayload.contactEmail,
+            gender: normalizedPayload.gender,
+            facebookUrl: normalizedPayload.facebookUrl,
+            tiktokUrl: normalizedPayload.tiktokUrl,
+          },
+          resubmitted: normalizedPayload.isResubmission,
+          siteOrigin: request.nextUrl.origin,
+        });
+      } catch (mailError) {
+        console.error('Affiliate application email error:', mailError);
+      }
+    }
 
     return NextResponse.json({
       message: 'Đã lưu hồ sơ affiliate.',

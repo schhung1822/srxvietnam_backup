@@ -3,13 +3,16 @@ import {
   getCatalogProducts,
   getProductTagDictionaryEntries,
 } from '../../src/lib/server/products.js';
+import { buildMetadata } from '../../src/lib/seo.js';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata = {
-  title: 'Sản phẩm | SRX Beauty',
-  description: 'Hành trình đưa công nghệ sinh học đến gần hơn với làn da Việt.',
-};
+export const metadata = buildMetadata({
+  title: 'Sản phẩm',
+  description:
+    'Khám phá danh mục sản phẩm chăm sóc da chính hãng của SRX Việt Nam dành cho nhiều nhu cầu làn da.',
+  path: '/products',
+});
 
 function readSearchParam(value) {
   if (Array.isArray(value)) {
@@ -22,6 +25,7 @@ function readSearchParam(value) {
 export default async function ProductsPage({ searchParams }) {
   const resolvedSearchParams = (await searchParams) ?? {};
   const initialTagSlug = readSearchParam(resolvedSearchParams.tag);
+  const initialCategory = readSearchParam(resolvedSearchParams.category);
   const [products, dictionaryEntries] = await Promise.all([
     getCatalogProducts(),
     getProductTagDictionaryEntries(),
@@ -32,6 +36,7 @@ export default async function ProductsPage({ searchParams }) {
       products={products}
       dictionaryEntries={dictionaryEntries}
       initialTagSlug={initialTagSlug}
+      initialCategory={initialCategory}
     />
   );
 }

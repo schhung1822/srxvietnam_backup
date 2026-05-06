@@ -478,7 +478,13 @@ export async function upsertAffiliateApplicationForUser(user, payload) {
     [user.id],
   );
   const existingApplication = existingRows[0] ?? null;
+  const previousStatus = existingApplication?.status ?? null;
   const keepApprovedStatus = existingApplication?.status === 'approved';
+  const nextStatus = keepApprovedStatus ? 'approved' : 'pending';
+  const shouldNotifyPendingReview = nextStatus === 'pending' && previousStatus !== 'pending';
+  const isNewSubmission = !existingApplication;
+  const isResubmission = previousStatus === 'rejected';
+  let applicationId = existingApplication?.id ?? null;
 
   await query(
     `
@@ -552,7 +558,7 @@ export async function upsertAffiliateApplicationForUser(user, payload) {
       );
     }
   } else {
-    await query(
+    const insertResult = await query(
       `
         INSERT INTO affiliate_applications (
           user_id,
@@ -580,9 +586,19 @@ export async function upsertAffiliateApplicationForUser(user, payload) {
         normalizedPayload.tiktokUrl,
       ],
     );
+
+    applicationId = insertResult.insertId ?? null;
   }
 
-  return normalizedPayload;
+  return {
+    ...normalizedPayload,
+    applicationId,
+    previousStatus,
+    currentStatus: nextStatus,
+    shouldNotifyPendingReview,
+    isNewSubmission,
+    isResubmission,
+  };
 }
 
 export async function upsertAffiliateBankAccountForUser(userId, payload) {

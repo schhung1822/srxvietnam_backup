@@ -1,5 +1,12 @@
 import Link from 'next/link';
 import styles from './not-found.module.css';
+import { buildMetadata } from '../src/lib/seo.js';
+
+export const metadata = buildMetadata({
+  title: 'Không tìm thấy trang',
+  path: '/404',
+  noIndex: true,
+});
 
 export default function NotFound() {
   return (
@@ -10,7 +17,6 @@ export default function NotFound() {
             <div className={`${styles.layer} ${styles.front}`}>4</div>
             <div className={`${styles.layer} ${styles.mid}`}>0</div>
             <div className={`${styles.layer} ${styles.back}`}>4</div>
-
           </div>
         </div>
 
@@ -21,7 +27,7 @@ export default function NotFound() {
 
         <Link
           href="/"
-          className="mt-8 inline-flex items-center justify-center rounded-full border bg-black border-white/20 px-6 py-3 text-sm text-white transition hover:bg-purple-400 hover:border-purple-400"
+          className="mt-8 inline-flex items-center justify-center rounded-full border border-white/20 bg-black px-6 py-3 text-sm text-white transition hover:border-purple-400 hover:bg-purple-400"
         >
           Quay lại trang chủ
         </Link>

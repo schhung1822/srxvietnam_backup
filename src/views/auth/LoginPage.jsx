@@ -60,7 +60,7 @@ export default function LoginPage() {
             <div className="mt-8 space-y-3 text-[15px] text-[#665a4e]">
               <div>Đăng nhập bằng email và mật khẩu đã đăng ký.</div>
               <div>Session được lưu bằng cookie bảo mật trên website.</div>
-              <div>Có thể mở rộng thêm quên mật khẩu và xác thực email ở bước sau.</div>
+              <div>Bạn có thể yêu cầu email đặt lại mật khẩu nếu không còn nhớ thông tin đăng nhập.</div>
             </div>
           </div>
 
@@ -95,6 +95,12 @@ export default function LoginPage() {
                   {errors.password ? (
                     <div className="mt-2 text-[13px] text-red-600">{errors.password.message}</div>
                   ) : null}
+
+                  <div className="mt-3 text-right text-[14px]">
+                    <Link href="/forgot-password" className="font-semibold text-[#15110d]">
+                      Quên mật khẩu?
+                    </Link>
+                  </div>
                 </div>
               </div>
 

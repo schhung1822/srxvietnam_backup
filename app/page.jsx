@@ -1,7 +1,15 @@
 import Home from '../src/views/Home.jsx';
 import { getCatalogProducts } from '../src/lib/server/products.js';
+import { buildMetadata } from '../src/lib/seo.js';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata = buildMetadata({
+  title: 'SRX Việt Nam',
+  description:
+    'SRX Việt Nam mang công nghệ sinh học tiên tiến đến gần hơn với làn da Việt bằng hệ sản phẩm chăm sóc da chuyên sâu và chính hãng.',
+  path: '/',
+});
 
 function pickRandomProducts(products, limit = 4) {
   const shuffled = [...products];

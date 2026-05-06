@@ -7,8 +7,8 @@ const TRANSITION_PHASE = {
   REVEALING: "revealing",
 };
 
-const NAVIGATION_START_DELAY_MS = 140;
-const REVEAL_DURATION_MS = 900;
+const NAVIGATION_START_DELAY_MS = 180;
+const REVEAL_DURATION_MS = 320;
 const SCROLL_RESET_DELAY_MS = 40;
 
 function isModifiedClick(event) {

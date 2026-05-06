@@ -1250,7 +1250,7 @@ export default function AccountPage() {
     <section className="bg-[#f9f9f9] py-12 md:py-20">
       <div className="mx-auto max-w-[1280px] px-4 md:px-6">
         <div className="grid gap-8 lg:grid-cols-[0.92fr_1.08fr]">
-          <div className="rounded-[32px] border border-[#ece4da] bg-white p-7 md:p-9">
+          <div className="hidden md:block rounded-[32px] border border-[#ece4da] bg-white p-7 md:p-9">
             <div className="text-[12px] font-semibold uppercase tracking-[0.22em] text-[#8d7f72]">
               SRX ACCOUNT
             </div>
@@ -1277,7 +1277,7 @@ export default function AccountPage() {
               </>
             ) : (
               <>
-                <h1 className="mt-4 text-[30px] font-semibold leading-tight tracking-[-0.04em] text-[#15110d] md:text-[36px]">
+                <h1 className=" mt-4 text-[30px] font-semibold leading-tight tracking-[-0.04em] text-[#15110d] md:text-[36px]">
                   Rất nhiều đặc quyền và quyền lợi mua sắm đang chờ bạn
                 </h1>
                 <p className="mt-5 max-w-[520px] text-[16px] leading-8 text-[#665a4e]">
@@ -1373,6 +1373,12 @@ export default function AccountPage() {
                             {loginForm.formState.errors.password.message}
                           </div>
                         ) : null}
+
+                        <div className="mt-3 text-right text-[14px]">
+                          <Link href="/forgot-password" className="font-semibold text-[#15110d]">
+                            Quên mật khẩu?
+                          </Link>
+                        </div>
                       </div>
                     </div>
 
