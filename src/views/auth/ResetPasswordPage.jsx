@@ -1,9 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import useBrowserSearchParams from '../../hooks/useBrowserSearchParams.js';
 
 async function parseJson(response) {
   try {
@@ -14,7 +14,7 @@ async function parseJson(response) {
 }
 
 export default function ResetPasswordPage() {
-  const searchParams = useSearchParams();
+  const searchParams = useBrowserSearchParams();
   const token = searchParams.get('token') ?? '';
   const [isCheckingToken, setIsCheckingToken] = useState(true);
   const [tokenError, setTokenError] = useState('');

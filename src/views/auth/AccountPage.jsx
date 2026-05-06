@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
@@ -17,6 +17,7 @@ import {
   UserRound,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import useBrowserSearchParams from '../../hooks/useBrowserSearchParams.js';
 
 const ADDRESS_LIMIT = 5;
 const dashboardTabIds = ['profile', 'addresses', 'password', 'orders', 'logout'];
@@ -163,7 +164,7 @@ function DashboardTabButton({ isActive, tab, onClick }) {
 
 export default function AccountPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const searchParams = useBrowserSearchParams();
   const { user, isLoading, login, register: registerAccount, logout, refreshUser } = useAuth();
   const [authTab, setAuthTab] = useState(getTabFromSearch(searchParams));
   const [dashboardTab, setDashboardTab] = useState(getDashboardTabFromSearch(searchParams));

@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { useSearchParams } from 'next/navigation';
+import useBrowserSearchParams from '../../hooks/useBrowserSearchParams.js';
 
 export default function AffiliateReferralTracker() {
-  const searchParams = useSearchParams();
+  const searchParams = useBrowserSearchParams();
   const lastTrackedKeyRef = useRef('');
 
   useEffect(() => {

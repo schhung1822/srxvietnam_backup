@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import {
   BarChart3,
   Book,
@@ -17,6 +17,7 @@ import {
   X,
 } from 'lucide-react';
 import { useCart } from '../contexts/CartContext.jsx';
+import useBrowserSearchParams from '../hooks/useBrowserSearchParams.js';
 import HeaderSearchOverlay from './search/HeaderSearchOverlay.jsx';
 
 const navigationItems = [
@@ -65,7 +66,7 @@ const navigationItems = [
 
 export default function Header() {
   const pathname = usePathname() ?? '/';
-  const searchParams = useSearchParams();
+  const searchParams = useBrowserSearchParams();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openMobileDropdown, setOpenMobileDropdown] = useState(null);
   const [openDesktopDropdown, setOpenDesktopDropdown] = useState(null);
