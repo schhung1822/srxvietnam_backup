@@ -32,7 +32,11 @@ export default function AppShell({ children }) {
               <AffiliateReferralTracker />
             </Suspense>
           ) : null}
-          {!hideSiteChrome && <Header />}
+          {!hideSiteChrome ? (
+            <Suspense fallback={null}>
+              <Header />
+            </Suspense>
+          ) : null}
 
           <main className={hideSiteChrome ? 'flex-1' : 'page-content flex-1 pt-[70px] lg:pt-[85px]'}>
             {children}
