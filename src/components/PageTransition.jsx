@@ -22,13 +22,14 @@ const PageTransition = ({
           <img
             src={logoSrc}
             alt="SRX Logo"
-            className="h-20 w-20 object-contain opacity-90 md:h-28 md:w-28"
+            className="h-auto w-[120px] select-none object-contain opacity-90 md:w-[180px]"
             style={{
               animation:
                 transitionPhase === "covering"
                   ? "pageTransitionLogoFadeIn 0.28s ease-out forwards"
                   : "pageTransitionLogoFadeOut 0.24s ease-in forwards",
             }}
+            draggable="false"
             onError={(event) => {
               event.currentTarget.style.display = "none";
             }}
@@ -58,22 +59,18 @@ const PageTransition = ({
         @keyframes pageTransitionLogoFadeIn {
           from {
             opacity: 0;
-            transform: scale(0.94);
           }
           to {
             opacity: 0.92;
-            transform: scale(1);
           }
         }
 
         @keyframes pageTransitionLogoFadeOut {
           from {
             opacity: 0.92;
-            transform: scale(1);
           }
           to {
             opacity: 0;
-            transform: scale(1.04);
           }
         }
 

@@ -12,49 +12,24 @@ import {
 
 const defaultSlides = [
   {
-    id: "retinol-cream-peptides",
-    image: "/assets/images/home/sl1.webp",
-    date: "06/07/2026",
-    title: "Phức hợp 30 loại Peptides trong Retinol A Cream có tác dụng gì?",
-    description:
-      "Tổng hợp cơ chế hỗ trợ phục hồi, củng cố hàng rào bảo vệ da và lý do công thức peptide của SRX phù hợp cho giai đoạn tái tạo chuyên sâu.",
-    href: "#",
+    id: "ls-01",
+    image: "/assets/images/home/ls-01.webp",
   },
   {
-    id: "retinol-8-benefits",
-    image: "/assets/images/home/sl2.webp",
-    date: "03/07/2025",
-    title: "Phức hợp Retinol 8% của SRX có gì đặc biệt?",
-    description:
-      "Giải thích cách SRX cân bằng hiệu quả đổi mới bề mặt da với độ êm ái cần thiết để tối ưu trải nghiệm sử dụng dài hạn.",
-    href: "#",
+    id: "ls-02",
+    image: "/assets/images/home/ls-02.webp",
   },
   {
-    id: "repair-ampoule-routine-1",
-    image: "/assets/images/home/sl3.webp",
-    date: "15/01/2024",
-    title: "Phác đồ kết hợp Retinol và Repair Ampoule của SRX",
-    description:
-      "Một routine kết hợp giúp làm dịu, phục hồi và hỗ trợ làn da ổn định hơn trong quá trình treatment cường độ cao.",
-    href: "#",
+    id: "ls-03",
+    image: "/assets/images/home/ls-03.webp",
   },
   {
-    id: "repair-ampoule-routine-2",
-    image: "/assets/images/home/sl4.webp",
-    date: "15/01/2024",
-    title: "Phác đồ kết hợp Retinol và Repair Ampoule của SRX",
-    description:
-      "Một routine kết hợp giúp làm dịu, phục hồi và hỗ trợ làn da ổn định hơn trong quá trình treatment cường độ cao.",
-    href: "#",
+    id: "ls-04",
+    image: "/assets/images/home/ls-04.webp",
   },
   {
-    id: "repair-ampoule-routine-3",
-    image: "/assets/images/home/sl5.webp",
-    date: "15/01/2024",
-    title: "Phác đồ kết hợp Retinol và Repair Ampoule của SRX",
-    description:
-      "Một routine kết hợp giúp làm dịu, phục hồi và hỗ trợ làn da ổn định hơn trong quá trình treatment cường độ cao.",
-    href: "#",
+    id: "ls-05",
+    image: "/assets/images/home/ls-05.webp",
   },
 ];
 
@@ -211,7 +186,7 @@ export default function ClinicalProofSection({
         </div>
 
         <div
-          className="relative overflow-hidden rounded-[22px] bg-[#1d0f13] shadow-[0_30px_90px_rgba(87,52,34,0.18)] sm:rounded-[28px]"
+          className="relative overflow-hidden rounded-[22px] shadow-[0_30px_90px_rgba(87,52,34,0.18)] sm:rounded-[28px]"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           onFocusCapture={() => setIsHovered(true)}
@@ -239,7 +214,6 @@ export default function ClinicalProofSection({
               );
             })}
 
-            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(16,6,5,0.08),rgba(17,8,7,0.18)_24%,rgba(17,8,7,0.34)_56%,rgba(17,8,7,0.82)_100%)]" />
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.12),transparent_38%)]" />
 
             <div className="absolute inset-x-0 top-0 z-30 p-4 sm:p-6 lg:p-7">
@@ -249,11 +223,11 @@ export default function ClinicalProofSection({
                     key={`${slide.id}-progress-${index}`}
                     type="button"
                     onClick={() => goToSlide(index)}
-                    className="group relative h-[4px] flex-1 overflow-hidden rounded-full bg-white/25 "
+                    className="group relative h-[4px] flex-1 overflow-hidden rounded-full bg-[#d7daec] "
                     aria-label={`Đến slide ${index + 1}`}
                   >
                     <span
-                      className="absolute inset-y-0 left-0 rounded-full bg-white transition-[width] duration-100 ease-linear"
+                      className="absolute inset-y-0 left-0 rounded-full bg-[#8C98C5] transition-[width] duration-100 ease-linear"
                       style={{
                         width: `${getSegmentProgress(index, currentIndex, currentProgress)}%`,
                       }}
@@ -283,7 +257,7 @@ export default function ClinicalProofSection({
             <button
               type="button"
               onClick={() => goToSlide(currentIndex - 1)}
-              className="absolute left-3 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/22 text-white backdrop-blur-sm transition-colors duration-300 hover:bg-black/34 sm:left-4 sm:h-11 sm:w-11"
+              className="absolute left-3 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-[rgba(0,0,0,0.2)] text-white backdrop-blur-sm transition-colors duration-300 hover:bg-black/34 sm:left-4 sm:h-11 sm:w-11"
               aria-label="Slide trước"
             >
               <ArrowLeft className="h-5 w-5" />
@@ -292,47 +266,11 @@ export default function ClinicalProofSection({
             <button
               type="button"
               onClick={() => goToSlide(currentIndex + 1)}
-              className="absolute right-3 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/22 text-white backdrop-blur-sm transition-colors duration-300 hover:bg-black/34 sm:right-4 sm:h-11 sm:w-11"
+              className="absolute right-3 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-[rgba(0,0,0,0.2)] text-white backdrop-blur-sm transition-colors duration-300 hover:bg-black/34 sm:right-4 sm:h-11 sm:w-11"
               aria-label="Slide tiếp theo"
             >
               <ArrowRight className="h-5 w-5" />
             </button>
-
-            <div className="absolute inset-x-0 bottom-0 z-30 p-4 sm:p-6 lg:p-7">
-              <a
-                href={activeSlide.href}
-                className="block transition-transform duration-300 hover:-translate-y-0.5"
-              >
-                  <p
-                    className="font-['Inter',_sans-serif] text-[12px] font-medium uppercase tracking-[0.08em] text-white sm:text-[14px]"
-                    style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
-                  >
-                    {activeSlide.date}
-                  </p>
-
-                <div className="mt-3 flex items-start justify-between gap-4 sm:gap-8">
-                  <div className="min-w-0">
-                    <h3
-                      className="text-[22px] font-semibold leading-[1.08] tracking-[-0.04em] text-white sm:text-[28px] lg:text-[34px]"
-                      style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
-                    >
-                      {activeSlide.title}
-                    </h3>
-
-                    <p
-                      className="mt-3 max-w-full text-[14px] leading-[1.65] text-white sm:max-w-[95%] sm:text-[15px] lg:text-[16px]"
-                      style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
-                    >
-                      {activeSlide.description}
-                    </p>
-                  </div>
-
-                  <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white sm:h-11 sm:w-11">
-                    <ArrowUpRight className="h-4 w-4 sm:h-5 sm:w-5" />
-                  </div>
-                </div>
-              </a>
-            </div>
           </div>
         </div>
       </div>

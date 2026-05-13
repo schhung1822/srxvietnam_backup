@@ -1,0 +1,72 @@
+'use client';
+
+const defaultBadges = [
+  {
+    id: 'tag-1',
+    src: '/assets/images/home/tag-1.avif',
+    alt: 'Nguồn nguyên liệu chuẩn châu Âu SCCS',
+  },
+  {
+    id: 'tag-2',
+    src: '/assets/images/home/tag-2.avif',
+    alt: 'Chứng minh lâm sàng bởi các bác sĩ da liễu',
+  },
+  {
+    id: 'tag-3',
+    src: '/assets/images/home/tag-3.avif',
+    alt: 'Không thử nghiệm trên động vật',
+  },
+  {
+    id: 'tag-4',
+    src: '/assets/images/home/tag-4.avif',
+    alt: 'Công thức phức hợp chuyên sâu',
+  },
+];
+
+export default function HomeStandardsSection({
+  quote = 'Tại SRX, chúng tôi tin rằng thấu hiểu làn da bản địa là chìa khóa của vẻ đẹp bền vững. Năm 2020, sau hành trình dài nghiên cứu về khí hậu và cơ địa đặc thù tại Việt Nam, chúng tôi tự hào mang đến giải pháp chăm sóc da tối ưu, an toàn và tương thích với làn da nhạy cảm của người Việt. Công nghệ quốc tế, hiệu quả nội tại - đó là cam kết từ SRX.',
+  badges = defaultBadges,
+}) {
+  return (
+    <section className="relative overflow-hidden bg-white px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-24">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute inset-y-0 left-[-14%] w-[42%] bg-[radial-gradient(circle_at_center,rgba(150,176,255,0.32)_0%,rgba(150,176,255,0.18)_28%,rgba(255,255,255,0)_72%)] blur-2xl" />
+        <div className="absolute inset-y-0 right-[-14%] w-[42%] bg-[radial-gradient(circle_at_center,rgba(246,177,233,0.3)_0%,rgba(246,177,233,0.18)_28%,rgba(255,255,255,0)_72%)] blur-2xl" />
+        <div className="absolute inset-0 opacity-60 [background-image:linear-gradient(to_right,rgba(180,189,224,0.16)_1px,transparent_1px)] [background-size:38px_100%]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0),rgba(255,255,255,0.72)_66%,rgba(255,255,255,0.94)_100%)]" />
+      </div>
+
+      <div className="relative z-10 mx-auto max-w-[1480px]">
+        <div className="mx-auto max-w-[980px] text-center">
+          <p
+            className="text-[14px] leading-[1.85] tracking-[-0.02em] text-[#616161] sm:text-[16px] lg:text-[18px]"
+            style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
+          >
+            "{quote}"
+          </p>
+        </div>
+
+        <div className="mt-10 grid grid-cols-2 justify-items-center gap-x-5 gap-y-8 sm:mt-14 sm:gap-x-8 sm:gap-y-10 lg:grid-cols-4 lg:gap-x-10">
+          {badges.map((badge) => (
+            <article key={badge.id} className="group flex w-full max-w-[290px] flex-col items-center text-center">
+              <div className="w-full max-w-[168px] sm:max-w-[220px] lg:max-w-[250px]">
+                <div className="rounded-full bg-white/90 shadow-[0_22px_55px_rgba(159,174,228,0.18)] ring-1 ring-white/80 transition-transform duration-300 group-hover:-translate-y-1">
+                  <div className="aspect-square overflow-hidden rounded-full bg-white">
+                    <img
+                      src={badge.src}
+                      alt={badge.alt}
+                      className="h-full w-full rounded-full object-cover"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+

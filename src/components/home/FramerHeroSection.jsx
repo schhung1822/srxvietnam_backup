@@ -214,7 +214,7 @@ const FramerHeroSection = () => {
                     className="text-[30px] font-medium leading-none tracking-[-0.05em] text-[#7990f0] sm:text-[58px] lg:text-[80px]"
                     style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
                   >
-                    Công nghệ
+                    Mang
                   </h1>
 
                   <div
@@ -231,7 +231,7 @@ const FramerHeroSection = () => {
                       className="relative text-[30px] font-medium leading-none tracking-[-0.05em] text-white sm:text-[58px] lg:text-[80px]"
                       style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
                     >
-                      Sinh học
+                      Khoa học trị liệu
                     </h1>
                   </div>
 
@@ -240,7 +240,7 @@ const FramerHeroSection = () => {
                     className="text-center text-[30px] font-medium leading-none tracking-[-0.05em] text-[#7990f0] sm:text-[58px] lg:text-[80px]"
                     style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
                   >
-                    đến gần hơn với làn da Việt
+                    chạm đến làn da
                   </h1>
                 </div>
 
