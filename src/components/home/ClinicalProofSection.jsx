@@ -65,8 +65,6 @@ export default function ClinicalProofSection({
 
   const isTimerStopped = isHovered || isManuallyPaused;
 
-  const activeSlide = safeSlides[currentIndex];
-
   const goToSlide = (nextIndex) => {
     const total = safeSlides.length;
     const resolvedIndex = ((nextIndex % total) + total) % total;
