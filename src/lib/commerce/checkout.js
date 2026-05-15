@@ -74,24 +74,91 @@ export function getCheckoutTotals({ subtotal = 0, couponCode = '' } = {}) {
   };
 }
 
+const DEFAULT_SEPAY_BANK_CODE = 'ACB';
+const DEFAULT_SEPAY_ACCOUNT_NUMBER = '93956886';
+const SEPAY_QR_IMAGE_URL_BASE = 'https://qr.sepay.vn/img';
+
+function normalizeSepayText(value) {
+  return String(value ?? '').trim();
+}
+
+function buildSepayQrImageUrlFromTemplate(template, { amount, orderNumber }) {
+  const normalizedTemplate = normalizeSepayText(template);
+
+  if (!normalizedTemplate) {
+    return '';
+  }
+
+  const encodedAmount = encodeURIComponent(String(amount));
+  const encodedOrderNumber = encodeURIComponent(orderNumber);
+
+  return normalizedTemplate
+    .replace(/{{\s*\$json\.total_payment\s*}}/gi, encodedAmount)
+    .replace(/{{\s*\$json\.order_id\s*}}/gi, encodedOrderNumber)
+    .replace(/{{\s*amount\s*}}/gi, encodedAmount)
+    .replace(/{{\s*orderNumber\s*}}/gi, encodedOrderNumber)
+    .replace(/{{\s*order_id\s*}}/gi, encodedOrderNumber);
+}
+
+function buildSepayQrImageUrl({ accountNumber, bankCode, amount, orderNumber, template = '' }) {
+  if (!accountNumber || !bankCode || !orderNumber || amount <= 0) {
+    return '';
+  }
+
+  const templateUrl = buildSepayQrImageUrlFromTemplate(template, {
+    amount,
+    orderNumber,
+  });
+
+  if (templateUrl) {
+    return templateUrl;
+  }
+
+  const searchParams = new URLSearchParams({
+    acc: accountNumber,
+    bank: bankCode,
+    amount: String(amount),
+    des: orderNumber,
+  });
+
+  return `${SEPAY_QR_IMAGE_URL_BASE}?${searchParams.toString()}`;
+}
+
 export function getSepayPaymentDetails({ amount = 0, orderNumber = '' } = {}) {
-  const bankName = process.env.NEXT_PUBLIC_SEPAY_BANK_NAME?.trim() || 'SePay';
+  const bankCode =
+    process.env.NEXT_PUBLIC_SEPAY_BANK_CODE?.trim() ||
+    process.env.NEXT_PUBLIC_SEPAY_BANK_NAME?.trim() ||
+    DEFAULT_SEPAY_BANK_CODE;
+  const bankName = process.env.NEXT_PUBLIC_SEPAY_BANK_NAME?.trim() || bankCode;
   const accountName = process.env.NEXT_PUBLIC_SEPAY_ACCOUNT_NAME?.trim() || 'SRX Beauty';
-  const accountNumber = process.env.NEXT_PUBLIC_SEPAY_ACCOUNT_NUMBER?.trim() || 'Dang cap nhat';
-  const qrImageUrl = process.env.NEXT_PUBLIC_SEPAY_QR_IMAGE_URL?.trim() || '';
-  const transferPrefix = process.env.NEXT_PUBLIC_SEPAY_TRANSFER_PREFIX?.trim() || 'SRX';
-  const normalizedOrderNumber = String(orderNumber ?? '').trim();
-  const transferContent = normalizedOrderNumber
-    ? `${transferPrefix} ${normalizedOrderNumber}`
-    : transferPrefix;
+  const accountNumber =
+    process.env.NEXT_PUBLIC_SEPAY_ACCOUNT_NUMBER?.trim() || DEFAULT_SEPAY_ACCOUNT_NUMBER;
+  const qrImageUrlTemplate =
+    process.env.NEXT_PUBLIC_SEPAY_QR_IMAGE_URL_TEMPLATE?.trim() ||
+    (process.env.NEXT_PUBLIC_SEPAY_QR_IMAGE_URL?.includes('{{')
+      ? process.env.NEXT_PUBLIC_SEPAY_QR_IMAGE_URL.trim()
+      : '');
+  const normalizedAmount = Math.max(Number(amount) || 0, 0);
+  const qrAmount = Math.round(normalizedAmount);
+  const normalizedOrderNumber = String(orderNumber ?? '').trim().toUpperCase();
+  const transferContent = normalizedOrderNumber;
+  const qrImageUrl = buildSepayQrImageUrl({
+    accountNumber,
+    bankCode,
+    amount: qrAmount,
+    orderNumber: normalizedOrderNumber,
+    template: qrImageUrlTemplate,
+  });
 
   return {
     bankName,
+    bankCode,
     accountName,
     accountNumber,
     qrImageUrl,
     transferContent,
-    amount: Math.max(Number(amount) || 0, 0),
-    isConfigured: Boolean(qrImageUrl),
+    amount: normalizedAmount,
+    isConfigured: Boolean(accountNumber && bankCode),
+    canGenerateQr: Boolean(qrImageUrl),
   };
 }

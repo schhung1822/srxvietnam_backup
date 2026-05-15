@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
@@ -17,8 +18,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
-import { getCheckoutTotals, getSepayPaymentDetails, paymentMethodOptions } from '../../lib/commerce/checkout';
-import AboutContactSection from "../../components/aboutus/AboutContactSection.jsx";
+import { getCheckoutTotals, paymentMethodOptions } from '../../lib/commerce/checkout';
 
 
 const currencyFormatter = new Intl.NumberFormat('vi-VN', {
@@ -126,74 +126,6 @@ function PaymentMethodOption({ method, isSelected, onSelect }) {
   );
 }
 
-function SepayPanel({ payment, showHeading = true }) {
-  return (
-    <div className="rounded-[28px] border border-[#ece4da] bg-white p-5">
-      {showHeading ? (
-        <>
-          <div className="inline-flex rounded-full border border-[#e8dfd3] bg-[#fcfaf8] px-4 py-2 text-[12px] font-semibold uppercase tracking-[0.2em] text-[#8d7f72]">
-            QR SePay
-          </div>
-          <h3 className="mt-4 text-[24px] font-semibold tracking-[-0.03em] text-[#15110d]">
-            Chuyển khoản bằng QR code
-          </h3>
-        </>
-      ) : null}
-
-      <div className="mt-5 grid gap-5 md:grid-cols-[220px_minmax(0,1fr)]">
-        <div className="flex items-center justify-center rounded-[24px] border border-dashed border-[#ddd3c6] bg-[#fcfaf8] p-4">
-          {payment.qrImageUrl ? (
-            <img
-              src={payment.qrImageUrl}
-              alt="QR thanh toán SePay"
-              className="h-[188px] w-[188px] rounded-[20px] object-cover"
-            />
-          ) : (
-            <div className="flex h-[188px] w-[188px] flex-col items-center justify-center rounded-[20px] border border-dashed border-[#d8c8b6] bg-white px-5 text-center">
-              <QrCode className="h-10 w-10 text-[#15110d]" />
-              <div className="mt-4 text-[14px] font-semibold text-[#15110d]">QR SePay chưa cấu hình</div>
-              <div className="mt-2 text-[13px] leading-6 text-[#7a6d61]">
-                Thêm `NEXT_PUBLIC_SEPAY_QR_IMAGE_URL` để hiển thị mã QR thật.
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="space-y-3">
-          <div className="rounded-[20px] border border-[#ece4da] bg-[#fcfaf8] p-4">
-            <div className="text-[12px] uppercase tracking-[0.18em] text-[#8d7f72]">Số tiền</div>
-            <div className="font-['Inter',_sans-serif] mt-2 text-[24px] font-semibold text-[#15110d]">
-              {currencyFormatter.format(payment.amount)}
-            </div>
-          </div>
-
-          <div className="grid gap-3 md:grid-cols-2">
-            <div className="rounded-[20px] border border-[#ece4da] bg-[#fcfaf8] p-4">
-              <div className="text-[12px] uppercase tracking-[0.18em] text-[#8d7f72]">Ngân hàng</div>
-              <div className="mt-2 text-[16px] font-semibold text-[#15110d]">{payment.bankName}</div>
-            </div>
-            <div className="rounded-[20px] border border-[#ece4da] bg-[#fcfaf8] p-4">
-              <div className="text-[12px] uppercase tracking-[0.18em] text-[#8d7f72]">Số tài khoản</div>
-              <div className="mt-2 text-[16px] font-semibold text-[#15110d]">{payment.accountNumber}</div>
-            </div>
-          </div>
-
-          <div className="grid gap-3 md:grid-cols-2">
-            <div className="rounded-[20px] border border-[#ece4da] bg-[#fcfaf8] p-4">
-              <div className="text-[12px] uppercase tracking-[0.18em] text-[#8d7f72]">Chủ tài khoản</div>
-              <div className="mt-2 text-[16px] font-semibold text-[#15110d]">{payment.accountName}</div>
-            </div>
-            <div className="rounded-[20px] border border-[#ece4da] bg-[#fcfaf8] p-4">
-              <div className="text-[12px] uppercase tracking-[0.18em] text-[#8d7f72]">Nội dung chuyển khoản</div>
-              <div className="mt-2 text-[16px] font-semibold text-[#15110d]">{payment.transferContent}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function FieldError({ error }) {
   if (!error?.message) {
     return null;
@@ -203,6 +135,7 @@ function FieldError({ error }) {
 }
 
 export default function CheckoutPage() {
+  const router = useRouter();
   const { user, isLoading: isAuthLoading } = useAuth();
   const { items, subtotal, clearCart, isReady } = useCart();
   const [paymentMethod, setPaymentMethod] = useState('cod');
@@ -327,15 +260,6 @@ export default function CheckoutPage() {
   const useSavedAddresses = Boolean(user);
   const hasSavedAddresses = addresses.length > 0;
 
-  const sepayPreview = useMemo(
-    () =>
-      getSepayPaymentDetails({
-        amount: completedCheckout?.payment?.amount ?? totals.grandTotal,
-        orderNumber: completedCheckout?.order?.orderNumber ?? '',
-      }),
-    [completedCheckout, totals.grandTotal],
-  );
-
   const handleApplyCoupon = () => {
     const nextTotals = getCheckoutTotals({
       subtotal,
@@ -402,13 +326,19 @@ export default function CheckoutPage() {
           }
         : values;
 
+      clearCart();
+
+      if (data.order?.paymentMethod === 'bank_transfer' && data.order?.orderNumber) {
+        router.push(`/checkout/payment/${encodeURIComponent(data.order.orderNumber)}`);
+        return;
+      }
+
       setCompletedCheckout({
         order: data.order,
         payment: data.payment,
         customer: contactSnapshot,
         items: payloadItems,
       });
-      clearCart();
     } catch (error) {
       setSubmitError(error.message);
     } finally {
@@ -430,7 +360,6 @@ export default function CheckoutPage() {
 
   if (completedCheckout) {
     const isBankTransfer = completedCheckout.order.paymentMethod === 'bank_transfer';
-    const paymentDetails = completedCheckout.payment ?? sepayPreview;
 
     return (
       <section className="bg-[#fcfaf8] py-12 md:py-20">
@@ -486,7 +415,6 @@ export default function CheckoutPage() {
             </div>
 
             <div className="space-y-6">
-              {isBankTransfer ? <SepayPanel payment={paymentDetails} /> : null}
 
               <div className="rounded-[32px] border border-[#ece4da] bg-white p-6">
                 <div className="text-[12px] font-semibold uppercase tracking-[0.2em] text-[#8d7f72]">
@@ -639,8 +567,8 @@ export default function CheckoutPage() {
                     <div className="text-[12px] font-semibold uppercase tracking-[0.2em] text-[#8d7f72]">
                       Thông tin nhận hàng
                     </div>
-                    <h2 className="mt-2 text-[28px] font-semibold tracking-[-0.04em] text-[#15110d]">
-                      Nhập form thanh toán
+                    <h2 className="text-[20px] sm:text-[28px] font-semibold tracking-[-0.04em] text-[#15110d]">
+                      Nhập thông tin thanh toán
                     </h2>
                   </div>
                 </div>
@@ -771,12 +699,6 @@ export default function CheckoutPage() {
                   />
                 ))}
               </div>
-
-              {paymentMethod === 'bank_transfer' ? (
-                <div className="mt-6">
-                  <SepayPanel payment={sepayPreview} showHeading={false} />
-                </div>
-              ) : null}
             </div>
           </div>
 

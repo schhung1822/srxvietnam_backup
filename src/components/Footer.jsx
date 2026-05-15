@@ -171,16 +171,15 @@ const Footer = () => {
                   Đăng ký
                 </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setIsPopupOpen(true)}
-                className="flex w-full items-center justify-between gap-3 rounded-full bg-gradient-to-r from-[#2B144D] via-[#c08dfe] to-[#2B144D] px-5 py-1.5 text-left text-[15px] font-medium text-white transition-transform duration-300 hover:scale-[1.02]"
+              <a
+                href="/contact"
+                className="mt-2 flex w-full items-center justify-between rounded-3xl bg-[linear-gradient(90deg,#F589FF_0%,#AFACFF_80%)] pl-4 pr-1 py-1 font-medium text-white transition-all hover:scale-105 hover:bg-purple-400"
               >
                 <span>Hợp tác ngay</span>
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-black">
+                <span className="ml-2 flex items-center bg-black rounded-[50%] p-2">
                   <ArrowUpRight className="h-5 w-5" strokeWidth={2.3} />
                 </span>
-              </button>
+              </a>
             </div>
           </div>
 

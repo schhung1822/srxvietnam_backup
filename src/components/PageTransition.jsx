@@ -22,12 +22,16 @@ const PageTransition = ({
           <img
             src={logoSrc}
             alt="SRX Logo"
-            className="h-auto w-[120px] select-none object-contain opacity-90 md:w-[180px]"
+            className="transition-logo h-auto w-[120px] select-none object-contain opacity-90 md:w-[180px]"
             style={{
               animation:
                 transitionPhase === "covering"
                   ? "pageTransitionLogoFadeIn 0.28s ease-out forwards"
                   : "pageTransitionLogoFadeOut 0.24s ease-in forwards",
+              imageRendering: "auto",
+              backfaceVisibility: "hidden",
+              WebkitBackfaceVisibility: "hidden",
+              willChange: "opacity",
             }}
             draggable="false"
             onError={(event) => {
