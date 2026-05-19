@@ -105,8 +105,43 @@ const Footer = () => {
                   </div>
                 </div>
               </div>
+            </div>
 
-              <div className="flex space-x-5 pt-4">
+            <div className="space-y-4">
+          
+
+              <h3 className="mb-2 text-[16px] font-medium text-white">SRX Việt Nam</h3>
+              <ul className="space-y-3">
+                {srxLinks.map((item) => (
+                  <FooterLinkItem key={item.label} {...item} />
+                ))}
+              </ul>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="mb-2 text-[16px] font-medium text-white">Hỗ trợ khách hàng</h3>
+              <ul className="space-y-3">
+                {policyLinks.map((item) => (
+                  <FooterLinkItem key={item.label} {...item} />
+                ))}
+              </ul>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="mb-2 text-[20px] font-medium text-white">Trở thành đối tác</h3>
+              <p className="mb-2 text-[14px] text-white">
+                Trở thành đối tác của SRX để có quyền phân phối sản phẩm chính hãng, nhận hỗ trợ marketing và đào tạo chuyên sâu từ đội ngũ chuyên gia của chúng tôi.
+              </p>
+              <a
+                href="/contact"
+                className="mt-2 flex max-w-[240px] items-center justify-between rounded-3xl bg-[linear-gradient(90deg,#F589FF_0%,#AFACFF_80%)] pl-4 pr-1 py-1 font-medium text-white transition-all hover:scale-105 hover:bg-purple-400"
+              >
+                <span>Hợp tác ngay</span>
+                <span className="ml-2 flex items-center bg-black rounded-[50%] p-2">
+                  <ArrowUpRight className="h-5 w-5" strokeWidth={2.3} />
+                </span>
+              </a>
+              <div className="flex space-x-5 py-4">
                 <a href="https://www.facebook.com/srxvnofficial" className="transition-opacity hover:opacity-80">
                   <img
                     src="/assets/images/footer/facebook.webp"
@@ -136,50 +171,7 @@ const Footer = () => {
                   />
                 </a>
               </div>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="mb-2 text-[16px] font-medium text-white">SRX Việt Nam</h3>
-              <ul className="space-y-3">
-                {srxLinks.map((item) => (
-                  <FooterLinkItem key={item.label} {...item} />
-                ))}
-              </ul>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="mb-2 text-[16px] font-medium text-white">Hỗ trợ khách hàng</h3>
-              <ul className="space-y-3">
-                {policyLinks.map((item) => (
-                  <FooterLinkItem key={item.label} {...item} />
-                ))}
-              </ul>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="mb-2 text-[20px] font-medium text-white">Đối tác & Liên kết</h3>
-              <p className="mb-2 text-[14px] text-white">
-                Đăng ký để nhận thông tin mới nhất về sản phẩm và xu hướng làm đẹp từ SRX.
-              </p>
-              <div className="space-y-3">
-                <input
-                  type="email"
-                  placeholder="Nhập email của bạn"
-                  className="w-full rounded-3xl bg-white px-3 py-2.5 text-white placeholder-gray-400 transition-colors focus:border-[#c59efe] focus:outline-none focus:ring-1 focus:ring-[#c59efe]"
-                />
-                <button className="w-full transform rounded-3xl bg-black px-3 py-2.5 font-medium text-white transition-all hover:scale-105 hover:bg-purple-400">
-                  Đăng ký
-                </button>
-              </div>
-              <a
-                href="/contact"
-                className="mt-2 flex w-full items-center justify-between rounded-3xl bg-[linear-gradient(90deg,#F589FF_0%,#AFACFF_80%)] pl-4 pr-1 py-1 font-medium text-white transition-all hover:scale-105 hover:bg-purple-400"
-              >
-                <span>Hợp tác ngay</span>
-                <span className="ml-2 flex items-center bg-black rounded-[50%] p-2">
-                  <ArrowUpRight className="h-5 w-5" strokeWidth={2.3} />
-                </span>
-              </a>
+              
             </div>
           </div>
 

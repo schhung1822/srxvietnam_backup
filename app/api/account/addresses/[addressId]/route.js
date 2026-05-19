@@ -122,7 +122,8 @@ async function getOwnedAddress(userId, addressId) {
   return rows[0] ?? null;
 }
 
-function parseAddressId(params) {
+async function parseAddressId(paramsPromise) {
+  const params = await paramsPromise;
   const addressId = Number(params?.addressId);
   return Number.isInteger(addressId) && addressId > 0 ? addressId : null;
 }
@@ -135,7 +136,7 @@ export async function PATCH(request, { params }) {
       return NextResponse.json({ message: 'Vui long dang nhap de tiep tuc.' }, { status: 401 });
     }
 
-    const addressId = parseAddressId(params);
+    const addressId = await parseAddressId(params);
 
     if (!addressId) {
       return NextResponse.json({ message: 'Dia chi khong hop le.' }, { status: 400 });
@@ -213,7 +214,7 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ message: 'Vui long dang nhap de tiep tuc.' }, { status: 401 });
     }
 
-    const addressId = parseAddressId(params);
+    const addressId = await parseAddressId(params);
 
     if (!addressId) {
       return NextResponse.json({ message: 'Dia chi khong hop le.' }, { status: 400 });

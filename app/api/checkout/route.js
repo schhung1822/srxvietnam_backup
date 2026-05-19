@@ -14,10 +14,12 @@ import {
   normalizeAffiliateVisitorToken,
 } from '../../../src/lib/server/affiliate.js';
 import { getDbPool } from '../../../src/lib/server/db.js';
-import { sendOrderPlacedNotification } from '../../../src/lib/server/lark.js';
-import { sendOrderConfirmationEmail } from '../../../src/lib/server/mail.js';
 
 export const runtime = 'nodejs';
+
+const ORDERS_WEB_API_URL =
+  process.env.SRX_ORDERS_WEB_API_URL?.trim() || 'https://crm.srx.vn/api/srx/orders_web';
+const ORDERS_WEB_API_TOKEN = process.env.SRX_ORDERS_WEB_API_TOKEN?.trim() || '';
 
 function normalizeString(value) {
   return String(value ?? '').trim();
@@ -110,6 +112,31 @@ function buildOrderNumber() {
   const timestamp = Date.now().toString().slice(-10);
   const suffix = crypto.randomBytes(2).toString('hex').toUpperCase();
   return `SRX${timestamp}${suffix}`;
+}
+
+async function queueOrdersWebNotifications(payload) {
+  if (!ORDERS_WEB_API_URL) {
+    return;
+  }
+
+  try {
+    const response = await fetch(ORDERS_WEB_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(ORDERS_WEB_API_TOKEN ? { Authorization: `Bearer ${ORDERS_WEB_API_TOKEN}` } : {}),
+      },
+      body: JSON.stringify(payload),
+      cache: 'no-store',
+      signal: AbortSignal.timeout(5000),
+    });
+
+    if (!response.ok) {
+      throw new Error(`orders_web returned ${response.status}`);
+    }
+  } catch (error) {
+    console.error('Orders_web notification dispatch error:', error);
+  }
 }
 
 async function execute(connection, sql, params = []) {
@@ -564,37 +591,34 @@ export async function POST(request) {
       totalQuantity: items.reduce((total, item) => total + item.quantity, 0),
     };
 
-    try {
-      await sendOrderPlacedNotification({
-        orderNumber,
-        customer,
-        items: lineItems,
-        grandTotal: totals.grandTotal,
-        paymentMethodLabel,
-        notes: notes || 'Không có',
-        source: 'Website SRX Việt Nam',
-      });
-    } catch (notificationError) {
-      console.error('Order Lark notification error:', notificationError);
-    }
-
-    try {
-      await sendOrderConfirmationEmail({
-        to: customer.email,
-        orderNumber,
-        customer,
-        items: lineItems,
-        subtotal: totals.subtotal,
+    void queueOrdersWebNotifications({
+      orderNumber,
+      customer,
+      items: lineItems,
+      notes,
+      payment: {
+        details: paymentDetails
+          ? {
+              accountName: paymentDetails.accountName,
+              accountNumber: paymentDetails.accountNumber,
+              amount: paymentDetails.amount,
+              bankName: paymentDetails.bankName,
+              transferContent: paymentDetails.transferContent,
+            }
+          : null,
+        method: paymentMethod,
+        methodLabel: paymentMethodLabel,
+        status: orderSummary.paymentStatus,
+      },
+      placedAt: new Date().toISOString(),
+      siteOrigin: request.nextUrl.origin,
+      source: 'Website SRX Việt Nam',
+      totals: {
         discountTotal: totals.discountTotal,
         grandTotal: totals.grandTotal,
-        paymentMethodLabel,
-        notes,
-        paymentDetails,
-        siteOrigin: request.nextUrl.origin,
-      });
-    } catch (mailError) {
-      console.error('Order confirmation email error:', mailError);
-    }
+        subtotal: totals.subtotal,
+      },
+    });
 
     return NextResponse.json(
       {

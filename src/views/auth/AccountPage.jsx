@@ -1,10 +1,12 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { createPortal } from 'react-dom';
 import {
+  ChevronRight,
   LockKeyhole,
   LogOut,
   MapPin,
@@ -15,6 +17,7 @@ import {
   ShoppingBag,
   Trash2,
   UserRound,
+  X,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import useBrowserSearchParams from '../../hooks/useBrowserSearchParams.js';
@@ -82,9 +85,21 @@ const paymentStatusLabels = {
   partially_refunded: 'Hoàn tiền một phần',
 };
 
+const paymentMethodLabels = {
+  cod: 'Thanh toan khi nhan hang',
+  bank_transfer: 'Chuyen khoan QR',
+  card: 'The',
+  e_wallet: 'Vi dien tu',
+};
+
 const currencyFormatter = new Intl.NumberFormat('vi-VN', {
   style: 'currency',
   currency: 'VND',
+});
+
+const orderDateFormatter = new Intl.DateTimeFormat('vi-VN', {
+  dateStyle: 'medium',
+  timeStyle: 'short',
 });
 
 const emptyAddressValues = {
@@ -132,6 +147,68 @@ function formatAddressPreview(address) {
     .join(', ');
 }
 
+function formatOrderDate(value) {
+  if (!value) {
+    return 'Chua cap nhat';
+  }
+
+  const parsedDate = new Date(value);
+  return Number.isNaN(parsedDate.getTime()) ? 'Chua cap nhat' : orderDateFormatter.format(parsedDate);
+}
+
+function getPaymentMethodLabel(paymentMethod) {
+  return paymentMethodLabels[paymentMethod] ?? paymentMethod ?? 'Chua cap nhat';
+}
+
+function getOrderPreviewText(order) {
+  const firstItem = order.items?.[0];
+
+  if (!firstItem) {
+    return 'Don hang chua co san pham chi tiet.';
+  }
+
+  const extraItemCount = Math.max((order.items?.length ?? 0) - 1, 0);
+
+  if (!extraItemCount) {
+    return firstItem.productName;
+  }
+
+  return `${firstItem.productName} va ${extraItemCount} san pham khac`;
+}
+
+function formatOrderContactValue(value) {
+  return String(value ?? '').trim() || 'Chua cap nhat';
+}
+
+function formatOrderShippingAddress(address) {
+  if (!address) {
+    return 'Chua cap nhat';
+  }
+
+  const parts = [
+    address.addressLine,
+    address.ward,
+    address.district,
+    address.province,
+    address.countryCode && address.countryCode !== 'VN' ? address.countryCode : '',
+  ]
+    .map((part) => String(part ?? '').trim())
+    .filter(Boolean);
+
+  return parts.length ? parts.join(', ') : 'Chua cap nhat';
+}
+
+function canRetryOrderPayment(order) {
+  if (!order) {
+    return false;
+  }
+
+  return (
+    order.paymentMethod === 'bank_transfer' &&
+    ['pending', 'failed'].includes(order.paymentStatus)
+  );
+}
+
 function DashboardTabButton({ isActive, tab, onClick }) {
   const Icon = tab.icon;
 
@@ -162,6 +239,206 @@ function DashboardTabButton({ isActive, tab, onClick }) {
   );
 }
 
+function OrderDetailModal({ order, onClose }) {
+  useEffect(() => {
+    if (!order) {
+      return undefined;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose, order]);
+
+  if (!order || typeof document === 'undefined') {
+    return null;
+  }
+
+  const shouldShowPaymentLink = canRetryOrderPayment(order);
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[140] overflow-y-auto"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Chi tiet don hang ${order.orderNumber}`}
+    >
+      <div
+        className="absolute inset-0 bg-[rgba(21,17,13,0.35)] backdrop-blur-sm"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      <div className="relative flex min-h-full items-center justify-center p-4 md:p-6">
+        <div className="relative flex w-full max-w-[960px] flex-col overflow-hidden rounded-[30px] border border-[#ece4da] bg-[#fcfaf8] shadow-[0_32px_90px_rgba(21,17,13,0.16)]">
+          <div className="border-b border-[#eadfce] px-5 py-5 md:px-7">
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0">
+                <div className="text-[12px] font-semibold uppercase tracking-[0.22em] text-[#8d7f72]">
+                  Chi tiết đơn hàng
+                </div>
+                <h3 className="mt-2 break-all text-[24px] font-semibold tracking-[-0.03em] text-[#15110d] md:text-[28px]">
+                  #{order.orderNumber}
+                </h3>
+                <div className="mt-2 text-[14px] text-[#665a4e]">
+                  Đặt ngày {formatOrderDate(order.placedAt)}
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-[#dccfbe] bg-white text-[#15110d] transition hover:border-[#15110d] hover:bg-[#15110d] hover:text-white"
+                aria-label="Dong chi tiet don hang"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              <span
+                className={`inline-flex rounded-full border px-3 py-1.5 text-[13px] font-medium ${getOrderStatusClass(
+                  order.orderStatus,
+                )}`}
+              >
+                {orderStatusLabels[order.orderStatus] ?? order.orderStatus}
+              </span>
+              <span className="inline-flex rounded-full border border-[#eadfce] bg-white px-3 py-1.5 text-[13px] font-medium text-[#665a4e]">
+                {paymentStatusLabels[order.paymentStatus] ?? order.paymentStatus}
+              </span>
+            </div>
+          </div>
+
+          <div className="max-h-[calc(100dvh-8rem)] overflow-y-auto px-5 py-5 md:px-7 md:py-6">
+          
+            <div className="grid gap-6 lg:grid-cols-2">
+              <div className="rounded-[24px] border border-[#ece4da] bg-white p-5">
+                <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#8d7f72]">
+                  Thông tin đơn hàng
+                </div>
+                <div className="mt-4 space-y-3">
+                  <div className=" px-4 py-1">
+                    <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Mã đơn hàng</div>
+                    <div className="mt-1 text-[15px] font-semibold text-[#15110d]">#{order.orderNumber}</div>
+                  </div>
+                  <div className=" px-4 py-1">
+                    <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Ngày đặt</div>
+                    <div className="mt-1 text-[15px] font-semibold text-[#15110d]">{formatOrderDate(order.placedAt)}</div>
+                  </div>
+                  <div className=" px-4 py-1">
+                    <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Trạng thái đơn</div>
+                    <div className="mt-1 text-[15px] font-semibold text-[#15110d]">
+                      {orderStatusLabels[order.orderStatus] ?? order.orderStatus}
+                    </div>
+                  </div>
+                  <div className=" px-4 py-1">
+                    <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Tổng tiền</div>
+                    <div className="mt-1 text-[15px] font-semibold text-[#15110d]">
+                      {currencyFormatter.format(order.grandTotal)}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-[24px] border border-[#ece4da] bg-white p-5">
+                <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#8d7f72]">
+                  Thông tin thanh toán
+                </div>
+                <div className="mt-4 space-y-3">
+                  <div className="px-4 py-1">
+                    <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Tên khách hàng</div>
+                    <div className="mt-1 text-[15px] font-semibold text-[#15110d]">
+                      {formatOrderContactValue(order.customer?.name || order.shippingAddress?.recipientName)}
+                    </div>
+                  </div>
+                  <div className="px-4 py-1">
+                    <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Số điện thoại</div>
+                    <div className="mt-1 text-[15px] font-semibold text-[#15110d]">
+                      {formatOrderContactValue(order.shippingAddress?.recipientPhone || order.customer?.phone)}
+                    </div>
+                  </div>
+                  <div className="px-4 py-1">
+                    <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Email</div>
+                    <div className="mt-1 break-all text-[15px] font-semibold text-[#15110d]">
+                      {formatOrderContactValue(order.customer?.email)}
+                    </div>
+                  </div>
+                  <div className="px-4 py-1">
+                    <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Địa chỉ giao hàng</div>
+                    <div className="mt-1 text-[15px] font-semibold leading-6 text-[#15110d]">
+                      {formatOrderShippingAddress(order.shippingAddress)}
+                    </div>
+                  </div>
+                  <div className="px-4 py-1">
+                    <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Phương thức thanh toán</div>
+                    <div className="mt-1 text-[15px] font-semibold text-[#15110d]">
+                      {getPaymentMethodLabel(order.paymentMethod)}
+                    </div>
+                  </div>
+                  {shouldShowPaymentLink ? (
+                    <Link
+                      href={`/checkout/payment/${encodeURIComponent(order.orderNumber)}`}
+                      className="inline-flex items-center justify-center rounded-full bg-[#15110d] px-5 py-3 text-[14px] font-semibold text-white transition hover:bg-[#2b2520]"
+                    >
+                      Thanh toán đơn hàng
+                    </Link>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 rounded-[24px] border border-[#ece4da] bg-white p-5">
+              <div className="flex items-center justify-between gap-3">
+                <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#8d7f72]">
+                  Sản phẩm trong đơn
+                </div>
+                <div className="text-[13px] text-[#665a4e]">{order.totalQuantity} sản phẩm</div>
+              </div>
+
+              <div className="mt-4 space-y-3">
+                {order.items.length ? (
+                  order.items.map((item, index) => (
+                    <div
+                      key={`${order.id}-${index}`}
+                      className="flex items-start justify-between gap-4 rounded-[18px] border border-[#f0e7dc] bg-[#fcfaf8] px-4 py-3"
+                    >
+                      <div className="min-w-0">
+                        <div className="text-[15px] font-semibold leading-6 text-[#15110d]">
+                          {item.productName}
+                        </div>
+                        {item.variantName ? (
+                          <div className="mt-1 text-[13px] text-[#7c6f63]">{item.variantName}</div>
+                        ) : null}
+                      </div>
+                      <div className="flex-shrink-0 text-[14px] font-medium text-[#665a4e]">x{item.quantity}</div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="rounded-[18px] border border-dashed border-[#e3d6c8] px-4 py-5 text-[14px] text-[#665a4e]">
+                    Don hang chua co dong san pham chi tiet.
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
 export default function AccountPage() {
   const router = useRouter();
   const searchParams = useBrowserSearchParams();
@@ -177,6 +454,7 @@ export default function AccountPage() {
   const [addressesError, setAddressesError] = useState('');
   const [orders, setOrders] = useState([]);
   const [addresses, setAddresses] = useState([]);
+  const [selectedOrder, setSelectedOrder] = useState(null);
   const [addressLimit, setAddressLimit] = useState(ADDRESS_LIMIT);
   const [editingAddressId, setEditingAddressId] = useState(null);
   const [hasLoadedOrders, setHasLoadedOrders] = useState(false);
@@ -257,6 +535,7 @@ export default function AccountPage() {
       setEditingAddressId(null);
       setOrders([]);
       setAddresses([]);
+      setSelectedOrder(null);
       setAddressLimit(ADDRESS_LIMIT);
       setHasLoadedOrders(false);
       setHasLoadedAddresses(false);
@@ -280,6 +559,7 @@ export default function AccountPage() {
     setAddressesError('');
     setOrders([]);
     setAddresses([]);
+    setSelectedOrder(null);
     setAddressLimit(ADDRESS_LIMIT);
     setEditingAddressId(null);
     setHasLoadedOrders(false);
@@ -287,7 +567,7 @@ export default function AccountPage() {
   }, [searchParams, user?.id]);
 
   useEffect(() => {
-    if (!user || dashboardTab !== 'orders' || hasLoadedOrders || isLoadingOrders) {
+    if (!user?.id || dashboardTab !== 'orders' || hasLoadedOrders) {
       return;
     }
 
@@ -327,10 +607,10 @@ export default function AccountPage() {
     return () => {
       isCancelled = true;
     };
-  }, [dashboardTab, hasLoadedOrders, isLoadingOrders, user]);
+  }, [dashboardTab, hasLoadedOrders, user?.id]);
 
   useEffect(() => {
-    if (!user || dashboardTab !== 'addresses' || hasLoadedAddresses || isLoadingAddresses) {
+    if (!user?.id || dashboardTab !== 'addresses' || hasLoadedAddresses) {
       return;
     }
 
@@ -371,7 +651,7 @@ export default function AccountPage() {
     return () => {
       isCancelled = true;
     };
-  }, [dashboardTab, hasLoadedAddresses, isLoadingAddresses, user]);
+  }, [dashboardTab, hasLoadedAddresses, user?.id]);
 
   const resetAddressForm = (values = emptyAddressValues) => {
     addressForm.reset(values);
@@ -1098,11 +1378,8 @@ export default function AccountPage() {
             Đơn hàng
           </div>
           <h2 className="mt-5 text-[30px] font-semibold tracking-[-0.04em] text-[#15110d] md:text-[34px]">
-            Theo dõi các đơn hàng của tài khoản
+            Theo dõi các đơn hàng của bạn
           </h2>
-          <p className="mt-3 max-w-[620px] text-[15px] leading-7 text-[#665a4e]">
-            Danh sách dưới đây hiển thị các đơn hàng gần nhất đã gắn với tài khoản hiện tại.
-          </p>
 
           {isLoadingOrders ? (
             <div className="mt-8 rounded-[24px] border border-[#ece4da] bg-[#fcfaf8] px-5 py-10 text-center text-[15px] text-[#665a4e]">
@@ -1117,7 +1394,16 @@ export default function AccountPage() {
               {orders.map((order) => (
                 <article
                   key={order.id}
-                  className="rounded-[28px] border border-[#ece4da] bg-[#fcfaf8] p-5 md:p-6"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setSelectedOrder(order)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      setSelectedOrder(order);
+                    }
+                  }}
+                  className="cursor-pointer rounded-[28px] border border-[#ece4da] bg-[#fcfaf8] p-5 transition hover:border-[#d8cbbd] hover:bg-white md:p-6"
                 >
                   <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                     <div>
@@ -1127,16 +1413,16 @@ export default function AccountPage() {
                       <div className="mt-2 text-[24px] font-semibold tracking-[-0.03em] text-[#15110d]">
                         #{order.orderNumber}
                       </div>
-                        <div className="font-['Inter',_sans-serif] mt-3 text-[14px] text-[#665a4e]">
-                          Đặt ngày{' '}
-                          {new Intl.DateTimeFormat('vi-VN', {
-                            dateStyle: 'medium',
-                            timeStyle: 'short',
-                          }).format(new Date(order.placedAt))}
+                      <div className="font-['Inter',_sans-serif] mt-3 text-[14px] text-[#665a4e]">
+                        Đặt ngày {formatOrderDate(order.placedAt)}
+                      </div>
+                      <div className="mt-3 text-[14px] leading-6 text-[#665a4e]">
+                        <span className="font-medium text-[#15110d]">San pham:</span> {getOrderPreviewText(order)}
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-col gap-3 md:items-end">
+                      <div className="flex flex-wrap gap-2">
                       <span
                         className={`inline-flex rounded-full border px-3 py-1.5 text-[13px] font-medium ${getOrderStatusClass(
                           order.orderStatus,
@@ -1147,10 +1433,18 @@ export default function AccountPage() {
                       <span className="inline-flex rounded-full border border-[#eadfce] bg-white px-3 py-1.5 text-[13px] font-medium text-[#665a4e]">
                         {paymentStatusLabels[order.paymentStatus] ?? order.paymentStatus}
                       </span>
+                        <span className="inline-flex rounded-full border border-[#eadfce] bg-white px-3 py-1.5 text-[13px] font-semibold text-[#15110d]">
+                          {currencyFormatter.format(order.grandTotal)}
+                        </span>
+                      </div>
+                      <div className="text-[14px] font-semibold text-[#15110d]">
+                        Xem chi tiết
+                        <ChevronRight className="ml-1 inline h-4 w-4" />
+                      </div>
                     </div>
                   </div>
 
-                  <div className="mt-5 grid gap-4 md:grid-cols-3">
+                  <div className="hidden mt-5 grid gap-4 md:grid-cols-3">
                     <div className="rounded-[20px] border border-[#ece4da] bg-white p-4">
                       <div className="text-[12px] uppercase tracking-[0.18em] text-[#8d7f72]">Tổng thanh toán</div>
                       <div className="font-['Inter',_sans-serif] mt-2 text-[20px] font-semibold text-[#15110d]">
@@ -1167,7 +1461,7 @@ export default function AccountPage() {
                     </div>
                   </div>
 
-                  <div className="mt-5 rounded-[22px] border border-[#ece4da] bg-white p-4">
+                  <div className="hidden mt-5 rounded-[22px] border border-[#ece4da] bg-white p-4">
                     <div className="text-[12px] uppercase tracking-[0.18em] text-[#8d7f72]">Sản phẩm trong đơn</div>
                     <div className="mt-3 space-y-2">
                       {order.items.length ? (
@@ -1210,6 +1504,7 @@ export default function AccountPage() {
               </Link>
             </div>
           )}
+          <OrderDetailModal order={selectedOrder} onClose={() => setSelectedOrder(null)} />
         </div>
       );
     }

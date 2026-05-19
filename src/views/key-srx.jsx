@@ -206,7 +206,7 @@ export default function KeySRXPage({ entries = [] }) {
         <section className="max-w-[1840px] mx-auto px-4 sm:px-8 pt-8 md:pt-32 pb-12">
           <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
             <div className="flex min-w-0 items-center gap-3">
-              <div ref={chipsRef} className="flex min-w-0 gap-3 overflow-x-auto pb-2">
+              <div ref={chipsRef} className="flex min-w-0 gap-3 overflow-x-auto">
                 {tagFilters.map((filterLabel) => {
                   const isActive = selectedFilter === filterLabel;
 
@@ -217,7 +217,7 @@ export default function KeySRXPage({ entries = [] }) {
                       onClick={() => setSelectedFilter(filterLabel)}
                       className={`whitespace-nowrap rounded-full border px-4 py-2 text-[13px] transition ${
                         isActive
-                          ? 'border-transparent bg-[linear-gradient(90deg,#8e9bff,#f4a7d5)] text-white shadow-[0_12px_30px_rgba(163,153,255,0.24)]'
+                          ? 'border-transparent bg-[linear-gradient(90deg,#8e9bff,#f4a7d5)] text-white'
                           : 'border-[#d9d5cf] bg-white text-[#6d665f] hover:border-[#15110d] hover:text-[#15110d]'
                       }`}
                     >

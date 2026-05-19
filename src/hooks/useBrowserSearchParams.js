@@ -5,9 +5,19 @@ import { useMemo, useSyncExternalStore } from 'react';
 const URL_CHANGE_EVENT = 'srx:url-change';
 
 let isHistoryPatched = false;
+let hasPendingUrlChange = false;
 
 function dispatchUrlChange() {
-  window.dispatchEvent(new Event(URL_CHANGE_EVENT));
+  if (typeof window === 'undefined' || hasPendingUrlChange) {
+    return;
+  }
+
+  hasPendingUrlChange = true;
+
+  window.setTimeout(() => {
+    hasPendingUrlChange = false;
+    window.dispatchEvent(new Event(URL_CHANGE_EVENT));
+  }, 0);
 }
 
 function patchHistory() {

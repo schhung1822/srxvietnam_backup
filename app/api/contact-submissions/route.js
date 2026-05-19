@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { sendLeadFormNotification } from '../../../src/lib/server/lark.js';
+import { deliverLeadFormNotificationToCrm } from '../../../src/lib/server/crm-web-notifications.js';
 
 export const runtime = 'nodejs';
 
@@ -129,12 +129,12 @@ export async function POST(request) {
     validateSubmission(submission);
 
     try {
-      await sendLeadFormNotification(submission);
+      await deliverLeadFormNotificationToCrm(submission);
     } catch (notificationError) {
-      console.error('Lead form Lark notification error:', notificationError);
+      console.error('Lead form CRM notification error:', notificationError);
 
       return NextResponse.json(
-        { message: 'Khong gui duoc thong bao Lark. Vui long thu lai.' },
+        { message: 'Khong gui duoc thong bao. Vui long thu lai.' },
         { status: 502 },
       );
     }
