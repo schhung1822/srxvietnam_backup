@@ -284,8 +284,14 @@ function formatAffiliateApplication(row) {
   };
 }
 
+function resolveReferralBaseOrigin(origin) {
+  const envOrigin = safeString(process.env.NEXT_PUBLIC_SITE_URL);
+  const fallbackOrigin = safeString(origin);
+  return (envOrigin || fallbackOrigin).replace(/\/+$/, '');
+}
+
 function buildReferralLink(origin, affiliateCode) {
-  const baseOrigin = String(origin ?? '').replace(/\/$/, '');
+  const baseOrigin = resolveReferralBaseOrigin(origin);
   return affiliateCode ? `${baseOrigin}/?ref=${affiliateCode}` : null;
 }
 

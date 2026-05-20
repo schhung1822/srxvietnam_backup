@@ -3,22 +3,22 @@
 const defaultBadges = [
   {
     id: 'tag-1',
-    src: '/assets/images/home/tag-1.avif',
+    src: '/assets/images/home/3.icon1.webp',
     alt: 'Nguồn nguyên liệu chuẩn châu Âu SCCS',
   },
   {
     id: 'tag-2',
-    src: '/assets/images/home/tag-2.avif',
+    src: '/assets/images/home/3.icon2.webp',
     alt: 'Chứng minh lâm sàng bởi các bác sĩ da liễu',
   },
   {
     id: 'tag-3',
-    src: '/assets/images/home/tag-3.avif',
+    src: '/assets/images/home/3.icon3.webp',
     alt: 'Không thử nghiệm trên động vật',
   },
   {
     id: 'tag-4',
-    src: '/assets/images/home/tag-4.avif',
+    src: '/assets/images/home/3.icon4.webp',
     alt: 'Công thức phức hợp chuyên sâu',
   },
 ];
@@ -49,9 +49,9 @@ export default function HomeStandardsSection({
         <div className="mt-10 grid grid-cols-2 justify-items-center gap-x-5 gap-y-8 sm:mt-14 sm:gap-x-8 sm:gap-y-10 lg:grid-cols-4 lg:gap-x-10">
           {badges.map((badge) => (
             <article key={badge.id} className="group flex w-full max-w-[290px] flex-col items-center text-center">
-              <div className="w-full max-w-[168px] sm:max-w-[220px] lg:max-w-[250px]">
-                <div className="rounded-full bg-white/90 shadow-[0_22px_55px_rgba(159,174,228,0.18)] ring-1 ring-white/80 transition-transform duration-300 group-hover:-translate-y-1">
-                  <div className="aspect-square overflow-hidden rounded-full bg-white">
+              <div className="w-full max-w-[180px] sm:max-w-[240px] lg:max-w-[280px]">
+                <div className="rounded-full transition-transform duration-300 group-hover:-translate-y-1">
+                  <div className="aspect-square overflow-hidden rounded-full">
                     <img
                       src={badge.src}
                       alt={badge.alt}

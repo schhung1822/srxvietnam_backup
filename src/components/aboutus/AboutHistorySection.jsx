@@ -4,7 +4,7 @@ const historyItems = [
     title: "Ra đời và khẳng định tên tuổi tại Hàn Quốc",
     description:
       "Ra đời và khẳng định tên tuổi tại Hàn Quốc: SRX chính thức được thành lập tại Hàn Quốc. Thương hiệu tập trung vào thế mạnh là phục hồi và tái tạo da chuyên sâu, ứng dụng công nghệ tế bào gốc và các hoạt chất sinh học tiên tiến. Nhờ các công thức khoa học, hiện đại, SRX nhanh chóng tạo được tiếng vang lớn và các sản phẩm của hãng được chứng nhận, tin dùng rộng rãi tại nhiều phòng mạch, viện da liễu, Spa và Clinic.",
-    image: "/assets/images/about/history1.webp",
+    image: "/assets/images/about/historya.webp",
     imageAlt: "Chân dung đại diện cho giai đoạn khởi đầu của thương hiệu SRX",
     imageClassName: "object-cover object-center",
   },
@@ -13,7 +13,7 @@ const historyItems = [
     title: "Vươn tầm quốc tế",
     description:
       "Vươn tầm quốc tế: Từ thành công tại thị trường nội địa, SRX đã mở rộng mạng lưới ra thị trường thế giới và có mặt tại nhiều quốc gia lớn như Mỹ, Đức, Pháp.",
-    image: "/assets/images/about/history2.webp",
+    image: "/assets/images/about/historyc.webp",
     imageAlt: "Khối thị giác ánh ngọc biểu trưng cho giai đoạn mở rộng quốc tế của SRX",
     imageClassName: "object-cover object-center",
   },

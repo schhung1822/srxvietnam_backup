@@ -12,7 +12,7 @@ const HERO_ASSETS = {
   backgroundVideo:
     "/assets/images/home/video_bh_hero.mp4",
   infinityArtwork:
-    "/assets/images/home/logo_3d_hero.webp",
+    "/assets/images/home/SRX_3D.webp",
   titlePill:
     "/assets/images/home/background_hero.webp",
   badgeIcon:
