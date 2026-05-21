@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Minus, Plus, Star } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Minus, Plus, Star } from 'lucide-react';
 import ProductArtwork from '../../components/shop/ProductArtwork';
 import ProductCard from '../../components/shop/ProductCard';
 import ProductIngredientShowcase from '../../components/shop/ProductIngredientShowcase';
@@ -382,17 +382,22 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
   const [selectedSceneId, setSelectedSceneId] = useState(product.gallery[0]?.id ?? null);
   const [selectedVariantId, setSelectedVariantId] = useState(product.variants[0].id);
   const [quantity, setQuantity] = useState(1);
-  const [openInfoPanelId, setOpenInfoPanelId] = useState('info');
+  const [openInfoPanelId, setOpenInfoPanelId] = useState('benefits');
 
   useEffect(() => {
     setSelectedSceneId(product.gallery[0]?.id ?? null);
     setSelectedVariantId(product.variants[0].id);
     setQuantity(1);
-    setOpenInfoPanelId('info');
+    setOpenInfoPanelId('benefits');
   }, [product.slug, product.gallery, product.variants]);
 
   const selectedScene =
     product.gallery.find((scene) => scene.id === selectedSceneId) ?? product.gallery[0] ?? null;
+  const selectedSceneIndex = Math.max(
+    0,
+    product.gallery.findIndex((scene) => scene.id === selectedScene?.id),
+  );
+  const canNavigateScenes = product.gallery.length > 1;
   const selectedVariant = product.variants.find((variant) => variant.id === selectedVariantId) ?? product.variants[0];
   const infoImage = product.infoImage || product.gallery[0]?.image || '';
   const shortDescriptionText = stripHtml(product.shortDescription);
@@ -405,10 +410,6 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
   const infoIndications = buildInfoIndications(product);
   const infoNotes = buildInfoNotes(product);
   const infoBenefits = buildBenefitItems(product);
-  const accordionDescription =
-    parsedInfoContent.intro ||
-    splitTextSentences(descriptionText).slice(0, 3).join(' ') ||
-    shortDescriptionText;
   const benefitSection =
     parsedInfoContent.sections.find((section) => /công dụng|chỉ định/iu.test(section.title)) ?? null;
   const ingredientSection =
@@ -427,12 +428,6 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
   ]).slice(0, 8);
   const topInfoPanels = [
     {
-      id: 'info',
-      title: 'THÔNG TIN',
-      description: accordionDescription,
-      items: [],
-    },
-    {
       id: 'benefits',
       title: 'LỢI ÍCH',
       description: '',
@@ -449,6 +444,16 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
 
   const increaseQuantity = () => setQuantity((current) => current + 1);
   const decreaseQuantity = () => setQuantity((current) => (current > 1 ? current - 1 : 1));
+  const goToSceneByOffset = (offset) => {
+    if (!product.gallery.length) {
+      return;
+    }
+
+    const nextIndex =
+      (selectedSceneIndex + offset + product.gallery.length) % product.gallery.length;
+
+    setSelectedSceneId(product.gallery[nextIndex].id);
+  };
 
   return (
     <section className="bg-white pb-20 pt-8 md:pb-24">
@@ -466,13 +471,13 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
         </div>
 
         <div className="max-w-[1440px] mx-auto grid gap-8 pt-8 pb-20 xl:grid-cols-[100px_minmax(0,1fr)_minmax(380px,500px)] xl:gap-10">
-          <div className="order-2 flex gap-3 overflow-x-auto xl:order-1 xl:flex-col xl:gap-4">
+          <div className="order-2 flex gap-3 overflow-x-auto pb-1 xl:order-1 xl:max-h-[760px] xl:flex-col xl:self-start xl:overflow-x-hidden xl:overflow-y-auto xl:pb-0 xl:pr-2">
             {product.gallery.map((scene) => (
               <button
                 key={scene.id}
                 type="button"
                 onClick={() => setSelectedSceneId(scene.id)}
-                className={`min-w-[78px] overflow-hidden rounded-[16px] border bg-white transition ${
+                className={`min-w-[78px] shrink-0 overflow-hidden rounded-[16px] border bg-white transition ${
                   selectedSceneId === scene.id
                     ? 'border-[#15110d] opacity-100'
                     : 'border-[#CFC4C5] opacity-80 hover:border-[#cdbfb2] hover:opacity-100'
@@ -484,8 +489,30 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
           </div>
 
           <div className="order-1 xl:order-2">
-            <div className="overflow-hidden rounded-[28px] border border-[#CFC4C5] bg-white">
+            <div className="relative overflow-hidden rounded-[28px] border border-[#CFC4C5] bg-white">
               <ProductArtwork scene={selectedScene} badge={product.badge} mode="detail" showEyebrow={false} />
+
+              {canNavigateScenes ? (
+                <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => goToSceneByOffset(-1)}
+                    className="flex h-11 w-11 items-center justify-center rounded-full border border-white/80 bg-white/92 text-[#15110d] shadow-[0_12px_28px_rgba(21,16,13,0.12)] transition hover:bg-white"
+                    aria-label="Ảnh trước"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => goToSceneByOffset(1)}
+                    className="flex h-11 w-11 items-center justify-center rounded-full border border-white/80 bg-white/92 text-[#15110d] shadow-[0_12px_28px_rgba(21,16,13,0.12)] transition hover:bg-white"
+                    aria-label="Ảnh tiếp theo"
+                  >
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : null}
             </div>
           </div>
 

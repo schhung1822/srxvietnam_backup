@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
-const slides = [
+const fallbackSlides = [
   {
     id: "slider-1",
     src: "/assets/images/home/slider1.avif",
@@ -21,14 +21,29 @@ const slides = [
   },
 ];
 
-export default function HomeImageSlider() {
+function isExternalUrl(value = "") {
+  return /^(https?:)?\/\//i.test(String(value).trim());
+}
+
+export default function HomeImageSlider({ banners = [] }) {
+  const slides = banners.length ? banners : fallbackSlides;
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
 
   useEffect(() => {
-    if (isPaused) {
+    setCurrentIndex((previousIndex) => {
+      if (!slides.length) {
+        return 0;
+      }
+
+      return Math.min(previousIndex, slides.length - 1);
+    });
+  }, [slides]);
+
+  useEffect(() => {
+    if (isPaused || slides.length <= 1) {
       return undefined;
     }
 
@@ -39,9 +54,13 @@ export default function HomeImageSlider() {
     }, 4800);
 
     return () => window.clearInterval(intervalId);
-  }, [isPaused]);
+  }, [isPaused, slides.length]);
 
   const goToSlide = (nextIndex) => {
+    if (!slides.length) {
+      return;
+    }
+
     if (nextIndex < 0) {
       setCurrentIndex(slides.length - 1);
       return;
@@ -100,13 +119,31 @@ export default function HomeImageSlider() {
                   }`}
                   aria-hidden={!isActive}
                 >
-                  <img
-                    src={slide.src}
-                    alt={slide.alt}
-                    className="h-full w-full object-cover object-center"
-                    loading={index === 0 ? "eager" : "lazy"}
-                    fetchPriority={index === 0 ? "high" : "auto"}
-                  />
+                  {slide.href ? (
+                    <a
+                      href={slide.href}
+                      className="block h-full w-full"
+                      aria-label={slide.alt}
+                      target={isExternalUrl(slide.href) ? "_blank" : undefined}
+                      rel={isExternalUrl(slide.href) ? "noreferrer noopener" : undefined}
+                    >
+                      <img
+                        src={slide.src}
+                        alt={slide.alt}
+                        className="h-full w-full object-cover object-center"
+                        loading={index === 0 ? "eager" : "lazy"}
+                        fetchPriority={index === 0 ? "high" : "auto"}
+                      />
+                    </a>
+                  ) : (
+                    <img
+                      src={slide.src}
+                      alt={slide.alt}
+                      className="h-full w-full object-cover object-center"
+                      loading={index === 0 ? "eager" : "lazy"}
+                      fetchPriority={index === 0 ? "high" : "auto"}
+                    />
+                  )}
                 </div>
               );
             })}

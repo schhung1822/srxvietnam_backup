@@ -1,4 +1,5 @@
 import Home from '../src/views/Home.jsx';
+import { getHomepageHeroBanners } from '../src/lib/server/banners.js';
 import { getCatalogProducts } from '../src/lib/server/products.js';
 import { buildMetadata } from '../src/lib/seo.js';
 
@@ -23,8 +24,11 @@ function pickRandomProducts(products, limit = 4) {
 }
 
 export default async function HomePage() {
-  const products = await getCatalogProducts();
+  const [products, heroBanners] = await Promise.all([
+    getCatalogProducts(),
+    getHomepageHeroBanners(),
+  ]);
   const featuredProducts = pickRandomProducts(products, 4);
 
-  return <Home featuredProducts={featuredProducts} />;
+  return <Home featuredProducts={featuredProducts} heroBanners={heroBanners} />;
 }
