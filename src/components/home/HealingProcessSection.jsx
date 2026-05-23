@@ -10,39 +10,51 @@ gsap.registerPlugin(ScrollTrigger);
 
 const defaultSlides = [
   {
-    id: "reduce-inflammation",
-    stageLabel: "Giai đoạn 1 - Giảm viêm",
+    id: "hemostasis",
+    stageLabel: "Giai đoạn 1 - Cầm máu",
+    title: "Cầm máu",
+    description:
+      "Ngay sau khi da bị tổn thương, cơ thể kích hoạt cơ chế co mạch và tạo cục máu đông nhằm ngăn mất máu. Lớp bảo vệ tạm thời này giúp che chắn vùng da tổn thương, hạn chế tác nhân bên ngoài và tạo nền tảng cho quá trình phục hồi tiếp theo.",
+    media: {
+      type: "image",
+      src: "/assets/images/home/GD1.webp",
+      poster: "/assets/images/home/GD1.webp",
+    },
+  },
+  {
+    id: "inflammation",
+    stageLabel: "Giai đoạn 2 - Giảm viêm",
     title: "Giảm viêm",
     description:
       "Đây là thời điểm da tập trung tái sinh các tế bào mới và sửa chữa tế bào hư tổn. Các hoạt chất sinh học tiên tiến như Copper Tripeptide-1 đóng vai trò thúc đẩy mạnh mẽ tốc độ lành vết thương, ổn định lại mô liên kết và ngăn ngừa việc hình thành sẹo. Bên cạnh đó, quá trình này cũng kích thích tăng sinh Collagen và Elastin, hỗ trợ sửa chữa DNA và giúp tăng tốc độ tái sinh các biểu mô mới trên bề mặt da.",
     media: {
-      type: "video",
-      src: "/assets/images/home/giamvien.mp4",
-      alt: "Giai đoạn giảm viêm",
+      type: "image",
+      src: "/assets/images/home/GD2.webp",
+      poster: "/assets/images/home/GD2.webp",
     },
   },
   {
-    id: "cell-regeneration",
-    stageLabel: "Giai đoạn 2 - Tăng Sinh",
+    id: "proliferation",
+    stageLabel: "Giai đoạn 3 - Tăng Sinh",
     title: "Tăng sinh",
     description:
       "Khi da bước vào pha tăng sinh, collagen và elastin được kích hoạt đều hơn để củng cố cấu trúc nền. Đây là giai đoạn phù hợp để thúc đẩy tái tạo bề mặt, cải thiện độ đàn hồi và giúp làn da lấy lại độ căng khỏe tự nhiên.",
     media: {
       type: "image",
-      src: "/assets/images/home/tangsinh.avif",
-      poster: "/assets/images/home/tangsinh.avif",
+      src: "/assets/images/home/GD3.webp",
+      poster: "/assets/images/home/GD3.webp",
     },
   },
   {
-    id: "skin-remodeling",
-    stageLabel: "Giai đoạn 3 - Tái tạo",
+    id: "remodeling",
+    stageLabel: "Giai đoạn 4 - Tái tạo",
     title: "Tái tạo",
     description:
       "Ở giai đoạn cuối, mô da được sắp xếp ổn định hơn, bề mặt trở nên mịn và đều màu hơn. Quá trình tái tạo này giúp hạn chế dấu vết sau tổn thương, tăng độ săn chắc và duy trì trạng thái phục hồi bền vững cho da.",
     media: {
-      type: "video",
-      src: "/assets/images/home/taitao.mp4",
-      alt: "Giai đoạn tái tạo",
+      type: "image",
+      src: "/assets/images/home/GD4.webp",
+      poster: "/assets/images/home/GD4.webp",
     },
   },
 ];
@@ -329,7 +341,7 @@ export default function HealingProcessSection({
                       </div>
                     </div>
 
-                    <div className="mt-8 max-w-[92%]">
+                    <div className="mt-8 max-w-[100%] sm:max-w-[92%]">
                       <h3
                         className="text-[28px] font-bold tracking-[-0.03em] text-[#151515] sm:text-[31px]"
                         style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
@@ -338,7 +350,7 @@ export default function HealingProcessSection({
                       </h3>
 
                       <p
-                        className="mt-4 text-[13px] leading-[1.65] text-[#5f5f5f] sm:text-[14px]"
+                        className="mt-4 text-[13px] min-h-[94px] leading-[1.65] text-[#5f5f5f] sm:text-[14px]"
                         style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
                       >
                         {slide.description}

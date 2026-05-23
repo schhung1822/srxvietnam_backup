@@ -149,7 +149,7 @@ export default function HomeScientificTopicsSection({ initialArticles = [] }) {
         <div data-tech-cta className="mt-20 flex w-full justify-center">
           <div className="flex justify-center w-full max-w-[460px] gap-3 sm:w-auto sm:max-w-none sm:gap-[18px]">
             <Link
-              href="/products"
+              href="/chu-de-khoa-hoc"
               className={`${homePrimaryButtonClass} justify-center shrink-0 sm:w-auto min-w-[118px]`}
               style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
             >
@@ -159,7 +159,7 @@ export default function HomeScientificTopicsSection({ initialArticles = [] }) {
             </Link>
 
             <Link
-              href="/contact"
+              href="/products"
               className={`${homeSecondaryButtonClass} justify-center shrink-0 px-6 sm:w-auto min-w-[210px] sm:px-7`}
               style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
             >

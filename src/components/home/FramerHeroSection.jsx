@@ -248,7 +248,7 @@ const FramerHeroSection = () => {
                   <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:gap-[18px]">
                     <Link
                       data-hero-cta
-                      to="/products"
+                      to="/about"
                       className={`${homePrimaryButtonClass} w-full justify-center shrink-0 min-w-[116px] sm:w-auto sm:min-w-[118px]`}
                       style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
                     >
@@ -259,7 +259,7 @@ const FramerHeroSection = () => {
 
                     <Link
                       data-hero-cta
-                      to="/contact"
+                      to="/products"
                       className={`${homeSecondaryButtonClass} w-full justify-center shrink-0 min-w-[206px] px-6 sm:w-auto sm:min-w-[210px] sm:px-7`}
                       style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
                     >

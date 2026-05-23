@@ -295,7 +295,7 @@ export default function HomeProductTechnologySection() {
             <div data-tech-cta className="mt-4 flex w-full justify-center sm:mt-12">
               <div className="flex w-full max-w-[460px] justify-center gap-3 sm:w-auto sm:max-w-none sm:gap-[18px]">
                 <Link
-                  href="/products"
+                  href="/key-srx"
                   className={`${homePrimaryButtonClass} min-w-[118px] shrink-0 justify-center sm:w-auto`}
                   style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
                 >
@@ -305,7 +305,7 @@ export default function HomeProductTechnologySection() {
                 </Link>
 
                 <Link
-                  href="/contact"
+                  href="/products"
                   className={`${homeSecondaryButtonClass} min-w-[210px] shrink-0 justify-center px-6 sm:w-auto sm:px-7`}
                   style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
                 >

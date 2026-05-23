@@ -44,8 +44,8 @@ function getSegmentProgress(segmentIndex, currentIndex, currentProgress) {
 export default function ClinicalProofSection({
   title = "Chứng minh\nlâm sàng",
   description = "Là quá trình nghiên cứu, thử nghiệm công phu trên người bệnh thực tế để xác nhận hiệu quả và độ an toàn của sản phẩm, phương pháp điều trị, hoặc sản phẩm y tế. Đây là tiêu chuẩn vàng giúp phân biệt sản phẩm uy tín với quảng cáo, đảm bảo mang lại kết quả thực tế.",
-  primaryCta = { label: "Khám phá ngay", href: "#" },
-  secondaryCta = { label: "Nâng cấp làn da của bạn", href: "#" },
+  primaryCta = { label: "Khám phá ngay", href: "/key-srx" },
+  secondaryCta = { label: "Nâng cấp làn da của bạn", href: "/products" },
   slides = defaultSlides,
   slideDurationMs = 5200,
 }) {
