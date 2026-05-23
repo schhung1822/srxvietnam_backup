@@ -278,6 +278,32 @@ export async function getNewsArticleBySlug(slug) {
   return null;
 }
 
+export async function incrementPublishedNewsViewCountBySlug(slug) {
+  const normalizedSlug = String(slug ?? '').trim();
+
+  if (!normalizedSlug || shouldUseFallbackArticles()) {
+    return false;
+  }
+
+  try {
+    const result = await query(
+      `
+        UPDATE posts
+        SET view_count = view_count + 1
+        WHERE slug = ?
+          AND status = 'published'
+        LIMIT 1
+      `,
+      [normalizedSlug],
+    );
+
+    return Number(result?.affectedRows ?? 0) > 0;
+  } catch (error) {
+    console.error(`Failed to increment article view count for "${normalizedSlug}":`, error);
+    return false;
+  }
+}
+
 export async function searchPublishedNews(term = '', limit = 5) {
   const safeLimit = Math.max(1, Number(limit) || 5);
   const trimmedTerm = String(term ?? '').trim();

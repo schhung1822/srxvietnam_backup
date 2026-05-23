@@ -26,6 +26,29 @@ const currencyFormatter = new Intl.NumberFormat('vi-VN', {
   currency: 'VND',
 });
 
+const orderDateFormatter = new Intl.DateTimeFormat('vi-VN', {
+  dateStyle: 'medium',
+  timeStyle: 'short',
+});
+
+const orderStatusLabels = {
+  pending: 'Chờ xác nhận',
+  confirmed: 'Đã xác nhận',
+  processing: 'Đang xử lý',
+  shipping: 'Đang giao',
+  completed: 'Hoàn thành',
+  cancelled: 'Đã hủy',
+  refunded: 'Hoàn tiền',
+};
+
+const paymentStatusLabels = {
+  pending: 'Chờ thanh toán',
+  paid: 'Đã thanh toán',
+  failed: 'Thanh toán lỗi',
+  refunded: 'Đã hoàn tiền',
+  partially_refunded: 'Hoàn tiền một phần',
+};
+
 const paymentMethodIcons = {
   cod: Truck,
   bank_transfer: QrCode,
@@ -54,6 +77,34 @@ function formatSavedAddress(address) {
 
 function formatCheckoutContact(contact) {
   return [contact.addressLine, contact.ward, contact.province].filter(Boolean).join(', ');
+}
+
+function formatCheckoutOrderDate(value) {
+  if (!value) {
+    return 'Chưa cập nhật';
+  }
+
+  const parsedDate = new Date(value);
+  return Number.isNaN(parsedDate.getTime()) ? 'Chưa cập nhật' : orderDateFormatter.format(parsedDate);
+}
+
+function formatCheckoutContactValue(value) {
+  return String(value ?? '').trim() || 'Chưa cập nhật';
+}
+
+function getCheckoutOrderStatusClass(status) {
+  switch (status) {
+    case 'completed':
+      return 'border-[#d4ecdc] bg-[#edf9f1] text-[#237a3b]';
+    case 'shipping':
+    case 'processing':
+      return 'border-[#dbe3ff] bg-[#eef2ff] text-[#2b4eff]';
+    case 'cancelled':
+    case 'refunded':
+      return 'border-[#f0d3d3] bg-[#fff0f0] text-[#b14040]';
+    default:
+      return 'border-[#eadfce] bg-[#fcfaf8] text-[#7a6958]';
+  }
 }
 
 function AddressOption({ address, isSelected, onSelect }) {
@@ -360,6 +411,9 @@ export default function CheckoutPage() {
 
   if (completedCheckout) {
     const isBankTransfer = completedCheckout.order.paymentMethod === 'bank_transfer';
+    const paymentMethodLabel =
+      paymentMethodOptions.find((method) => method.id === completedCheckout.order.paymentMethod)?.label ??
+      completedCheckout.order.paymentMethod;
 
     return (
       <section className="bg-[#fcfaf8] py-12 md:py-20">
@@ -381,6 +435,19 @@ export default function CheckoutPage() {
                   : 'Đơn hàng của bạn đã được ghi nhận. SRX sẽ liên hệ xác nhận trước khi giao và bạn thanh toán khi nhận hàng.'}
               </p>
 
+              <div className="mt-6 flex flex-wrap gap-2">
+                <span
+                  className={`inline-flex rounded-full border px-3 py-1.5 text-[13px] font-medium ${getCheckoutOrderStatusClass(
+                    completedCheckout.order.orderStatus,
+                  )}`}
+                >
+                  {orderStatusLabels[completedCheckout.order.orderStatus] ?? completedCheckout.order.orderStatus}
+                </span>
+                <span className="inline-flex rounded-full border border-[#eadfce] bg-white px-3 py-1.5 text-[13px] font-medium text-[#665a4e]">
+                  {paymentStatusLabels[completedCheckout.order.paymentStatus] ?? completedCheckout.order.paymentStatus}
+                </span>
+              </div>
+
               <div className="mt-8 grid gap-4 md:grid-cols-2">
                 <div className="rounded-[22px] border border-[#ece4da] bg-[#fcfaf8] p-5">
                   <div className="text-[12px] uppercase tracking-[0.18em] text-[#8d7f72]">Tổng thanh toán</div>
@@ -391,7 +458,7 @@ export default function CheckoutPage() {
                 <div className="rounded-[22px] border border-[#ece4da] bg-[#fcfaf8] p-5">
                   <div className="text-[12px] uppercase tracking-[0.18em] text-[#8d7f72]">Phương thức</div>
                   <div className="mt-2 text-[18px] font-semibold text-[#15110d]">
-                    {paymentMethodOptions.find((method) => method.id === completedCheckout.order.paymentMethod)?.label}
+                    {paymentMethodLabel}
                   </div>
                 </div>
               </div>
@@ -416,8 +483,98 @@ export default function CheckoutPage() {
 
             <div className="space-y-6">
 
-              <div className="rounded-[32px] border border-[#ece4da] bg-white p-6">
-                <div className="text-[12px] font-semibold uppercase tracking-[0.2em] text-[#8d7f72]">
+              <div className="rounded-[32px] border border-[#ece4da] bg-white p-4">
+                <div className="grid gap-6 xl:grid-cols-2">
+                  <div className="p-5">
+                    <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#8d7f72]">
+                      Thông tin đơn hàng
+                    </div>
+                    <div className="mt-4 space-y-3">
+                      <div className="px-4 py-1">
+                        <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Mã đơn hàng</div>
+                        <div className="mt-1 text-[15px] font-semibold text-[#15110d]">
+                          #{completedCheckout.order.orderNumber}
+                        </div>
+                      </div>
+                      <div className="px-4 py-1">
+                        <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Ngày đặt</div>
+                        <div className="mt-1 text-[15px] font-semibold text-[#15110d]">
+                          {formatCheckoutOrderDate(completedCheckout.order.placedAt)}
+                        </div>
+                      </div>
+                      <div className="px-4 py-1">
+                        <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Trạng thái đơn</div>
+                        <div className="mt-1 text-[15px] font-semibold text-[#15110d]">
+                          {orderStatusLabels[completedCheckout.order.orderStatus] ?? completedCheckout.order.orderStatus}
+                        </div>
+                      </div>
+                      <div className="px-4 py-1">
+                        <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Tổng tiền</div>
+                        <div className="mt-1 text-[15px] font-semibold text-[#15110d]">
+                          {currencyFormatter.format(completedCheckout.order.grandTotal)}
+                        </div>
+                      </div>
+                      <div className="px-4 py-1">
+                        <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Tạm tính</div>
+                        <div className="mt-1 text-[15px] font-semibold text-[#15110d]">
+                          {currencyFormatter.format(completedCheckout.order.subtotal)}
+                        </div>
+                      </div>
+                      <div className="px-4 py-1">
+                        <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Giảm giá</div>
+                        <div className="mt-1 text-[15px] font-semibold text-[#15110d]">
+                          {completedCheckout.order.discountTotal > 0
+                            ? `- ${currencyFormatter.format(completedCheckout.order.discountTotal)}`
+                            : currencyFormatter.format(0)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-4">
+                    <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#8d7f72]">
+                      Thông tin thanh toán
+                    </div>
+                    <div className="mt-4 space-y-3">
+                      <div className="px-4 py-1">
+                        <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Tên khách hàng</div>
+                        <div className="mt-1 text-[15px] font-semibold text-[#15110d]">
+                          {formatCheckoutContactValue(completedCheckout.customer.fullName)}
+                        </div>
+                      </div>
+                      <div className="px-4 py-1">
+                        <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Số điện thoại</div>
+                        <div className="mt-1 text-[15px] font-semibold text-[#15110d]">
+                          {formatCheckoutContactValue(completedCheckout.customer.phone)}
+                        </div>
+                      </div>
+                      <div className="px-4 py-1">
+                        <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Email</div>
+                        <div className="mt-1 break-all text-[15px] font-semibold text-[#15110d]">
+                          {formatCheckoutContactValue(completedCheckout.customer.email)}
+                        </div>
+                      </div>
+                      <div className="px-4 py-1">
+                        <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Địa chỉ giao hàng</div>
+                        <div className="mt-1 text-[15px] font-semibold leading-6 text-[#15110d]">
+                          {formatCheckoutContactValue(formatCheckoutContact(completedCheckout.customer))}
+                        </div>
+                      </div>
+                      <div className="px-4 py-1">
+                        <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Phương thức thanh toán</div>
+                        <div className="mt-1 text-[15px] font-semibold text-[#15110d]">{paymentMethodLabel}</div>
+                      </div>
+                      <div className="px-4 py-1">
+                        <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Trạng thái thanh toán</div>
+                        <div className="mt-1 text-[15px] font-semibold text-[#15110d]">
+                          {paymentStatusLabels[completedCheckout.order.paymentStatus] ?? completedCheckout.order.paymentStatus}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 text-[12px] font-semibold uppercase tracking-[0.2em] text-[#8d7f72]">
                   Thông tin nhận hàng
                 </div>
                 <div className="mt-4 rounded-[24px] border border-[#ece4da] bg-[#fcfaf8] p-5">
@@ -440,16 +597,22 @@ export default function CheckoutPage() {
                   {completedCheckout.items.map((item, index) => (
                     <div
                       key={`${item.name}-${index}`}
-                      className="rounded-[22px] border border-[#ece4da] bg-[#fcfaf8] p-4"
+                      className="flex items-start justify-between gap-4 rounded-[18px] border border-[#f0e7dc] bg-[#fcfaf8] px-4 py-3"
                     >
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="min-w-0">
-                          <div className="text-[15px] font-semibold text-[#15110d]">{item.name}</div>
-                          {item.variantLabel ? (
-                            <div className="mt-1 text-[13px] text-[#665a4e]">{item.variantLabel}</div>
-                          ) : null}
+                      <div className="min-w-0">
+                        <div className="text-[15px] font-semibold leading-6 text-[#15110d]">{item.name}</div>
+                        {item.variantLabel ? (
+                          <div className="mt-1 text-[13px] text-[#665a4e]">{item.variantLabel}</div>
+                        ) : null}
+                        <div className="mt-2 text-[13px] text-[#665a4e]">
+                          Đơn giá {currencyFormatter.format(item.price)}
                         </div>
-                        <div className="flex-shrink-0 text-[14px] text-[#665a4e]">x{item.quantity}</div>
+                      </div>
+                      <div className="flex-shrink-0 text-right">
+                        <div className="text-[14px] text-[#665a4e]">x{item.quantity}</div>
+                        <div className="mt-2 text-[15px] font-semibold text-[#15110d]">
+                          {currencyFormatter.format(item.price * item.quantity)}
+                        </div>
                       </div>
                     </div>
                   ))}

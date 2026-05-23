@@ -14,6 +14,7 @@ import {
   normalizeAffiliateVisitorToken,
 } from '../../../src/lib/server/affiliate.js';
 import { getDbPool } from '../../../src/lib/server/db.js';
+import { getOrderTrackingContext } from '../../../src/lib/server/tracking.js';
 
 export const runtime = 'nodejs';
 
@@ -343,6 +344,7 @@ export async function POST(request) {
     const addressId = normalizeInteger(body?.addressId);
     const customerInput = normalizeCustomer(body?.customer);
     const items = Array.isArray(body?.items) ? body.items.map(normalizeCheckoutItem) : [];
+    const tracking = getOrderTrackingContext(request);
 
     if (!isSupportedPaymentMethod(paymentMethod)) {
       return NextResponse.json({ message: 'Phương thức thanh toán không hợp lệ.' }, { status: 400 });
@@ -402,6 +404,10 @@ export async function POST(request) {
           customer_name,
           customer_email,
           customer_phone,
+          user_ip,
+          user_agent,
+          fbp,
+          fbc,
           order_status,
           payment_status,
           payment_method,
@@ -412,7 +418,7 @@ export async function POST(request) {
           grand_total,
           notes
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', 'pending', ?, ?, ?, 0, 0, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', 'pending', ?, ?, ?, 0, 0, ?, ?)
       `,
       [
         orderNumber,
@@ -422,6 +428,10 @@ export async function POST(request) {
         customer.fullName,
         customer.email || null,
         customer.phone,
+        tracking.userIp,
+        tracking.userAgent,
+        tracking.fbp,
+        tracking.fbc,
         paymentMethod,
         totals.subtotal,
         totals.discountTotal,
@@ -582,6 +592,7 @@ export async function POST(request) {
     const orderSummary = {
       id: orderId,
       orderNumber,
+      orderStatus: 'pending',
       paymentMethod,
       paymentStatus: 'pending',
       grandTotal: totals.grandTotal,
@@ -589,6 +600,7 @@ export async function POST(request) {
       subtotal: totals.subtotal,
       totalItems: items.length,
       totalQuantity: items.reduce((total, item) => total + item.quantity, 0),
+      placedAt: new Date().toISOString(),
     };
 
     void queueOrdersWebNotifications({

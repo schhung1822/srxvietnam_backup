@@ -7,6 +7,7 @@ import Footer from './Footer';
 import PageTransition from './PageTransition';
 import CartDrawer from './cart/CartDrawer';
 import AffiliateReferralTracker from './affiliate/AffiliateReferralTracker';
+import MetaTrackingCookieTracker from './tracking/MetaTrackingCookieTracker';
 import FloatingCallToAction from './FloatingCallToAction';
 import { AuthProvider } from '../contexts/AuthContext';
 import { CartProvider } from '../contexts/CartContext';
@@ -30,6 +31,11 @@ export default function AppShell({ children }) {
           {!isEventLandingPage ? (
             <Suspense fallback={null}>
               <AffiliateReferralTracker />
+            </Suspense>
+          ) : null}
+          {!isEventLandingPage ? (
+            <Suspense fallback={null}>
+              <MetaTrackingCookieTracker />
             </Suspense>
           ) : null}
           {!hideSiteChrome ? (

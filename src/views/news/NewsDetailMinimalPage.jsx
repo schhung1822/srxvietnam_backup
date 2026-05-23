@@ -4,6 +4,7 @@ import { formatNewsDate } from '../../lib/news/articles.js';
 import { getPostGalleryImages, getRelatedNewsArticles } from '../../lib/server/news.js';
 import AboutContactSection from '../../components/aboutus/AboutContactSection.jsx';
 import NewsShareCopyButton from '../../components/news/NewsShareCopyButton.jsx';
+import NewsArticleViewTracker from '../../components/news/NewsArticleViewTracker.jsx';
 import PostImageGallery from '../../components/news/PostImageGallery.jsx';
 import SRXLogo from '../../components/home/SrxLogo.jsx';
 import styles from './NewsDetailMinimalPage.module.css';
@@ -207,6 +208,7 @@ export default async function NewsDetailMinimalPage({ article }) {
 
   return (
     <section className="bg-[#fff] pb-20 pt-8 md:pb-24 md:pt-8">
+      <NewsArticleViewTracker slug={article.slug} />
       <div className="mx-auto max-w-[1280px] px-4 md:px-6 xl:px-0">
         <div>
           <div className="mt-14 grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start lg:gap-14">

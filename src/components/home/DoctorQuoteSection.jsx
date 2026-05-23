@@ -19,7 +19,7 @@ const defaultHighlights = [
 const defaultTestimonials = [
   {
     id: 'doctor-tam',
-    image: '/assets/images/home/doctor_tam.webp',
+    image: '/assets/images/home/doctor_tam2.webp',
     alt: 'Bác sĩ Hoàng Văn Tâm',
     content: (
       <>
