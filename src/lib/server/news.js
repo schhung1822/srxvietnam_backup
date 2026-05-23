@@ -23,6 +23,24 @@ const categoryFallbackImages = {
 
 const postGalleryDirectory = path.join(process.cwd(), 'public', 'assets', 'images', 'post');
 const postGalleryExtensions = new Set(['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif']);
+const postGalleryProductTargets = {
+  'post-add1.webp': {
+    href: '/products/srx-recovery-booster-50ml',
+    productName: 'SRX Recovery Booster',
+  },
+  'post-add2.webp': {
+    href: '/products/srx-rosy-veil-tone-up-glow-sun-50ml',
+    productName: 'SRX Rosy Veil Tone Up Glow Sun',
+  },
+  'post-add3.webp': {
+    href: '/products/lipoderm-mask',
+    productName: 'Lipoderm Mask',
+  },
+  'post-add4.webp': {
+    href: '/products/srx-repair-ampoule-50ml',
+    productName: 'SRX Repair Ampoule',
+  },
+};
 
 function stripHtml(value = '') {
   return String(value)
@@ -357,10 +375,16 @@ export async function getPostGalleryImages() {
     return entries
       .filter((entry) => entry.isFile() && postGalleryExtensions.has(path.extname(entry.name).toLowerCase()))
       .sort((left, right) => left.name.localeCompare(right.name, 'en', { numeric: true }))
-      .map((entry, index) => ({
-        src: `/assets/images/post/${entry.name}`,
-        alt: formatPostGalleryAlt(entry.name, index),
-      }));
+      .map((entry, index) => {
+        const productTarget = postGalleryProductTargets[entry.name] ?? null;
+
+        return {
+          src: `/assets/images/post/${entry.name}`,
+          alt: formatPostGalleryAlt(entry.name, index),
+          href: productTarget?.href ?? '',
+          productName: productTarget?.productName ?? '',
+        };
+      });
   } catch (error) {
     console.error('Failed to load post gallery images:', error);
     return [];

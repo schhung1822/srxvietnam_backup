@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
@@ -133,6 +134,8 @@ export default function PostImageGallery({ images = [] }) {
     setActiveIndex((current) => (current + 1) % images.length);
   };
 
+  const activeImage = images[activeIndex] ?? null;
+
   return (
     <>
       <div className="mt-8">
@@ -173,7 +176,7 @@ export default function PostImageGallery({ images = [] }) {
               className="fixed inset-0 z-[120] grid h-dvh w-screen place-items-center bg-[#0f1528]/72 p-4 backdrop-blur-md sm:p-6"
               role="dialog"
               aria-modal="true"
-              aria-label="Thu vien anh bai viet"
+              aria-label="Thư viện ảnh bài viết"
             >
               <div className="absolute inset-0" onClick={() => setIsOpen(false)} aria-hidden="true" />
 
@@ -182,6 +185,7 @@ export default function PostImageGallery({ images = [] }) {
                   <div className="relative aspect-square max-h-[calc(100dvh-2rem)] overflow-hidden bg-[#e7eefc] sm:max-h-[calc(100dvh-3rem)]">
                     {images.map((image, index) => {
                       const isActive = index === activeIndex;
+                      const canOpenProduct = Boolean(image.href);
 
                       return (
                         <div
@@ -191,7 +195,21 @@ export default function PostImageGallery({ images = [] }) {
                           }`}
                           aria-hidden={!isActive}
                         >
-                          <img src={image.src} alt={image.alt} className="h-full w-full object-cover" />
+                          {canOpenProduct ? (
+                            <Link
+                              href={image.href}
+                              className="block h-full w-full cursor-pointer"
+                              aria-label={`Mở sản phẩm ${image.productName || image.alt}`}
+                            >
+                              <img
+                                src={image.src}
+                                alt={image.alt}
+                                className="h-full w-full object-cover transition-transform duration-500 hover:scale-[1.01]"
+                              />
+                            </Link>
+                          ) : (
+                            <img src={image.src} alt={image.alt} className="h-full w-full object-cover" />
+                          )}
                         </div>
                       );
                     })}
@@ -241,6 +259,17 @@ export default function PostImageGallery({ images = [] }) {
                             />
                           );
                         })}
+                      </div>
+                    ) : null}
+
+                    {activeImage?.href ? (
+                      <div className="absolute bottom-4 left-4 z-20 sm:bottom-5 sm:left-5">
+                        <Link
+                          href={activeImage.href}
+                          className="inline-flex items-center rounded-full bg-black/80 px-4 py-2 text-[13px] font-semibold text-white shadow-[0_16px_32px_rgba(0,0,0,0.18)] transition hover:bg-black"
+                        >
+                          {activeImage.productName ? `Xem ${activeImage.productName}` : 'Xem sản phẩm'}
+                        </Link>
                       </div>
                     ) : null}
                   </div>
