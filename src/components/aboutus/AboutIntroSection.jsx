@@ -23,10 +23,9 @@ export default function AboutIntroSection() {
             className="max-w-[420px] text-[15px] leading-[1.55] text-[#1f1f1f] sm:text-[16px] lg:justify-self-end lg:pt-5"
             style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
           >
-            Lựa chọn SRX chính là sự lựa chọn cho một hệ sinh thái thẩm mỹ nội khoa minh
-            bạch. Chúng tôi kiên định với mục tiêu nâng tầm vị thế cho ngành làm đẹp tại
-            Việt Nam bằng những sản phẩm dựa trên nền tảng lâm sàng rõ ràng và tính tương
-            thích sinh học cao nhất.
+            SRX mang đến hệ sinh thái skincare khoa học minh bạch và hiệu quả cao ngay tại nhà. 
+            Chúng tôi đồng hành cùng hành trình nâng tầm nhan sắc Việt bằng các giải pháp chăm sóc da chuyên sâu, 
+            dựa trên nền tảng nghiên cứu rõ ràng và tính tương thích sinh học tối ưu, mang lại sự an toàn và lành tính tuyệt đối cho mọi làn da. 
           </p>
         </div>
 

@@ -5,19 +5,23 @@ const foundersParagraphs = [
 ];
 
 const visionParagraphs = [
-  "Trở thành cầu nối giữa khoa học và làn da: SRX định vị thương hiệu không chỉ sản xuất dược mỹ phẩm mà còn là cầu nối mang đến những giải pháp làm đẹp tiên tiến, an toàn và bền vững.",
-  "Tiên phong chuẩn hóa thị trường thẩm mỹ nội khoa: SRX vượt qua những giới hạn của một thị trường thẩm mỹ chưa được tiêu chuẩn hóa. Từ đó, thương hiệu tự hào tiên phong phân phối các sản phẩm điều trị có nền tảng lâm sàng rõ ràng, dựa trên sự minh bạch và tính tương thích sinh học cao.",
+  "Trở thành thương hiệu dược mỹ phẩm tiên phong chuẩn hóa thị trường thẩm mỹ nội khoa, đóng vai trò là cầu nối vững chắc giữa khoa học trị liệu và sức khỏe làn da.",
+  "SRX định hướng thiết lập những tiêu chuẩn mới về sự minh bạch và tính tương thích sinh học, mang đến các giải pháp làm đẹp chuyên sâu, an toàn và bền vững. Là sự lựa chọn tin cậy hàng đầu cho cộng đồng chuyên gia (Bác sĩ, chủ Spa/Clinic) và người tiêu dùng.",
 ];
 
 const missionParagraphs = [
-  "Nâng tầm vị thế cho các đối tác chuyên môn: SRX hướng tới mục tiêu giúp các bác sĩ và cơ sở chuyên môn tại Việt Nam tiếp cận với công nghệ sinh học tiên tiến nhất thế giới, giúp họ nâng tầm vị thế trong ngành làm đẹp & thẩm mỹ.",
+  "SRX cam kết mang đến hệ sinh thái sản phẩm dựa trên nền tảng khoa học chính xác, giúp giải quyết các vấn đề da liễu phức tạp thông qua",
+  "Chuẩn hóa giải pháp chuyên môn: Đồng hành cùng các bác sĩ, chuyên gia và chủ Spa/Clinic bằng những phác đồ điều trị linh hoạt, minh bạch về thành phần và nồng độ.",
+  "Tái tạo sức khỏe làn da: Sử dụng các công nghệ tiên tiến nhất để phục hồi và nuôi dưỡng làn da từ cấp độ tế bào, giúp khách hàng tự tin với vẻ đẹp nguyên bản.",
+  "Kiến tạo niềm tin khoa học: Thay đổi thói quen chăm sóc da của người tiêu dùng theo hướng bền vững bằng cách dựa trên bằng chứng khoa học thực nghiệm",
 ];
 
 const philosophyParagraphs = [
-  "Gắn kết khoa học và làn da thế hệ mới",
-  'SRX được phát triển dựa trên nền tảng khoa học thực tiễn với sự minh bạch tuyệt đối về bảng thành phần. Chính vì vậy, chúng tôi tin rằng: "Sự trung thực chuẩn khoa học quan trọng hơn việc trở nên hoàn hảo".',
-  "Thương hiệu tập trung vào việc nghiên cứu những công thức tối giản nhất nhưng phải đạt được sự tối ưu về mặt nồng độ hoạt chất để mang lại hiệu quả thật sự trên làn da.",
-  "Sử dụng nguồn nguyên liệu chuyên sâu được chắt lọc chuẩn Châu Âu (đáp ứng tiêu chuẩn SCCS), nhằm tạo ra sự cộng hưởng giúp cải thiện tổng thể các vấn đề về da.",
+  "'Minimal yet Powerful – Tối giản nhưng Mạnh mẽ' Triết lý của SRX được xây dựng dựa trên 4 trụ cột cốt lõi:",
+  'Khoa học & Chính xác: Mọi công thức đều được nghiên cứu rõ ràng, kiểm soát nồng độ phù hợp và dựa trên thực nghiệm lâm sàng khắt khe. Chúng tôi không chạy theo trào lưu, chúng tôi tập trung vào kết quả thực tế.',
+  "Cá nhân hóa: Thấu hiểu mỗi làn da là một nền tảng sinh học riêng biệt để tạo ra các sản phẩm như những 'mảnh ghép linh hoạt', cho phép chuyên gia tùy chỉnh phác đồ tối ưu cho từng cá nhân.",
+  "An toàn & Hiệu quả: Đạt tiêu chuẩn quốc tế cao nhất như KFDA, SGS, ISO 22716 - GMP. Sản phẩm được thiết kế để mang lại hiệu quả điều trị tối ưu nhưng vẫn đảm bảo tính lành tính, giảm thiểu rủi ro kích ứng, kể cả với những làn da nhạy cảm nhất.",
+  "Minh bạch: Rõ ràng công khai trong mọi khía cạnh từ thành phần, cơ chế tác động đến thông tin truyền tải để xây dựng niềm tin tuyệt đối với khách hàng."
 ];
 
 const panelHeightClass = "min-h-[320px] sm:min-h-[460px] lg:min-h-[640px] rounded-[12px]";

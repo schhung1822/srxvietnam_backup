@@ -382,12 +382,15 @@ function ProductHero({ featuredTag }) {
       <div className="overflow-hidden">
         <div className="grid gap-4 py-0 sm:py-8 md:grid-cols-2 md:py-10 xl:grid-cols-[0.95fr_1.02fr_0.68fr] xl:gap-6">
           <div className="flex min-h-[240px] items-center py-0 sm:py-10 md:col-span-2 md:min-h-[400px] xl:col-span-1">
-            <div className="max-w-[400px]">
+            <div className="max-w-[520px]">
               <h1 className="text-[42px] font-semibold tracking-[-0.05em] text-[#15110d] md:text-[52px]">
                 {UI_TEXT.productTitle}
               </h1>
-              <p className="mt-5 max-w-[400px] text-[14px] leading-7 text-[#474747] sm:text-[15px]">
-                {UI_TEXT.intro}
+              <p className="mt-5 max-w-[400px] text-[14px] font-bold leading-7 text-[#474747] sm:text-[15px]">
+                SRX - Thương hiệu toàn cầu, thấu hiểu làn da Việt
+              </p>
+              <p className="mt-2 text-[14px] leading-7 text-[#474747] sm:text-[15px]">
+                Là một thương hiệu toàn cầu nhưng luôn đặt tư duy "bản địa hóa" làm kim chỉ nam, SRX tự hào mang đến những giải pháp skincare chuyên sâu được đo ni đóng giày cho người Việt. Sau thời gian dài nghiên cứu kỹ lưỡng, chúng tôi đã tối ưu hóa các công thức sản phẩm để tương thích hoàn hảo với đặc điểm khí hậu và cơ địa của người dùng Việt Nam. SRX cam kết mang lại trải nghiệm chăm sóc da tại nhà an toàn, lành tính và đạt hiệu quả tối ưu cho làn da Việt nói riêng cũng như làn da châu Á nói chung.
               </p>
             </div>
           </div>
