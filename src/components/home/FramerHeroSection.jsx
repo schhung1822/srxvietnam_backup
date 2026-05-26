@@ -1,4 +1,5 @@
 ﻿import React, { useEffect, useRef } from "react";
+import { Manrope } from "next/font/google";
 import gsap from "gsap";
 import { Link } from "react-router-dom";
 import {
@@ -7,6 +8,12 @@ import {
   homePrimaryButtonClass,
   homeSecondaryButtonClass,
 } from "./homeCtaStyles.js";
+
+const heroLegacyHeadingFont = Manrope({
+  subsets: ["latin", "vietnamese"],
+  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+});
 
 const HERO_ASSETS = {
   backgroundVideo:
@@ -228,8 +235,7 @@ const FramerHeroSection = () => {
                     />
                     <h1
                       data-hero-title-pill-text
-                      className="relative text-[30px] font-medium leading-none tracking-[-0.05em] text-white sm:text-[58px] lg:text-[80px]"
-                      style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
+                      className={`${heroLegacyHeadingFont.className} relative text-[30px] font-medium leading-none tracking-[-0.05em] text-white sm:text-[58px] lg:text-[80px]`}
                     >
                       Khoa học trị liệu
                     </h1>
@@ -237,8 +243,7 @@ const FramerHeroSection = () => {
 
                   <h1
                     data-hero-title-part
-                    className="text-center text-[30px] font-medium leading-none tracking-[-0.05em] text-[#7990f0] sm:text-[58px] lg:text-[80px]"
-                    style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
+                    className={`${heroLegacyHeadingFont.className} text-center text-[30px] font-medium leading-none tracking-[-0.05em] text-[#7990f0] sm:text-[58px] lg:text-[80px]`}
                   >
                     chạm đến làn da
                   </h1>

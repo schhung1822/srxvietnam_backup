@@ -77,6 +77,21 @@ function normalizeImagePath(path = '') {
   return normalizedPath.startsWith('/') ? normalizedPath : `/${normalizedPath}`;
 }
 
+const DEFAULT_PRODUCT_HERO_BANNERS = [
+  {
+    id: 'product-banner-default-1',
+    src: '/assets/images/products/banner_product2.webp',
+    alt: 'SRX product campaign',
+    href: '',
+  },
+  {
+    id: 'product-banner-default-2',
+    src: '/assets/images/products/banner_product.webp',
+    alt: 'SRX skincare routine',
+    href: '',
+  },
+];
+
 function formatFallbackTagName(tagSlug = '') {
   return String(tagSlug ?? '')
     .split('-')
@@ -376,41 +391,46 @@ function MobileFilterDrawer({
   );
 }
 
-function ProductHero({ featuredTag }) {
+function ProductHero({ featuredTag, heroBanners = [] }) {
   if (!featuredTag) {
+    const resolvedHeroBanners = [
+      ...heroBanners.slice(0, 2),
+      ...DEFAULT_PRODUCT_HERO_BANNERS,
+    ].slice(0, 2);
+
     return (
       <div className="overflow-hidden">
-        <div className="grid gap-4 py-0 sm:py-8 md:grid-cols-2 md:py-10 xl:grid-cols-[0.95fr_1.02fr_0.68fr] xl:gap-6">
-          <div className="flex min-h-[240px] items-center py-0 sm:py-10 md:col-span-2 md:min-h-[400px] xl:col-span-1">
-            <div className="max-w-[520px]">
+        <div className="flex flex-col gap-6 pt-4 pb-0 sm:py-8 md:py-10 xl:flex-row xl:items-center xl:justify-between">
+          <div className="flex min-h-[240px] items-center py-0 md:min-h-[400px] xl:flex-[0_0_560px]">
+            <div className="max-w-[560px]">
               <h1 className="text-[42px] font-semibold tracking-[-0.05em] text-[#15110d] md:text-[52px]">
                 {UI_TEXT.productTitle}
               </h1>
               <p className="mt-5 max-w-[400px] text-[14px] font-bold leading-7 text-[#474747] sm:text-[15px]">
                 SRX - Thương hiệu toàn cầu, thấu hiểu làn da Việt
               </p>
-              <p className="mt-2 text-[14px] leading-7 text-[#474747] sm:text-[15px]">
+              <p className="mt-2 text-[13px] leading-7 text-[#474747] sm:text-[15px]">
                 Là một thương hiệu toàn cầu nhưng luôn đặt tư duy "bản địa hóa" làm kim chỉ nam, SRX tự hào mang đến những giải pháp skincare chuyên sâu được đo ni đóng giày cho người Việt. Sau thời gian dài nghiên cứu kỹ lưỡng, chúng tôi đã tối ưu hóa các công thức sản phẩm để tương thích hoàn hảo với đặc điểm khí hậu và cơ địa của người dùng Việt Nam. SRX cam kết mang lại trải nghiệm chăm sóc da tại nhà an toàn, lành tính và đạt hiệu quả tối ưu cho làn da Việt nói riêng cũng như làn da châu Á nói chung.
               </p>
             </div>
           </div>
 
-          <div className="hidden overflow-hidden rounded-[16px] bg-[#eef4ff] sm:block">
-            <img
-              src="/assets/images/products/banner_product2.webp"
-              alt="SRX product campaign"
-              className="h-full w-full object-cover"
-              loading="eager"
-            />
-          </div>
-
-          <div className="hidden overflow-hidden rounded-[16px] bg-[#eef4ff] sm:block">
-            <img
-              src="/assets/images/products/banner_product.webp"
-              alt="SRX skincare routine"
-              className="h-full w-full object-cover"
-              loading="eager"
-            />
+          <div className="flex min-w-0 justify-center sm:justify-end xl:flex-1">
+            <div className="flex items-stretch gap-4 sm:gap-6">
+              {resolvedHeroBanners.map((banner, index) => (
+                <div
+                  key={banner.id || `product-hero-banner-${index}`}
+                  className="flex h-[180px] shrink-0 items-center justify-center sm:h-[260px] lg:h-[340px] xl:h-[420px]"
+                >
+                  <img
+                    src={normalizeImagePath(banner.src)}
+                    alt={banner.alt || `SRX product banner ${index + 1}`}
+                    className="block h-full w-auto max-w-full rounded-[16px] object-contain"
+                    loading="eager"
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -463,6 +483,7 @@ export default function ProductListMinimalPage({
   dictionaryEntries = [],
   initialTagSlug = '',
   initialCategory = '',
+  heroBanners = [],
 }) {
   const selectedTagSlug = normalizeValue(initialTagSlug);
   const resolvedInitialCategory =
@@ -596,7 +617,7 @@ export default function ProductListMinimalPage({
     <>
       <section className="bg-[#fff] pb-10 pt-0 sm:pt-4 md:pb-12">
         <div className="mx-auto max-w-[1840px] px-4 md:px-6 xl:px-10">
-          <ProductHero featuredTag={featuredTag} matchingProductCount={tagFilteredProducts.length} />
+          <ProductHero featuredTag={featuredTag} heroBanners={heroBanners} />
 
           <div className="mt-8 grid gap-10 xl:grid-cols-[240px_minmax(0,1fr)]">
             <aside className="hidden xl:sticky xl:top-[110px] xl:block xl:self-start">

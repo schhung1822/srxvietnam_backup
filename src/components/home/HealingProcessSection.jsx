@@ -1,12 +1,15 @@
 'use client';
 
 import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import ScrollRevealHeading from "./ScrollRevealHeading.jsx";
 
 gsap.registerPlugin(ScrollTrigger);
+
+const Grainient = dynamic(() => import("./Grainient.jsx"), { ssr: false });
 
 const defaultSlides = [
   {
@@ -297,70 +300,94 @@ export default function HealingProcessSection({
 
         <div
           data-healing-panel
-          className="relative w-full overflow-hidden bg-[#eff3ff] bg-cover bg-center bg-no-repeat p-6 shadow-[0_24px_70px_rgba(177,184,246,0.18)] sm:p-10 lg:px-12 lg:py-16"
+          className="relative w-full overflow-hidden shadow-[0_24px_70px_rgba(70,84,148,0.22)]"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
-          style={{
-            touchAction: "pan-y",
-            backgroundImage:
-              "url('/assets/images/home/background_hero.webp')",
-          }}
+          style={{ touchAction: "pan-y" }}
         >
-          <div className="relative min-h-[620px] sm:min-h-[720px] lg:min-h-[760px]">
-            {slides.map((slide, index) => {
-              const isActive = index === currentIndex;
+          <Grainient
+            className="bg-[#050505] p-6 sm:p-10 lg:px-12 lg:py-16"
+            color1="#7C93F1"
+            color2="#F6BFDF"
+            color3="#B497CF"
+            timeSpeed={2}
+            colorBalance={0}
+            warpStrength={1}
+            warpFrequency={5}
+            warpSpeed={2}
+            warpAmplitude={50}
+            blendAngle={0}
+            blendSoftness={0.05}
+            rotationAmount={500}
+            noiseScale={2}
+            grainAmount={0}
+            grainScale={0}
+            grainAnimated={false}
+            contrast={1.5}
+            gamma={1}
+            saturation={1}
+            centerX={0}
+            centerY={0}
+            zoom={0.8}
+          >
+            <div className="pointer-events-none absolute inset-0 z-[1] bg-[linear-gradient(180deg,rgba(5,5,5,0.14),rgba(5,5,5,0.14)_34%,rgba(5,5,5,0.28)_100%)]" />
 
-              return (
-                <article
-                  key={slide.id}
-                  className={`transition-opacity duration-500 ease-out ${isActive
-                      ? "relative z-10 opacity-100"
-                      : "pointer-events-none absolute inset-0 opacity-0"
-                    }`}
-                  aria-hidden={!isActive}
-                >
-                  <div className="flex h-full flex-col">
-                    <p
-                      className="text-[24px] font-normal tracking-[-0.02em] text-[#303030]"
-                      style={{ fontFamily: '"Aeonik TRIAL Regular", "Manrope", sans-serif' }}
-                    >
-                      /{String(index + 1).padStart(2, "0")}
-                    </p>
+            <div className="relative z-10 min-h-[620px] sm:min-h-[720px] lg:min-h-[760px]">
+              {slides.map((slide, index) => {
+                const isActive = index === currentIndex;
 
-                    <div className="mt-4 overflow-hidden bg-white/30">
-                      <div
-                        className="w-full shrink-0 overflow-hidden"
-                        style={{ aspectRatio: "5 / 4" }}
+                return (
+                  <article
+                    key={slide.id}
+                    className={`transition-opacity duration-500 ease-out ${isActive
+                        ? "relative z-10 opacity-100"
+                        : "pointer-events-none absolute inset-0 opacity-0"
+                      }`}
+                    aria-hidden={!isActive}
+                  >
+                    <div className="flex h-full flex-col">
+                      <p
+                        className="text-[24px] font-normal tracking-[-0.02em] text-white/82"
+                        style={{ fontFamily: '"Aeonik TRIAL Regular", "Manrope", sans-serif' }}
                       >
-                        <SlideMedia
-                          slide={slide}
-                          index={index}
-                          videoRefs={videoRefs}
-                        />
+                        /{String(index + 1).padStart(2, "0")}
+                      </p>
+
+                      <div className="mt-4 overflow-hidden rounded-[20px] border border-white/12 bg-white/10 backdrop-blur-[2px]">
+                        <div
+                          className="w-full shrink-0 overflow-hidden"
+                          style={{ aspectRatio: "5 / 4" }}
+                        >
+                          <SlideMedia
+                            slide={slide}
+                            index={index}
+                            videoRefs={videoRefs}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="mt-8 max-w-[100%] sm:max-w-[92%]">
+                        <h3
+                          className="text-[28px] font-bold tracking-[-0.03em] text-white sm:text-[31px]"
+                          style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
+                        >
+                          {slide.title}
+                        </h3>
+
+                        <p
+                          className="mt-4 min-h-[94px] text-[13px] leading-[1.65] text-white/74 sm:text-[14px]"
+                          style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
+                        >
+                          {slide.description}
+                        </p>
                       </div>
                     </div>
-
-                    <div className="mt-8 max-w-[100%] sm:max-w-[92%]">
-                      <h3
-                        className="text-[28px] font-bold tracking-[-0.03em] text-[#151515] sm:text-[31px]"
-                        style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
-                      >
-                        {slide.title}
-                      </h3>
-
-                      <p
-                        className="mt-4 text-[13px] min-h-[94px] leading-[1.65] text-[#5f5f5f] sm:text-[14px]"
-                        style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
-                      >
-                        {slide.description}
-                      </p>
-                    </div>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
+                  </article>
+                );
+              })}
+            </div>
+          </Grainient>
         </div>
       </div>
     </section>

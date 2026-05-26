@@ -269,6 +269,7 @@ function mapProduct(productRow, variantRows, imageRows, attributeRows, tagRows) 
     rating: Number(productRow.rating_average ?? 0),
     reviewCount: Number(productRow.rating_count ?? 0),
     soldCount: Number(productRow.sold_count ?? 0),
+    featured: Boolean(productRow.is_featured),
     badge: productRow.is_featured ? 'Nổi bật' : '',
     promoLabel: defaultVariant.label,
     shortDescription: productRow.short_description ?? '',

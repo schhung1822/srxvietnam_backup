@@ -28,7 +28,10 @@ export default async function HomePage() {
     getCatalogProducts(),
     getHomepageHeroBanners(),
   ]);
-  const featuredProducts = pickRandomProducts(products, 4);
+  const featuredProducts = pickRandomProducts(
+    products.filter((product) => product.featured),
+    4,
+  );
 
   return <Home featuredProducts={featuredProducts} heroBanners={heroBanners} />;
 }

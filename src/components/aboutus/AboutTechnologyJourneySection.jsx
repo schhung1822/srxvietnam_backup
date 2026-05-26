@@ -116,7 +116,7 @@ export default function AboutTechnologyJourneySection() {
           </p>
         </div>
 
-        <div className="mt-16 grid gap-8 lg:mt-24 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.58fr)] lg:items-end">
+        <div className="mt-20 flex gap-8 flex-col">
           <div>
             <h2
               className="text-[34px] font-medium leading-[0.98] tracking-[-0.06em] text-[#111111] sm:text-[48px] lg:text-[64px]"
@@ -127,7 +127,7 @@ export default function AboutTechnologyJourneySection() {
           </div>
 
           <p
-            className="max-w-[420px] text-[15px] leading-[1.55] text-[#1f1f1f] lg:justify-self-end lg:text-[16px]"
+            className="max-w-[640px] text-[15px] leading-[1.55] text-[#1f1f1f] lg:justify-self-end lg:text-[16px]"
             style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
           >
             SRX không chỉ đơn thuần tạo ra mỹ phẩm, mà là sự chuyển giao những thành tựu

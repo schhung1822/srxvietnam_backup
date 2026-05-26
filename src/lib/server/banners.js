@@ -4,6 +4,7 @@ import { getMissingDatabaseEnvNames, hasDatabaseConfig, query } from './db.js';
 let hasWarnedAboutMissingDbConfig = false;
 
 const HOMEPAGE_HERO_POSITION = 'homepage_hero';
+const PRODUCT_PAGE_POSITION = 'banner_product';
 
 function shouldUseFallbackBanners() {
   if (hasDatabaseConfig()) {
@@ -110,20 +111,35 @@ function mapBanner(row, index) {
   };
 }
 
-export const getHomepageHeroBanners = cache(async () => {
+async function fetchBannerRows(position) {
+  const tableCandidates = ['banners', 'banner'];
+  let lastError = null;
+
+  for (const tableName of tableCandidates) {
+    try {
+      return await query(
+        `
+          SELECT *
+          FROM ${tableName}
+          WHERE position = ?
+        `,
+        [position],
+      );
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError;
+}
+
+const getBannersByPosition = cache(async (position) => {
   if (shouldUseFallbackBanners()) {
     return [];
   }
 
   try {
-    const rows = await query(
-      `
-        SELECT *
-        FROM banner
-        WHERE position = ?
-      `,
-      [HOMEPAGE_HERO_POSITION],
-    );
+    const rows = await fetchBannerRows(position);
 
     return rows
       .filter(isBannerActive)
@@ -139,7 +155,11 @@ export const getHomepageHeroBanners = cache(async () => {
       .map(mapBanner)
       .filter(Boolean);
   } catch (error) {
-    console.error('Failed to load homepage hero banners from database:', error);
+    console.error(`Failed to load banners for position "${position}" from database:`, error);
     return [];
   }
 });
+
+export const getHomepageHeroBanners = cache(async () => getBannersByPosition(HOMEPAGE_HERO_POSITION));
+
+export const getProductPageBanners = cache(async () => getBannersByPosition(PRODUCT_PAGE_POSITION));

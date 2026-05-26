@@ -4,22 +4,26 @@ const defaultBadges = [
   {
     id: 'tag-1',
     src: '/assets/images/home/3.icon1.webp',
-    alt: 'Nguồn nguyên liệu chuẩn châu Âu SCCS',
+    alt: 'Chứng minh lâm sàng bởi chuyên gia',
+    title: 'Chứng minh lâm sàng bởi chuyên gia',
   },
   {
     id: 'tag-2',
     src: '/assets/images/home/3.icon2.webp',
-    alt: 'Chứng minh lâm sàng bởi các bác sĩ da liễu',
+    alt: 'Tiêu chuẩn quốc tế cao nhất',
+    title: 'Tiêu chuẩn quốc tế cao nhất',
   },
   {
     id: 'tag-3',
     src: '/assets/images/home/3.icon3.webp',
-    alt: 'Không thử nghiệm trên động vật',
+    alt: 'Công nghệ dẫn truyền đột phá',
+    title: 'Công nghệ dẫn truyền đột phá',
   },
   {
     id: 'tag-4',
     src: '/assets/images/home/3.icon4.webp',
-    alt: 'Công thức phức hợp chuyên sâu',
+    alt: 'An toàn và lành tính',
+    title: 'An toàn và lành tính',
   },
 ];
 
@@ -61,6 +65,8 @@ export default function HomeStandardsSection({
                     />
                   </div>
                 </div>
+                <p className="text-[15px] sm:text-[16px]">{badge.title}</p>
+
               </div>
             </article>
           ))}

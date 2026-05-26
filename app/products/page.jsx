@@ -1,4 +1,5 @@
 import ProductListPage from '../../src/views/shop/ProductListMinimalPage.jsx';
+import { getProductPageBanners } from '../../src/lib/server/banners.js';
 import {
   getCatalogProducts,
   getProductTagDictionaryEntries,
@@ -26,9 +27,10 @@ export default async function ProductsPage({ searchParams }) {
   const resolvedSearchParams = (await searchParams) ?? {};
   const initialTagSlug = readSearchParam(resolvedSearchParams.tag);
   const initialCategory = readSearchParam(resolvedSearchParams.category);
-  const [products, dictionaryEntries] = await Promise.all([
+  const [products, dictionaryEntries, heroBanners] = await Promise.all([
     getCatalogProducts(),
     getProductTagDictionaryEntries(),
+    getProductPageBanners(),
   ]);
 
   return (
@@ -37,6 +39,7 @@ export default async function ProductsPage({ searchParams }) {
       dictionaryEntries={dictionaryEntries}
       initialTagSlug={initialTagSlug}
       initialCategory={initialCategory}
+      heroBanners={heroBanners}
     />
   );
 }

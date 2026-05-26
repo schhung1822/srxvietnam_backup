@@ -2,7 +2,7 @@ export default function AboutIntroSection() {
   return (
     <section className="bg-white px-4 pb-6 pt-20 sm:px-6 sm:pb-8 sm:pt-24 lg:px-8 lg:pb-10 lg:pt-28">
       <div className="mx-auto max-w-[1800px] px-[20px]">
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1.6fr)_minmax(320px,0.72fr)] lg:items-start lg:gap-14">
+        <div className="flex gap-10 flex-col">
           <div className="max-w-[1080px]">
             <p
               className="text-[12px] italic uppercase tracking-[0.24em] text-[#111111] sm:text-[13px]"
@@ -20,7 +20,7 @@ export default function AboutIntroSection() {
           </div>
 
           <p
-            className="max-w-[480px] text-[15px] leading-[1.55] text-[#1f1f1f] sm:text-[16px] lg:justify-self-end lg:pt-5"
+            className="max-w-[920px] text-[15px] leading-[1.55] text-[#1f1f1f] sm:text-[16px] lg:justify-self-end lg:pt-5"
             style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
           >
             SRX mang đến hệ sinh thái skincare khoa học minh bạch và hiệu quả cao ngay tại nhà. 
