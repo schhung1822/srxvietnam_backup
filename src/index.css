@@ -1,6 +1,229 @@
-/* Import Google Font - Hubot Sans */
-@import url('https://fonts.googleapis.com/css2?family=Hubot+Sans:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&display=swap');
+/* Local font setup */
+@font-face {
+  font-family: 'SVN-Avo';
+  src: url('./font/SVN-Avo.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 100 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SVN-Avo';
+  src: url('./font/SVN-Avo bold.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 600 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SVN-Avo';
+  src: url('./font/SVN-Avo italic.ttf') format('truetype');
+  font-style: italic;
+  font-weight: 100 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SVN-Avo';
+  src: url('./font/SVN-Avo bold italic.ttf') format('truetype');
+  font-style: italic;
+  font-weight: 600 900;
+  font-display: swap;
+}
+
+/* Keep existing font references working while the project moves to SVN-Avo. */
+@font-face {
+  font-family: 'Hubot Sans';
+  src: url('./font/SVN-Avo.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 100 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hubot Sans';
+  src: url('./font/SVN-Avo bold.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 600 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hubot Sans';
+  src: url('./font/SVN-Avo italic.ttf') format('truetype');
+  font-style: italic;
+  font-weight: 100 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hubot Sans';
+  src: url('./font/SVN-Avo bold italic.ttf') format('truetype');
+  font-style: italic;
+  font-weight: 600 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('./font/SVN-Avo.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 100 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('./font/SVN-Avo bold.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 600 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('./font/SVN-Avo italic.ttf') format('truetype');
+  font-style: italic;
+  font-weight: 100 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('./font/SVN-Avo bold italic.ttf') format('truetype');
+  font-style: italic;
+  font-weight: 600 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Manrope';
+  src: url('./font/SVN-Avo.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 100 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Manrope';
+  src: url('./font/SVN-Avo bold.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 600 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Manrope';
+  src: url('./font/SVN-Avo italic.ttf') format('truetype');
+  font-style: italic;
+  font-weight: 100 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Manrope';
+  src: url('./font/SVN-Avo bold italic.ttf') format('truetype');
+  font-style: italic;
+  font-weight: 600 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Archivo';
+  src: url('./font/SVN-Avo.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 100 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Archivo';
+  src: url('./font/SVN-Avo bold.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 600 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Archivo';
+  src: url('./font/SVN-Avo italic.ttf') format('truetype');
+  font-style: italic;
+  font-weight: 100 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Archivo';
+  src: url('./font/SVN-Avo bold italic.ttf') format('truetype');
+  font-style: italic;
+  font-weight: 600 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Macondo Swash Caps';
+  src: url('./font/SVN-Avo.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 100 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Macondo Swash Caps';
+  src: url('./font/SVN-Avo bold.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 600 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Macondo Swash Caps';
+  src: url('./font/SVN-Avo italic.ttf') format('truetype');
+  font-style: italic;
+  font-weight: 100 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Macondo Swash Caps';
+  src: url('./font/SVN-Avo bold italic.ttf') format('truetype');
+  font-style: italic;
+  font-weight: 600 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aeonik TRIAL Regular';
+  src: url('./font/SVN-Avo.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 100 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aeonik TRIAL Regular';
+  src: url('./font/SVN-Avo bold.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 600 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aeonik TRIAL Regular';
+  src: url('./font/SVN-Avo italic.ttf') format('truetype');
+  font-style: italic;
+  font-weight: 100 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aeonik TRIAL Regular';
+  src: url('./font/SVN-Avo bold italic.ttf') format('truetype');
+  font-style: italic;
+  font-weight: 600 900;
+  font-display: swap;
+}
+
 @import './styles/transition.css';
 @import './styles/globals.css';
 @tailwind base;
@@ -34,8 +257,7 @@ html {
 /* Font Family Setup */
 @layer base {
   * {
-    font-family: 'Hubot Sans', system-ui, -apple-system, sans-serif;
-
+    font-family: 'SVN-Avo', system-ui, -apple-system, sans-serif;
   }
 }
 

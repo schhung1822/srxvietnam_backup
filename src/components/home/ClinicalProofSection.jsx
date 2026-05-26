@@ -17,7 +17,7 @@ const defaultSlides = [
   },
   {
     id: "ls-02",
-    image: "/assets/images/home/5.chungminhlamsang_kcn.webp",
+    image: "/assets/images/home/5.chungminhlamsang_kcn_fix.webp",
   },
   {
     id: "ls-03",

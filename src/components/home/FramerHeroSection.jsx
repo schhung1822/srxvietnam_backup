@@ -200,7 +200,7 @@ const FramerHeroSection = () => {
                         />
                         <span>12K+</span>
                       </span>
-                      <span className="text-center text-[11px] font-medium text-[#7584d6] sm:pr-4 sm:text-[12px]">
+                      <span className="text-center text-[11px] font-medium text-[#7584d6] sm:pr-4 sm:text-[11px]">
                         khách hàng đã tin dùng
                       </span>
                     </div>
@@ -279,10 +279,10 @@ const FramerHeroSection = () => {
                 <div
                   key={card.text}
                   data-hero-card
-                  className={`rounded-[32px] bg-[rgba(255,255,255,0.29)] px-6 py-7 backdrop-blur-[8px] sm:rounded-[56px] sm:px-7 sm:py-8 lg:rounded-[146px] ${card.desktopClass}`}
+                  className={`rounded-[32px] bg-[rgba(255,255,255,0.29)] px-6 py-7 backdrop-blur-[8px] sm:rounded-[56px] sm:px-5 sm:py-8 lg:rounded-[146px] ${card.desktopClass}`}
                 >
                   <p
-                    className="mx-auto max-w-[478px] text-center text-[14px] leading-[1.5] tracking-[-0.01em] text-[#465478] sm:text-[17px] lg:text-[20px]"
+                    className="mx-auto max-w-[488px] text-center text-[14px] leading-[1.5] tracking-[-0.01em] text-[#465478] sm:text-[17px] lg:text-[20px]"
                     style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
                   >
                     {card.boldLead ? (

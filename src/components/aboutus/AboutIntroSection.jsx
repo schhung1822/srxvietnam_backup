@@ -20,7 +20,7 @@ export default function AboutIntroSection() {
           </div>
 
           <p
-            className="max-w-[420px] text-[15px] leading-[1.55] text-[#1f1f1f] sm:text-[16px] lg:justify-self-end lg:pt-5"
+            className="max-w-[480px] text-[15px] leading-[1.55] text-[#1f1f1f] sm:text-[16px] lg:justify-self-end lg:pt-5"
             style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
           >
             SRX mang đến hệ sinh thái skincare khoa học minh bạch và hiệu quả cao ngay tại nhà. 
