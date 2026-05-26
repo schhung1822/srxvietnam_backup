@@ -164,7 +164,7 @@ export default function DoctorQuoteSection({
                       <div className="relative ml-0 mr-0 rounded-[34px] bg-[linear-gradient(90deg,#6f8ff8_0%,#8ea0f1_36%,#efb2e8_100%)] px-5 pb-14 pt-8 text-white shadow-[0_28px_80px_rgba(120,148,236,0.2)] sm:rounded-[60px] sm:px-8 sm:pb-36 sm:pt-16 lg:mb-20 lg:rounded-[80px] lg:px-12 lg:py-20 lg:pr-[clamp(240px,31vw,520px)] xl:pr-[clamp(320px,34vw,620px)]">
                         <div
                           className="pointer-events-none absolute left-4 top-[-20px] text-[82px] font-semibold leading-[82px] text-white/95 sm:left-8 sm:top-[-24px] sm:text-[128px] lg:left-14 lg:top-[-10px] lg:text-[190px]"
-                          style={{ fontFamily: '"Macondo Swash Caps", "Times New Roman", serif' }}
+                          style={{ fontFamily: '"Gabiola", "Times New Roman", serif' }}
                           aria-hidden="true"
                         >
                           "
