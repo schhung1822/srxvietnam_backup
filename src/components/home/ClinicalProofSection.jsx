@@ -137,7 +137,7 @@ export default function ClinicalProofSection({
           <div className="max-w-[520px]">
             <ScrollRevealHeading
               as="h2"
-              className="text-[40px] font-medium leading-[1.3] tracking-[-0.06em] sm:text-[56px] lg:text-[84px]"
+              className="text-[40px] font-medium leading-[1.35] tracking-[-0.06em] sm:text-[56px] lg:text-[84px]"
               revealedClassName="bg-gradient-to-r from-[#ff9dd7] via-[#b59bff] to-[#6e96fb] bg-clip-text text-transparent"
               baseStyle={{ color: 'rgba(198,173,248,0.28)' }}
               blurPx={10}

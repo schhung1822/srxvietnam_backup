@@ -1,5 +1,49 @@
 export const SITE_NAME = 'SRX Việt Nam';
-export const SITE_URL = 'https://srxvietnam.com';
+const DEFAULT_SITE_URL = 'https://srx.eventhub.vn';
+
+function normalizeSiteUrl(value = '') {
+  const normalizedValue = String(value ?? '').trim();
+
+  if (!normalizedValue) {
+    return '';
+  }
+
+  const withProtocol = /^https?:\/\//i.test(normalizedValue)
+    ? normalizedValue
+    : `https://${normalizedValue}`;
+
+  try {
+    const normalizedUrl = new URL(withProtocol);
+    normalizedUrl.hash = '';
+    normalizedUrl.search = '';
+    normalizedUrl.pathname = normalizedUrl.pathname.replace(/\/+$/, '') || '/';
+    return normalizedUrl.toString().replace(/\/$/, '');
+  } catch {
+    return '';
+  }
+}
+
+function resolveSiteUrl() {
+  const candidates = [
+    process.env.NEXT_PUBLIC_SITE_URL,
+    process.env.SITE_URL,
+    process.env.VERCEL_PROJECT_PRODUCTION_URL,
+    process.env.VERCEL_URL,
+    DEFAULT_SITE_URL,
+  ];
+
+  for (const candidate of candidates) {
+    const normalizedCandidate = normalizeSiteUrl(candidate);
+
+    if (normalizedCandidate) {
+      return normalizedCandidate;
+    }
+  }
+
+  return DEFAULT_SITE_URL;
+}
+
+export const SITE_URL = resolveSiteUrl();
 export const DEFAULT_DESCRIPTION =
   'SRX Việt Nam mang công nghệ sinh học tiên tiến đến gần hơn với làn da Việt bằng hệ sản phẩm chăm sóc da chính hãng, an toàn và chuyên sâu.';
 export const DEFAULT_KEYWORDS = [
@@ -12,7 +56,10 @@ export const DEFAULT_KEYWORDS = [
   'sản phẩm SRX',
   'thành phần SRX',
 ];
-export const DEFAULT_OG_IMAGE = '/assets/images/seo.webp';
+export const DEFAULT_OG_IMAGE = '/api/og';
+export const DEFAULT_OG_IMAGE_WIDTH = 1200;
+export const DEFAULT_OG_IMAGE_HEIGHT = 630;
+export const DEFAULT_OG_IMAGE_TYPE = 'image/png';
 export const CONTACT_PHONE = '+84903010692';
 export const CONTACT_EMAIL = 'eacgroup.vn@gmail.com';
 export const COMPANY_LEGAL_NAME = 'Công ty TNHH Xuất Nhập Khẩu Toàn Diện EAC';
@@ -61,6 +108,14 @@ function uniqueValues(values) {
   return [...new Set(values.filter(Boolean))];
 }
 
+function toArray(value) {
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  return value ? [value] : [];
+}
+
 function toIsoDate(value) {
   if (!value) {
     return undefined;
@@ -104,6 +159,30 @@ export function absoluteUrl(path = '/') {
 
   const pathname = normalizedPath.startsWith('/') ? normalizedPath : `/${normalizedPath}`;
   return new URL(pathname, SITE_URL).toString();
+}
+
+function buildSocialImageCandidates(image) {
+  return uniqueValues([
+    ...toArray(image)
+      .map((entry) => String(entry ?? '').trim())
+      .filter(Boolean),
+    DEFAULT_OG_IMAGE,
+  ]);
+}
+
+function buildOpenGraphImages(image, imageAlt) {
+  return buildSocialImageCandidates(image).map((entry) => {
+    const absoluteImageEntry = absoluteUrl(entry);
+    const isDefaultImage = absoluteImageEntry === absoluteUrl(DEFAULT_OG_IMAGE);
+
+    return compactObject({
+      url: absoluteImageEntry,
+      alt: imageAlt,
+      width: isDefaultImage ? DEFAULT_OG_IMAGE_WIDTH : undefined,
+      height: isDefaultImage ? DEFAULT_OG_IMAGE_HEIGHT : undefined,
+      type: isDefaultImage ? DEFAULT_OG_IMAGE_TYPE : undefined,
+    });
+  });
 }
 
 export function buildRobots(noIndex = false) {
@@ -152,8 +231,8 @@ export function buildMetadata({
   const fullTitle = buildTitle(title);
   const finalDescription = String(description ?? DEFAULT_DESCRIPTION).trim() || DEFAULT_DESCRIPTION;
   const finalPath = String(path ?? '/').trim() || '/';
-  const finalImage = absoluteUrl(image || DEFAULT_OG_IMAGE);
   const mergedKeywords = uniqueValues([...DEFAULT_KEYWORDS, ...toKeywordList(keywords)]);
+  const openGraphImages = buildOpenGraphImages(image, imageAlt || fullTitle);
   const openGraph = compactObject({
     title: fullTitle,
     description: finalDescription,
@@ -161,12 +240,7 @@ export function buildMetadata({
     siteName: SITE_NAME,
     locale: 'vi_VN',
     type,
-    images: [
-      {
-        url: finalImage,
-        alt: imageAlt || fullTitle,
-      },
-    ],
+    images: openGraphImages,
     publishedTime: type === 'article' ? toIsoDate(publishedTime) : undefined,
     modifiedTime: type === 'article' ? toIsoDate(modifiedTime ?? publishedTime) : undefined,
     section,
@@ -184,7 +258,7 @@ export function buildMetadata({
       card: 'summary_large_image',
       title: fullTitle,
       description: finalDescription,
-      images: [finalImage],
+      images: openGraphImages.map((entry) => entry.url),
     },
     robots: buildRobots(noIndex),
     category: 'beauty',

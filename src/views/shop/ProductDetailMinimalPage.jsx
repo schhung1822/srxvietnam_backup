@@ -74,11 +74,17 @@ function sanitizeAnchorTag(attributes = '', innerHtml = '') {
   }
 
   const target = extractHtmlAttribute(attributes, 'target');
+  const className = extractHtmlAttribute(attributes, 'class');
+  const style = extractHtmlAttribute(attributes, 'style');
+  const align = extractHtmlAttribute(attributes, 'align');
   const safeHref = escapeHtml(href);
   const safeTarget = target ? ` target="${escapeHtml(target)}"` : '';
+  const safeClassName = className ? ` class="${escapeHtml(className)}"` : '';
+  const safeStyle = style ? ` style="${escapeHtml(style)}"` : '';
+  const safeAlign = align ? ` align="${escapeHtml(align)}"` : '';
   const rel = target === '_blank' ? ' rel="noreferrer noopener"' : '';
 
-  return `<a href="${safeHref}"${safeTarget}${rel}>${innerHtml}</a>`;
+  return `<a href="${safeHref}"${safeTarget}${safeClassName}${safeStyle}${safeAlign}${rel}>${innerHtml}</a>`;
 }
 
 function sanitizeImageTag(attributes = '') {
@@ -89,8 +95,18 @@ function sanitizeImageTag(attributes = '') {
   }
 
   const alt = extractHtmlAttribute(attributes, 'alt');
+  const className = extractHtmlAttribute(attributes, 'class');
+  const style = extractHtmlAttribute(attributes, 'style');
+  const align = extractHtmlAttribute(attributes, 'align');
+  const width = extractHtmlAttribute(attributes, 'width');
+  const height = extractHtmlAttribute(attributes, 'height');
+  const safeClassName = className ? ` class="${escapeHtml(className)}"` : '';
+  const safeStyle = style ? ` style="${escapeHtml(style)}"` : '';
+  const safeAlign = align ? ` align="${escapeHtml(align)}"` : '';
+  const safeWidth = width ? ` width="${escapeHtml(width)}"` : '';
+  const safeHeight = height ? ` height="${escapeHtml(height)}"` : '';
 
-  return `<img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" />`;
+  return `<img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}"${safeClassName}${safeStyle}${safeAlign}${safeWidth}${safeHeight} />`;
 }
 
 function buildPlainTextHtml(value = '') {
@@ -121,14 +137,14 @@ function normalizeProductInfoHtml(rawContent = '') {
     .replace(/<script[\s\S]*?<\/script>/gi, '')
     .replace(/<style[\s\S]*?<\/style>/gi, '')
     .replace(/<meta[^>]*>/gi, '')
-    .replace(/<\/?span[^>]*>/gi, '')
-    .replace(/<\/?font[^>]*>/gi, '')
     .replace(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi, (_, attributes, innerHtml) =>
       sanitizeAnchorTag(attributes, innerHtml),
     )
     .replace(/<img\b([^>]*)>/gi, (_, attributes) => sanitizeImageTag(attributes))
-    .replace(/\s(?:style|class|dir|align|border|cellpadding|cellspacing|width|height|loading|decoding|data-[\w-]+|aria-[\w-]+)="[^"]*"/gi, '')
-    .replace(/\s(?:style|class|dir|align|border|cellpadding|cellspacing|width|height|loading|decoding|data-[\w-]+|aria-[\w-]+)='[^']*'/gi, '')
+    .replace(/\s+on[\w-]+\s*=\s*"[^"]*"/gi, '')
+    .replace(/\s+on[\w-]+\s*=\s*'[^']*'/gi, '')
+    .replace(/\s+on[\w-]+\s*=\s*[^\s>]+/gi, '')
+    .replace(/\s+(href|src)\s*=\s*(['"])\s*javascript:[\s\S]*?\2/gi, '')
     .replace(/<p>\s*(?:&nbsp;|\s|<br\s*\/?>)*<\/p>/gi, '')
     .replace(/&nbsp;/gi, ' ')
     .trim();
@@ -404,8 +420,8 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
   const descriptionText = stripHtml(product.description);
   const parsedInfoContent = parseProductInfoContent(product.description);
   const hasStructuredInfoContent = parsedInfoContent.sections.length > 0;
-  const hasHtmlInfoContent = hasHtmlMarkup(product.description);
   const richInfoHtml = normalizeProductInfoHtml(product.description);
+  const hasRenderableDescription = Boolean(richInfoHtml);
   const infoIntro = parsedInfoContent.intro || splitTextSentences(descriptionText)[0] || shortDescriptionText;
   const infoIndications = buildInfoIndications(product);
   const infoNotes = buildInfoNotes(product);
@@ -690,7 +706,28 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
             </div>
 
             <div className="max-w-[540px] mx-auto">
-              {hasStructuredInfoContent ? (
+              {hasRenderableDescription ? (
+                <div
+                  className={[
+                    'text-[#5f5449]',
+                    '[&_p]:mt-0 [&_p]:text-[15px] [&_p]:leading-8',
+                    '[&_p+*]:mt-4 [&_p+ul]:mt-5 [&_p+ol]:mt-5',
+                    '[&_div]:text-[15px] [&_div]:leading-8',
+                    '[&_span]:leading-inherit',
+                    '[&_h1]:mt-8 [&_h1]:text-[14px] [&_h1]:font-semibold [&_h1]:uppercase [&_h1]:tracking-[0.18em] [&_h1]:text-[#15110d]',
+                    '[&_h2]:mt-8 [&_h2]:text-[12px] [&_h2]:font-semibold [&_h2]:uppercase [&_h2]:tracking-[0.18em] [&_h2]:text-[#15110d]',
+                    '[&_h3]:mt-8 [&_h3]:text-[12px] [&_h3]:font-semibold [&_h3]:uppercase [&_h3]:tracking-[0.18em] [&_h3]:text-[#15110d]',
+                    '[&_h4]:mt-8 [&_h4]:text-[12px] [&_h4]:font-semibold [&_h4]:uppercase [&_h4]:tracking-[0.18em] [&_h4]:text-[#15110d]',
+                    '[&_ul]:mt-4 [&_ul]:list-disc [&_ul]:space-y-2.5 [&_ul]:pl-5',
+                    '[&_ol]:mt-4 [&_ol]:list-decimal [&_ol]:space-y-2.5 [&_ol]:pl-5',
+                    '[&_li]:text-[14px] [&_li]:leading-6',
+                    '[&_strong]:text-[#15110d]',
+                    '[&_a]:font-medium [&_a]:text-[#15110d] hover:[&_a]:text-[#6f6357]',
+                    '[&_img]:mt-4 [&_img]:rounded-[20px]',
+                  ].join(' ')}
+                  dangerouslySetInnerHTML={{ __html: richInfoHtml }}
+                />
+              ) : hasStructuredInfoContent ? (
                 <>
                   {infoIntro ? (
                     <p className="text-[15px] leading-8 text-[#111]">
@@ -739,22 +776,6 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
                     })}
                   </div>
                 </>
-              ) : hasHtmlInfoContent && richInfoHtml ? (
-                <div
-                  className={[
-                    'text-[#5f5449]',
-                    '[&_p]:mt-0 [&_p]:text-[15px] [&_p]:leading-8',
-                    '[&_p+*]:mt-4 [&_p+ul]:mt-5 [&_p+ol]:mt-5',
-                    '[&_h2]:mt-8 [&_h2]:text-[12px] [&_h2]:font-semibold [&_h2]:uppercase [&_h2]:tracking-[0.18em] [&_h2]:text-[#15110d]',
-                    '[&_h3]:mt-8 [&_h3]:text-[12px] [&_h3]:font-semibold [&_h3]:uppercase [&_h3]:tracking-[0.18em] [&_h3]:text-[#15110d]',
-                    '[&_ul]:mt-4 [&_ul]:list-disc [&_ul]:space-y-2.5 [&_ul]:pl-5',
-                    '[&_ol]:mt-4 [&_ol]:list-decimal [&_ol]:space-y-2.5 [&_ol]:pl-5',
-                    '[&_li]:text-[14px] [&_li]:leading-6',
-                    '[&_a]:font-medium [&_a]:text-[#15110d] hover:[&_a]:text-[#6f6357]',
-                    '[&_img]:mt-4 [&_img]:rounded-[20px]',
-                  ].join(' ')}
-                  dangerouslySetInnerHTML={{ __html: richInfoHtml }}
-                />
               ) : (
                 <>
                   {infoIntro ? (

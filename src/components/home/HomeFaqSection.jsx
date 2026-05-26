@@ -171,7 +171,7 @@ export default function HomeFaqSection({
 
           <ScrollRevealHeading
             as="h2"
-            className="mt-4 text-center text-[30px] font-medium leading-[1.3] tracking-[-0.06em] sm:text-[50px] lg:text-[72px]"
+            className="mt-4 text-center text-[30px] font-medium leading-[1.35] tracking-[-0.06em] sm:text-[50px] lg:text-[72px]"
             revealedClassName="text-black"
             baseStyle={{ color: 'rgba(0,0,0,0.14)' }}
             style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}

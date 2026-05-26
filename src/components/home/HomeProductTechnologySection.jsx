@@ -202,7 +202,7 @@ export default function HomeProductTechnologySection() {
               <div className="mt-4 text-center">
                 <ScrollRevealHeading
                   as="h2"
-                  className="mx-auto mt-4 max-w-[780px] text-[32px] font-medium leading-[1.3] tracking-[-0.05em] sm:text-[42px] lg:text-[62px]"
+                  className="mx-auto mt-4 max-w-[780px] text-[32px] font-medium leading-[1.35] tracking-[-0.05em] sm:text-[42px] lg:text-[62px]"
                   revealedClassName="text-[#fff]"
                   baseStyle={{ color: 'rgba(255,255,255,0.22)' }}
                   style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
