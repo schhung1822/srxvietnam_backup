@@ -37,7 +37,7 @@ const navigationItems = [
         name: 'Chủ đề khoa học',
         path: '/chu-de-khoa-hoc',
         icon: Book,
-        thumbnail: '/assets/images/home/Yellow.webp',
+        thumbnail: '/assets/images/home/yellow.webp',
       },
       {
         name: 'Tin tức & Sự kiện',
