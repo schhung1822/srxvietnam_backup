@@ -13,7 +13,7 @@ import HomeScientificTopicsSection from '../components/home/HomeScientificTopics
 import HomeFaqSection from '../components/home/HomeFaqSection.jsx';
 import SRXLogo from '../components/home/SrxLogo.jsx';
 
-const Home = ({ featuredProducts = [], heroBanners = [] }) => {
+const Home = ({ featuredProducts = [], heroBanners = [], scientificTopic = null }) => {
   return (
     <div className="home-page">
       <HeroSection />
@@ -25,7 +25,7 @@ const Home = ({ featuredProducts = [], heroBanners = [] }) => {
       <ClinicalProofSection />
       <HomeFeedbackGallerySection />
       <DoctorQuoteSection />
-      <HomeScientificTopicsSection />
+      <HomeScientificTopicsSection topic={scientificTopic} />
       <HomeFaqSection />
       <SRXLogo />
     </div>

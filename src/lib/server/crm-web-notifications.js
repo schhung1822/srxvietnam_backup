@@ -1,3 +1,5 @@
+import { createRequestTimeoutSignal } from './request-timeout.js';
+
 const AFFILIATE_APPLICATIONS_WEB_API_URL =
   process.env.SRX_AFFILIATE_APPLICATIONS_WEB_API_URL?.trim() ||
   'https://crm.srx.vn/api/srx/affiliate-applications-web';
@@ -8,19 +10,28 @@ const LEAD_FORMS_WEB_API_URL =
 const LEAD_FORMS_WEB_API_TOKEN = process.env.SRX_LEAD_FORMS_WEB_API_TOKEN?.trim() || '';
 
 async function postCrmNotification({ url, token, payload, label, timeoutMs = 5000 }) {
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify(payload),
-    cache: 'no-store',
-    signal: AbortSignal.timeout(timeoutMs),
-  });
+  const { signal, cleanup } = createRequestTimeoutSignal(timeoutMs);
 
-  if (!response.ok) {
-    throw new Error(`${label} returned ${response.status}`);
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(payload),
+      cache: 'no-store',
+      signal,
+    });
+
+    if (!response.ok) {
+      const responseBody = (await response.text().catch(() => '')).trim();
+      throw new Error(
+        `${label} returned ${response.status}${responseBody ? `: ${responseBody.slice(0, 300)}` : ''}`,
+      );
+    }
+  } finally {
+    cleanup();
   }
 }
 

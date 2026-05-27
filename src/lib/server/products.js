@@ -278,6 +278,7 @@ function mapProduct(productRow, variantRows, imageRows, attributeRows, tagRows) 
   return {
     id: Number(productRow.id),
     slug: productRow.slug,
+    productCode: productRow.product_code,
     name: productRow.name,
     brand: productRow.brand_name ?? 'SRX',
     category: productRow.category_name ?? 'Sản phẩm',
@@ -290,6 +291,7 @@ function mapProduct(productRow, variantRows, imageRows, attributeRows, tagRows) 
     featured: Boolean(productRow.is_featured),
     badge: productRow.is_featured ? 'Nổi bật' : '',
     promoLabel: defaultVariant.label,
+    thumbnail: normalizeImagePath(productRow.thumbnail_url),
     shortDescription: productRow.short_description ?? '',
     description: productRow.description ?? productRow.short_description ?? '',
     infoImage: normalizeImagePath(productRow.info_img),
@@ -306,10 +308,11 @@ function mapProduct(productRow, variantRows, imageRows, attributeRows, tagRows) 
     skinTypes,
     concerns,
     swatches: [],
-    variants,
-    specs: buildSpecs({
-      productRow,
-      defaultVariant,
+      variants,
+      variantSkus: uniqueInOrder(variants.map((variant) => variant.sku).filter(Boolean)),
+      specs: buildSpecs({
+        productRow,
+        defaultVariant,
       variantLabels,
       totalStock,
     }),

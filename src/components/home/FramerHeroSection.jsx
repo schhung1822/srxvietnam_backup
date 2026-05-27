@@ -20,8 +20,6 @@ const HERO_ASSETS = {
     "/assets/images/home/video_bh_hero.mp4",
   infinityArtwork:
     "/assets/images/home/SRX_3D.webp",
-  titlePill:
-    "/assets/images/home/background_hero.webp",
   badgeIcon:
     "https://framerusercontent.com/images/8l5o7RMsH7c7Xe3dBJBR4Fpc3A.svg?width=16&height=16",
 };
@@ -226,13 +224,11 @@ const FramerHeroSection = () => {
 
                   <div
                     data-hero-title-pill
-                    className="relative z-[4] overflow-hidden rounded-[36px] border-2 border-[rgba(117,132,214,0.8)] px-5 py-2.5 shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_10px_30px_rgba(128,139,214,0.2)] backdrop-blur-[5px] sm:rounded-[48px] sm:px-7 sm:py-3 lg:rounded-[56px] lg:px-[34px] lg:py-[12px]"
+                    className="relative z-[4] overflow-hidden rounded-[36px] border border-[rgba(255,255,255,0.56)] bg-white/[0.06] px-5 py-2.5 shadow-[0_0_0_1px_rgba(255,255,255,0.18),0_14px_34px_rgba(150,136,240,0.22),inset_0_1px_0_rgba(255,255,255,0.34)] backdrop-blur-[10px] sm:rounded-[48px] sm:px-7 sm:py-3 lg:rounded-[56px] lg:px-[34px] lg:py-[12px]"
                   >
-                    <img
-                      src={HERO_ASSETS.titlePill}
-                      alt=""
-                      className="absolute inset-0 h-full w-full object-cover"
-                    />
+                    <div className="absolute inset-[3px] rounded-[32px] bg-[linear-gradient(90deg,rgba(130,153,252,0.92)_0%,rgba(173,150,255,0.9)_54%,rgba(245,177,221,0.92)_100%)] sm:rounded-[44px] lg:rounded-[52px]" />
+                    <div className="absolute inset-[3px] rounded-[32px] bg-[radial-gradient(circle_at_18%_30%,rgba(255,255,255,0.3),transparent_34%),radial-gradient(circle_at_82%_50%,rgba(255,255,255,0.12),transparent_30%)] sm:rounded-[44px] lg:rounded-[52px]" />
+                    <div className="absolute inset-x-[10%] top-[6%] h-[46%] rounded-full bg-white/18 blur-[18px]" />
                     <h1
                       data-hero-title-pill-text
                       className={`${heroLegacyHeadingFont.className} relative text-[30px] font-medium leading-none tracking-[-0.05em] text-white sm:text-[58px] lg:text-[80px]`}

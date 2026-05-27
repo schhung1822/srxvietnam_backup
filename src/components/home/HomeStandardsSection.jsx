@@ -65,7 +65,7 @@ export default function HomeStandardsSection({
                     />
                   </div>
                 </div>
-                <p className="text-[15px] sm:text-[16px]">{badge.title}</p>
+                <p className="text-[15px] sm:text-[16px] font-semibold max-w-[180px] mx-auto text-[#616161]">{badge.title}</p>
 
               </div>
             </article>

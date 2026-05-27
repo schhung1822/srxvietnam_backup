@@ -1,5 +1,6 @@
 ﻿import { getMissingDatabaseEnvNames, hasDatabaseConfig, query } from './db.js';
 
+import { cache } from 'react';
 import { readdir } from 'node:fs/promises';
 import path from 'node:path';
 
@@ -101,6 +102,39 @@ function normalizeTags(tagNames) {
   return [];
 }
 
+function parseSuggestedProductRefs(value) {
+  if (Array.isArray(value)) {
+    return value
+      .map((entry) => String(entry ?? '').trim())
+      .filter(Boolean);
+  }
+
+  const rawValue = String(value ?? '').trim();
+
+  if (!rawValue) {
+    return [];
+  }
+
+  if (rawValue.startsWith('[') && rawValue.endsWith(']')) {
+    try {
+      const parsedValue = JSON.parse(rawValue);
+
+      if (Array.isArray(parsedValue)) {
+        return parsedValue
+          .map((entry) => String(entry ?? '').trim())
+          .filter(Boolean);
+      }
+    } catch {
+      // Fall back to delimiter parsing below.
+    }
+  }
+
+  return rawValue
+    .split(/\s*\|\|\s*|\s*,\s*|\s*;\s*|\r?\n+/)
+    .map((entry) => String(entry ?? '').trim())
+    .filter(Boolean);
+}
+
 function normalizeCoverImage({ coverImage, categorySlug }) {
   if (coverImage) {
     return coverImage;
@@ -155,43 +189,9 @@ function normalizeNewsArticle(row) {
     }),
     coverAlt: row.cover_alt_text?.trim() || row.title?.trim() || 'Tin tức SRX',
     featured: Boolean(row.is_featured),
+    productSuggestedRefs: parseSuggestedProductRefs(row.product_suggested),
   };
 }
-
-const baseNewsSelect = `
-  SELECT
-    p.id,
-    p.title,
-    p.slug,
-    p.excerpt,
-    p.content,
-    p.featured_image_url,
-    p.is_featured,
-    p.published_at,
-    ac.name AS category_name,
-    ac.slug AS category_slug,
-    GROUP_CONCAT(DISTINCT pt.name ORDER BY pt.name SEPARATOR '||') AS tag_names
-  FROM posts p
-  INNER JOIN article_categories ac ON ac.id = p.category_id
-  LEFT JOIN post_tag_links ptl ON ptl.post_id = p.id
-  LEFT JOIN post_tags pt ON pt.id = ptl.tag_id
-  WHERE p.status = 'published'
-    AND p.published_at IS NOT NULL
-`;
-
-const baseNewsGroupBy = `
-  GROUP BY
-    p.id,
-    p.title,
-    p.slug,
-    p.excerpt,
-    p.content,
-    p.featured_image_url,
-    p.is_featured,
-    p.published_at,
-    ac.name,
-    ac.slug
-`;
 
 const baseNewsOrder = 'ORDER BY p.published_at DESC, p.id DESC';
 
@@ -230,6 +230,75 @@ function shouldUseFallbackArticles() {
   return true;
 }
 
+const getPostSuggestedColumnName = cache(async () => {
+  if (shouldUseFallbackArticles()) {
+    return null;
+  }
+
+  const candidateColumns = ['product_sugggeted', 'product_suggested'];
+
+  for (const columnName of candidateColumns) {
+    try {
+      const rows = await query(`SHOW COLUMNS FROM posts LIKE ?`, [columnName]);
+
+      if (Array.isArray(rows) && rows.length) {
+        return columnName;
+      }
+    } catch (error) {
+      console.error(`Failed to inspect posts column "${columnName}":`, error);
+      return null;
+    }
+  }
+
+  return null;
+});
+
+const getBaseNewsQueryParts = cache(async () => {
+  const productSuggestedColumnName = await getPostSuggestedColumnName();
+  const productSuggestedSelect = productSuggestedColumnName
+    ? `,\n    p.${productSuggestedColumnName} AS product_suggested`
+    : ',\n    NULL AS product_suggested';
+  const productSuggestedGroupBy = productSuggestedColumnName
+    ? `,\n    p.${productSuggestedColumnName}`
+    : '';
+
+  return {
+    baseNewsSelect: `
+      SELECT
+        p.id,
+        p.title,
+        p.slug,
+        p.excerpt,
+        p.content,
+        p.featured_image_url${productSuggestedSelect},
+        p.is_featured,
+        p.published_at,
+        ac.name AS category_name,
+        ac.slug AS category_slug,
+        GROUP_CONCAT(DISTINCT pt.name ORDER BY pt.name SEPARATOR '||') AS tag_names
+      FROM posts p
+      INNER JOIN article_categories ac ON ac.id = p.category_id
+      LEFT JOIN post_tag_links ptl ON ptl.post_id = p.id
+      LEFT JOIN post_tags pt ON pt.id = ptl.tag_id
+      WHERE p.status = 'published'
+        AND p.published_at IS NOT NULL
+    `,
+    baseNewsGroupBy: `
+      GROUP BY
+        p.id,
+        p.title,
+        p.slug,
+        p.excerpt,
+        p.content,
+        p.featured_image_url${productSuggestedGroupBy},
+        p.is_featured,
+        p.published_at,
+        ac.name,
+        ac.slug
+    `,
+  };
+});
+
 export async function getPublishedNews({ limit = 12, categorySlug, categorySlugs } = {}) {
   const safeLimit = Math.max(1, Number(limit) || 12);
   const selectedCategorySlugs = [];
@@ -245,6 +314,7 @@ export async function getPublishedNews({ limit = 12, categorySlug, categorySlugs
   }
 
   try {
+    const { baseNewsSelect, baseNewsGroupBy } = await getBaseNewsQueryParts();
     const categoryConditions = selectedCategorySlugs.length
       ? ` AND ac.slug IN (${selectedCategorySlugs.map(() => '?').join(', ')})`
       : '';
@@ -276,6 +346,7 @@ export async function getNewsArticleBySlug(slug) {
   }
 
   try {
+    const { baseNewsSelect, baseNewsGroupBy } = await getBaseNewsQueryParts();
     const rows = await query(
       `
         ${baseNewsSelect}
@@ -337,6 +408,7 @@ export async function searchPublishedNews(term = '', limit = 5) {
   const likeTerm = `%${trimmedTerm.toLowerCase()}%`;
 
   try {
+    const { baseNewsSelect, baseNewsGroupBy } = await getBaseNewsQueryParts();
     const rows = await query(
       `
         ${baseNewsSelect}

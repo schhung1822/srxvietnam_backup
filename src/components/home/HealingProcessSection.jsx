@@ -331,7 +331,7 @@ export default function HealingProcessSection({
             centerY={0}
             zoom={0.8}
           >
-            <div className="pointer-events-none absolute inset-0 z-[1] bg-[linear-gradient(180deg,rgba(5,5,5,0.14),rgba(5,5,5,0.14)_34%,rgba(5,5,5,0.28)_100%)]" />
+            <div className="pointer-events-none absolute inset-0 z-[1]" />
 
             <div className="relative z-10 min-h-[620px] sm:min-h-[720px] lg:min-h-[760px]">
               {slides.map((slide, index) => {
@@ -369,7 +369,7 @@ export default function HealingProcessSection({
 
                       <div className="mt-8 max-w-[100%] sm:max-w-[92%]">
                         <h3
-                          className="text-[28px] font-bold tracking-[-0.03em] text-white sm:text-[31px]"
+                          className="text-[28px] font-bold tracking-[-0.03em] text-black sm:text-[31px]"
                           style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
                         >
                           {slide.title}

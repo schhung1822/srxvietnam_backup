@@ -14,6 +14,7 @@ import {
   normalizeAffiliateVisitorToken,
 } from '../../../src/lib/server/affiliate.js';
 import { getDbPool } from '../../../src/lib/server/db.js';
+import { createRequestTimeoutSignal } from '../../../src/lib/server/request-timeout.js';
 import { getOrderTrackingContext } from '../../../src/lib/server/tracking.js';
 
 export const runtime = 'nodejs';
@@ -121,19 +122,28 @@ async function queueOrdersWebNotifications(payload) {
   }
 
   try {
-    const response = await fetch(ORDERS_WEB_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(ORDERS_WEB_API_TOKEN ? { Authorization: `Bearer ${ORDERS_WEB_API_TOKEN}` } : {}),
-      },
-      body: JSON.stringify(payload),
-      cache: 'no-store',
-      signal: AbortSignal.timeout(5000),
-    });
+    const { signal, cleanup } = createRequestTimeoutSignal(5000);
 
-    if (!response.ok) {
-      throw new Error(`orders_web returned ${response.status}`);
+    try {
+      const response = await fetch(ORDERS_WEB_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(ORDERS_WEB_API_TOKEN ? { Authorization: `Bearer ${ORDERS_WEB_API_TOKEN}` } : {}),
+        },
+        body: JSON.stringify(payload),
+        cache: 'no-store',
+        signal,
+      });
+
+      if (!response.ok) {
+        const responseBody = (await response.text().catch(() => '')).trim();
+        throw new Error(
+          `orders_web returned ${response.status}${responseBody ? `: ${responseBody.slice(0, 300)}` : ''}`,
+        );
+      }
+    } finally {
+      cleanup();
     }
   } catch (error) {
     console.error('Orders_web notification dispatch error:', error);
