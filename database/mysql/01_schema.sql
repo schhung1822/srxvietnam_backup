@@ -333,8 +333,11 @@ CREATE TABLE IF NOT EXISTS product_tags (
   name VARCHAR(100) NOT NULL,
   slug VARCHAR(120) NOT NULL,
   `desc` TEXT NULL,
+  desc_long LONGTEXT NULL,
   img VARCHAR(500) NULL,
   `Tags` TEXT NULL,
+  stars TINYINT UNSIGNED NULL,
+  class VARCHAR(120) NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE KEY uq_product_tags_slug (slug)

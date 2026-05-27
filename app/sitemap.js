@@ -15,7 +15,6 @@ const staticRoutes = [
   { path: '/key-srx', changeFrequency: 'weekly', priority: 0.8 },
   { path: '/follow-srx', changeFrequency: 'daily', priority: 0.8 },
   { path: '/tin-tuc', changeFrequency: 'daily', priority: 0.8 },
-  { path: '/su-kien', changeFrequency: 'weekly', priority: 0.7 },
   { path: '/chu-de-khoa-hoc', changeFrequency: 'weekly', priority: 0.7 },
   { path: '/affiliate', changeFrequency: 'weekly', priority: 0.6 },
   { path: '/chinh-sach-affiliate', changeFrequency: 'monthly', priority: 0.4 },
@@ -59,7 +58,7 @@ export default async function sitemap() {
       priority: 0.8,
     })),
     ...productTags.map((tag) => ({
-      url: absoluteUrl(`/products/${tag.slug}`),
+      url: absoluteUrl(`/key-srx/${tag.slug}`),
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.6,

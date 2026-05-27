@@ -12,7 +12,7 @@ export const metadata = buildMetadata({
 });
 
 export default async function ScientificTopicsPage() {
-  const articles = await getPublishedNews({ limit: 24, categorySlug: 'kien-thuc' });
+  const articles = await getPublishedNews({ limit: 120, categorySlug: 'kien-thuc' });
 
   return (
     <NewsListMinimalPage
@@ -21,6 +21,7 @@ export default async function ScientificTopicsPage() {
       showCategoryFilters={false}
       enableHydration={false}
       searchPlaceholder="Tìm theo tiêu đề hoặc chủ đề khoa học"
+      separateFeaturedArticles={false}
     />
   );
 }

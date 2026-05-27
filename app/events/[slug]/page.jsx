@@ -131,7 +131,7 @@ export default async function EventLandingPage({ params }) {
         data={[
           createBreadcrumbSchema([
             { name: 'Trang chủ', path: '/' },
-            { name: 'Sự kiện', path: '/su-kien' },
+            { name: 'Tin tức & Sự kiện', path: '/tin-tuc' },
             { name: event.config.header.titleText || event.eventName, path: event.path },
           ]),
           createEventStructuredData(event),

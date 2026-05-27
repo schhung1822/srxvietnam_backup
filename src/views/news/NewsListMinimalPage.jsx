@@ -65,6 +65,7 @@ export default function NewsListMinimalPage({
   enableHydration = true,
   searchPlaceholder = "Tìm theo tiêu đề, chủ đề hoặc hoạt chất",
   showTopFeatureSection = false,
+  separateFeaturedArticles = true,
 }) {
   const [activeCategory, setActiveCategory] = useState(ALL_NEWS_CATEGORY);
   const [searchValue, setSearchValue] = useState("");
@@ -130,16 +131,22 @@ export default function NewsListMinimalPage({
   const defaultArticles = topFeatureArticle
     ? allArticles.filter((article) => article.slug !== topFeatureArticle.slug)
     : allArticles;
-  const defaultFeaturedArticles = defaultArticles.filter((article) => article.featured).slice(0, 3);
-  const featuredArticles = isFilteredView
-    ? filteredArticles.slice(0, 3)
-    : defaultFeaturedArticles.length
-      ? defaultFeaturedArticles
-      : defaultArticles.slice(0, 3);
+  const defaultFeaturedArticles = separateFeaturedArticles
+    ? defaultArticles.filter((article) => article.featured).slice(0, 3)
+    : [];
+  const featuredArticles = separateFeaturedArticles
+    ? isFilteredView
+      ? filteredArticles.slice(0, 3)
+      : defaultFeaturedArticles.length
+        ? defaultFeaturedArticles
+        : defaultArticles.slice(0, 3)
+    : filteredArticles;
   const featuredArticleSlugs = new Set(featuredArticles.map((article) => article.slug));
-  const archiveArticles = isFilteredView
-    ? filteredArticles.slice(3)
-    : defaultArticles.filter((article) => !featuredArticleSlugs.has(article.slug));
+  const archiveArticles = separateFeaturedArticles
+    ? isFilteredView
+      ? filteredArticles.slice(3)
+      : defaultArticles.filter((article) => !featuredArticleSlugs.has(article.slug))
+    : [];
   const availableCategories = [ALL_NEWS_CATEGORY, ...getNewsCategories(allArticles)];
   const resetLabel = showCategoryFilters ? "Xóa bộ lọc" : "Xóa tìm kiếm";
 

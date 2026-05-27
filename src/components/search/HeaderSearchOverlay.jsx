@@ -204,7 +204,7 @@ export default function HeaderSearchOverlay({ isOpen, onClose }) {
               <div className="min-w-0">
                 <div className="mb-4 flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.18em] text-[#8d7f72]">
                   <FileText className="h-4 w-4" />
-                  Tin tức
+                  Tin tức & Sự kiện
                 </div>
 
                 <div className="space-y-3">
@@ -229,11 +229,11 @@ export default function HeaderSearchOverlay({ isOpen, onClose }) {
                     ))
                   ) : isLoadingNews ? (
                     <div className="rounded-[20px] border border-dashed border-[#ddd3c6] px-4 py-6 text-[14px] text-[#75695d]">
-                      Đang tải tin tức...
+                      Đang tải bài viết...
                     </div>
                   ) : (
                     <div className="rounded-[20px] border border-dashed border-[#ddd3c6] px-4 py-6 text-[14px] text-[#75695d]">
-                      Không tìm thấy tin tức phù hợp.
+                      Không tìm thấy bài viết phù hợp.
                     </div>
                   )}
                 </div>

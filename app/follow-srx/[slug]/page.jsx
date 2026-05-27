@@ -42,13 +42,18 @@ export default async function FollowSrxDetailPage({ params }) {
     notFound();
   }
 
+  const isMergedNewsEventCategory =
+    article.categorySlug === 'tin-tuc' || article.categorySlug === 'su-kien';
+  const listPath = isMergedNewsEventCategory ? '/tin-tuc' : '/follow-srx';
+  const listLabel = isMergedNewsEventCategory ? 'Tin tức & Sự kiện' : 'Theo dòng SRX';
+
   return (
     <>
       <JsonLd
         data={[
           createBreadcrumbSchema([
             { name: 'Trang chủ', path: '/' },
-            { name: 'Theo dòng SRX', path: '/follow-srx' },
+            { name: listLabel, path: listPath },
             { name: article.title, path: `/follow-srx/${article.slug}` },
           ]),
           createArticleSchema(article),

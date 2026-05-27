@@ -97,6 +97,20 @@ function normalizeImagePath(path = '') {
   return normalizedPath.startsWith('/') ? normalizedPath : `/${normalizedPath}`;
 }
 
+function normalizeComparableValue(value = '') {
+  return String(value ?? '').trim().toLowerCase();
+}
+
+function normalizeStarsValue(value) {
+  const parsedValue = Number.parseInt(value, 10);
+
+  if (!Number.isFinite(parsedValue) || parsedValue <= 0) {
+    return 0;
+  }
+
+  return Math.min(5, Math.max(1, parsedValue));
+}
+
 function formatAttributeLabel(attributeCode, attributeSlug, attributeValue) {
   if (attributeCode === 'skin_type') {
     return SKIN_TYPE_LABELS[attributeSlug] ?? attributeValue;
@@ -217,7 +231,11 @@ function buildTagEntries(tagRows) {
       slug: row.slug ?? '',
       name: row.name ?? '',
       description: String(row.description ?? '').trim(),
+      longDescription: String(row.long_description ?? '').trim(),
       image: normalizeImagePath(row.image_url),
+      tags: row.tag_labels ?? '',
+      stars: normalizeStarsValue(row.stars),
+      ingredientClass: String(row.ingredient_class ?? '').trim(),
     }));
 }
 
@@ -382,7 +400,11 @@ async function fetchProductResources(productIds) {
           pt.name,
           pt.slug,
           pt.\`desc\` AS description,
-          pt.img AS image_url
+          pt.desc_long AS long_description,
+          pt.img AS image_url,
+          pt.\`Tags\` AS tag_labels,
+          pt.stars AS stars,
+          pt.class AS ingredient_class
         FROM product_tag_links ptl
         INNER JOIN product_tags pt
           ON pt.id = ptl.tag_id
@@ -521,6 +543,22 @@ export async function searchCatalogProducts(term = '', limit = 5) {
   return filteredProducts.slice(0, Math.max(1, limit));
 }
 
+export async function getCatalogProductsByTagSlug(slug) {
+  const normalizedSlug = normalizeComparableValue(slug);
+
+  if (!normalizedSlug) {
+    return [];
+  }
+
+  const products = await getCatalogProducts();
+
+  return products.filter((product) =>
+    (product.tagEntries ?? []).some(
+      (entry) => normalizeComparableValue(entry.slug) === normalizedSlug,
+    ),
+  );
+}
+
 export const getProductTagDictionaryEntries = cache(async () => {
   if (shouldUseFallbackProducts()) {
     return [];
@@ -533,8 +571,11 @@ export const getProductTagDictionaryEntries = cache(async () => {
         pt.name,
         pt.slug,
         pt.\`desc\` AS description,
+        pt.desc_long AS long_description,
         pt.img AS image_url,
         pt.\`Tags\` AS tag_labels,
+        pt.stars AS stars,
+        pt.class AS ingredient_class,
         COUNT(DISTINCT p.id) AS linked_product_count
       FROM product_tags pt
       LEFT JOIN product_tag_links ptl
@@ -548,8 +589,11 @@ export const getProductTagDictionaryEntries = cache(async () => {
         pt.name,
         pt.slug,
         pt.\`desc\`,
+        pt.desc_long,
         pt.img,
-        pt.\`Tags\`
+        pt.\`Tags\`,
+        pt.stars,
+        pt.class
       ORDER BY pt.name ASC, pt.id ASC
     `);
 
@@ -558,8 +602,11 @@ export const getProductTagDictionaryEntries = cache(async () => {
       name: row.name ?? '',
       slug: row.slug ?? '',
       description: row.description ?? '',
+      longDescription: String(row.long_description ?? '').trim(),
       image: normalizeImagePath(row.image_url),
       tags: row.tag_labels ?? '',
+      stars: normalizeStarsValue(row.stars),
+      ingredientClass: String(row.ingredient_class ?? '').trim(),
       linkedProductCount: Number(row.linked_product_count ?? 0),
     }));
   } catch (error) {
@@ -567,6 +614,20 @@ export const getProductTagDictionaryEntries = cache(async () => {
     return [];
   }
 });
+
+export async function getProductTagDictionaryEntryBySlug(slug) {
+  const normalizedSlug = normalizeComparableValue(slug);
+
+  if (!normalizedSlug) {
+    return null;
+  }
+
+  const entries = await getProductTagDictionaryEntries();
+
+  return (
+    entries.find((entry) => normalizeComparableValue(entry.slug) === normalizedSlug) ?? null
+  );
+}
 
 
 

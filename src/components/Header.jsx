@@ -6,7 +6,6 @@ import { usePathname } from 'next/navigation';
 import {
   BarChart3,
   Book,
-  Calendar1,
   CheckCircle,
   ChevronDown,
   Globe,
@@ -38,18 +37,12 @@ const navigationItems = [
         name: 'Chủ đề khoa học',
         path: '/chu-de-khoa-hoc',
         icon: Book,
-        thumbnail: '/assets/images/home/blue.webp',
+        thumbnail: '/assets/images/home/Yellow.webp',
       },
       {
-        name: 'Tin tức',
+        name: 'Tin tức & Sự kiện',
         path: '/tin-tuc',
         icon: Globe,
-        thumbnail: '/assets/images/home/sl2.webp',
-      },
-      {
-        name: 'Sự kiện',
-        path: '/su-kien',
-        icon: Calendar1,
         thumbnail: '/assets/images/home/slider2.webp',
       },
     ],
@@ -249,7 +242,7 @@ export default function Header() {
     });
 
   const renderDesktopThumbnailDropdown = (dropdownItems) => (
-    <div className="grid grid-cols-3 gap-6 p-3">
+    <div className="grid grid-cols-2 gap-6 p-3">
       {dropdownItems.map((dropdownItem) => {
         const isActive = isActiveRoute(dropdownItem.path);
 
@@ -262,7 +255,7 @@ export default function Header() {
                   : 'shadow-[0_14px_36px_rgba(0,0,0,0.08)] group-hover/card:-translate-y-1 group-hover/card:shadow-[0_22px_50px_rgba(0,0,0,0.14)]'
               }`}
             >
-              <div className="aspect-[1.58/1] overflow-hidden">
+              <div className="aspect-[21/9] overflow-hidden">
                 <img
                   src={dropdownItem.thumbnail}
                   alt={dropdownItem.name}

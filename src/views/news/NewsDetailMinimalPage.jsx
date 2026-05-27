@@ -201,6 +201,10 @@ function RelatedNewsCard({ article }) {
 
 export default async function NewsDetailMinimalPage({ article }) {
   const { html, headings } = normalizeArticleContent(article.content);
+  const isMergedNewsEventCategory =
+    article.categorySlug === 'tin-tuc' || article.categorySlug === 'su-kien';
+  const listPath = isMergedNewsEventCategory ? '/tin-tuc' : '/follow-srx';
+  const listLabel = isMergedNewsEventCategory ? 'Tin tức & Sự kiện' : 'Theo dòng SRX';
   const [galleryImages, relatedArticles] = await Promise.all([
     getPostGalleryImages(),
     getRelatedNewsArticles(article, { limit: 3 }),
@@ -218,8 +222,8 @@ export default async function NewsDetailMinimalPage({ article }) {
                   Trang chủ
                 </Link>
                 <span>/</span>
-                <Link href="/follow-srx" className="transition hover:text-[#252c3d]">
-                  Theo dòng SRX
+                <Link href={listPath} className="transition hover:text-[#252c3d]">
+                  {listLabel}
                 </Link>
                 <span>/</span>
                 <span className="line-clamp-1 text-[#252c3d]">{article.title}</span>
@@ -267,7 +271,7 @@ export default async function NewsDetailMinimalPage({ article }) {
               <NewsShareCopyButton title={article.title} />
 
               <Link
-                href="/follow-srx"
+                href={listPath}
                 className="mt-14 inline-flex items-center gap-2 rounded-full border border-[#d8def7] bg-white px-5 py-3 text-[14px] font-medium text-[#252c3d] transition hover:border-[#bac4f5] hover:bg-[#f8f9ff]"
               >
                 <ArrowLeft className="h-4 w-4" />
@@ -316,7 +320,7 @@ export default async function NewsDetailMinimalPage({ article }) {
               </div>
 
               <Link
-                href="/follow-srx"
+                href={listPath}
                 className="text-[14px] font-semibold text-[#252c3d] transition hover:text-[#6b71d5]"
               >
                 Xem tất cả

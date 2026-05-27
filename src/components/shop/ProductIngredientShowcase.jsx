@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -118,6 +119,14 @@ export default function ProductIngredientShowcase({ productName, entries = [] })
                   <div className="mt-2 text-[24px] font-semibold tracking-[-0.04em] text-[#15110d]">
                     {activeEntry.name}
                   </div>
+                  {activeEntry.slug ? (
+                    <Link
+                      href={`/key-srx/${activeEntry.slug}`}
+                      className="mt-3 inline-flex rounded-full border border-[#15110d] px-4 py-2 text-[12px] font-semibold uppercase tracking-[0.18em] text-[#15110d] transition hover:bg-[#15110d] hover:text-white"
+                    >
+                      Xem chi tiết thành phần
+                    </Link>
+                  ) : null}
                 </div>
 
                 {preparedEntries.length > 1 ? (

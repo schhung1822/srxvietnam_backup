@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 export const metadata = buildMetadata({
   title: 'Từ điển thành phần',
   description:
-    'Tra cứu thành phần, hoạt chất và công dụng nổi bật trong hệ sản phẩm của SRX Việt Nam.',
+    'Tra cứu thành phần, hoạt chất, lợi ích, phân loại và mức đánh giá nổi bật trong hệ sản phẩm của SRX Việt Nam.',
   path: '/key-srx',
 });
 
