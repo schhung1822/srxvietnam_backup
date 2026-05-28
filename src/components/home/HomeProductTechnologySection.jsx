@@ -353,7 +353,6 @@ export default function HomeProductTechnologySection() {
       const introNodes = selector('[data-tech-intro]');
       const sliderShellNodes = selector('[data-tech-slider-shell]');
       const detailNodes = selector('[data-tech-detail]');
-      const ctaNodes = selector('[data-tech-cta]');
 
       if (introNodes.length) {
         gsap.from(introNodes, {
@@ -395,18 +394,6 @@ export default function HomeProductTechnologySection() {
         });
       }
 
-      if (ctaNodes.length) {
-        gsap.from(ctaNodes, {
-          opacity: 0,
-          y: isCompact ? 0 : 24,
-          duration: isCompact ? 0.55 : 0.7,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 66%',
-          },
-        });
-      }
     }, sectionRef);
 
     return () => ctx.revert();
@@ -704,7 +691,7 @@ export default function HomeProductTechnologySection() {
                         ))}
                       </div>
 
-                      <div
+                      {activeTechnology.articleLink === '__disabled__' && <div
                         data-tech-detail-node
                         className="mt-10 flex flex-wrap items-center gap-4"
                       >
@@ -716,7 +703,7 @@ export default function HomeProductTechnologySection() {
                           <span>Xem chi tiết</span>
                           <ArrowUpRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                         </Link>
-                      </div>
+                      </div>}
                     </div>
                   </div>
                 </div>
