@@ -1,40 +1,38 @@
-﻿import React, { useEffect, useRef } from "react";
-import { Manrope } from "next/font/google";
-import gsap from "gsap";
-import { Link } from "react-router-dom";
+import { useEffect, useRef } from 'react';
+import Link from 'next/link';
+import { Manrope } from 'next/font/google';
+import gsap from 'gsap';
 import {
   homeButtonHighlightClass,
   homeButtonSheenClass,
   homePrimaryButtonClass,
   homeSecondaryButtonClass,
-} from "./homeCtaStyles.js";
+} from './homeCtaStyles.js';
 
 const heroLegacyHeadingFont = Manrope({
-  subsets: ["latin", "vietnamese"],
-  weight: ["400", "500", "600", "700", "800"],
-  display: "swap",
+  subsets: ['latin', 'vietnamese'],
+  weight: ['400', '500', '600', '700', '800'],
+  display: 'swap',
 });
 
 const HERO_ASSETS = {
-  backgroundVideo:
-    "/assets/images/home/video_bh_hero.mp4",
-  infinityArtwork:
-    "/assets/images/home/SRX_3D.webp",
+  backgroundVideo: '/assets/images/home/video_bh_hero.mp4',
+  infinityArtwork: '/assets/images/home/SRX_3D.webp',
   badgeIcon:
-    "https://framerusercontent.com/images/8l5o7RMsH7c7Xe3dBJBR4Fpc3A.svg?width=16&height=16",
+    'https://framerusercontent.com/images/8l5o7RMsH7c7Xe3dBJBR4Fpc3A.svg?width=16&height=16',
 };
 
 const heroCards = [
   {
-    text: "SRX Tiên phong tích hợp công nghệ tiên tiến nhất trong nghiên cứu và phát triển sản phẩm chăm da",
+    text: 'SRX Tiên phong tích hợp công nghệ tiên tiến nhất trong nghiên cứu và phát triển sản phẩm chăm da',
     desktopClass:
-      "lg:absolute lg:left-[-10%] lg:top-[43%] lg:w-[634px] lg:max-w-[634px] lg:px-[42px] lg:py-[44px]",
+      'lg:absolute lg:left-[-10%] lg:top-[43%] lg:w-[634px] lg:max-w-[634px] lg:px-[42px] lg:py-[44px]',
   },
   {
-    text: "SRX là thương hiệu dược mỹ phẩm cao cấp đến từ Hàn Quốc, chính thức ra đời vào năm 2005. Trải qua nhiều năm phát triển, SRX đã tạo được tiếng vang lớn không chỉ tại Hàn Quốc mà còn vươn ra thị trường quốc tế, có mặt ở các quốc gia lớn như Mỹ, Đức, Pháp, và hiện tại là Việt Nam.",
+    text: 'SRX là thương hiệu dược mỹ phẩm cao cấp đến từ Hàn Quốc, chính thức ra đời vào năm 2005. Trải qua nhiều năm phát triển, SRX đã tạo được tiếng vang lớn không chỉ tại Hàn Quốc mà còn vươn ra thị trường quốc tế, có mặt ở các quốc gia lớn như Mỹ, Đức, Pháp, và hiện tại là Việt Nam.',
     desktopClass:
-      "lg:absolute lg:right-[-10%] lg:bottom-[-40%] lg:w-[686px] lg:max-w-[686px] lg:px-[54px] lg:py-[58px]",
-    boldLead: "SRX",
+      'lg:absolute lg:right-[-10%] lg:bottom-[-40%] lg:w-[686px] lg:max-w-[686px] lg:px-[54px] lg:py-[58px]',
+    boldLead: 'SRX',
   },
 ];
 
@@ -43,10 +41,17 @@ const FramerHeroSection = () => {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      const titlePill = gsap.utils.toArray("[data-hero-title-pill]")[0];
+      const selector = gsap.utils.selector(sectionRef);
+      const backgroundNodes = selector('[data-hero-bg]');
+      const artworkNodes = selector('[data-hero-art]');
+      const badgeNodes = selector('[data-hero-badge]');
+      const titlePartNodes = selector('[data-hero-title-part]');
+      const titlePillNodes = selector('[data-hero-title-pill]');
+      const cardNodes = selector('[data-hero-card]');
+      const titlePill = titlePillNodes[0];
       const timeline = gsap.timeline({
         defaults: {
-          ease: "power3.out",
+          ease: 'power3.out',
         },
       });
       const titlePillLoop = gsap.timeline({
@@ -54,14 +59,14 @@ const FramerHeroSection = () => {
         repeat: -1,
         repeatDelay: 0.12,
         defaults: {
-          ease: "sine.inOut",
+          ease: 'sine.inOut',
         },
       });
 
       if (titlePill) {
         gsap.set(titlePill, {
           transformPerspective: 900,
-          transformOrigin: "50% 50%",
+          transformOrigin: '50% 50%',
           force3D: true,
         });
 
@@ -76,74 +81,92 @@ const FramerHeroSection = () => {
           });
       }
 
-      timeline
-        .from("[data-hero-bg]", {
+      if (backgroundNodes.length) {
+        timeline.from(backgroundNodes, {
           opacity: 0,
           duration: 1.1,
-        })
-        .from(
-          "[data-hero-art]",
+        });
+      }
+
+      if (artworkNodes.length) {
+        timeline.from(
+          artworkNodes,
           {
             opacity: 0,
             scale: 0.96,
             rotate: -14,
             duration: 1.2,
           },
-          "-=0.85",
-        )
-        .from(
-          "[data-hero-badge]",
+          '-=0.85',
+        );
+      }
+
+      if (badgeNodes.length) {
+        timeline.from(
+          badgeNodes,
           {
             opacity: 0,
             y: 18,
             duration: 0.6,
           },
-          "-=0.5",
-        )
-        .from(
-          "[data-hero-title-part]",
+          '-=0.5',
+        );
+      }
+
+      if (titlePartNodes.length) {
+        timeline.from(
+          titlePartNodes,
           {
             opacity: 0,
             y: 30,
             duration: 0.8,
             stagger: 0.08,
           },
-          "-=0.3",
-        )
-        .from(
-          "[data-hero-title-pill]",
+          '-=0.3',
+        );
+      }
+
+      if (titlePillNodes.length) {
+        timeline.from(
+          titlePillNodes,
           {
             opacity: 0,
             y: 70,
             rotateY: -70,
-            transformOrigin: "50% 50%",
+            transformOrigin: '50% 50%',
             duration: 1,
           },
-          "-=0.65",
-        )
-        .from(
-          "[data-hero-card]",
+          '-=0.65',
+        );
+      }
+
+      if (cardNodes.length) {
+        timeline.from(
+          cardNodes,
           {
             opacity: 0,
             y: 12,
             duration: 0.7,
             stagger: 0.12,
           },
-          "-=0.3",
+          '-=0.3',
         );
+      }
 
       if (titlePill) {
         timeline.add(() => titlePillLoop.play(0));
       }
 
-      gsap.to("[data-hero-art]", {
-        y: 16,
-        rotate: -8,
-        duration: 7,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-      });
+      if (artworkNodes.length) {
+        gsap.to(artworkNodes, {
+          y: 16,
+          rotate: -8,
+          duration: 7,
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut',
+        });
+      }
     }, sectionRef);
 
     return () => ctx.revert();
@@ -160,7 +183,6 @@ const FramerHeroSection = () => {
           muted
           loop
           playsInline
-          webkit-playsinline="true"
           preload="auto"
           controls={false}
           disablePictureInPicture
@@ -249,7 +271,7 @@ const FramerHeroSection = () => {
                   <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:gap-[18px]">
                     <Link
                       data-hero-cta
-                      to="/about"
+                      href="/about"
                       className={`${homePrimaryButtonClass} w-full justify-center shrink-0 min-w-[116px] sm:w-auto sm:min-w-[118px]`}
                       style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
                     >
@@ -260,7 +282,7 @@ const FramerHeroSection = () => {
 
                     <Link
                       data-hero-cta
-                      to="/products"
+                      href="/products"
                       className={`${homeSecondaryButtonClass} w-full justify-center shrink-0 min-w-[206px] px-6 sm:w-auto sm:min-w-[210px] sm:px-7`}
                       style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
                     >
@@ -303,7 +325,7 @@ const FramerHeroSection = () => {
               <div className="flex w-full gap-3 justify-center sm:w-auto sm:flex-row sm:flex-wrap sm:gap-[18px]">
                 <Link
                   data-hero-cta
-                  to="/products"
+                  href="/products"
                   className={`${homePrimaryButtonClass} justify-center shrink-0 min-w-[116px] sm:w-auto sm:min-w-[118px]`}
                   style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
                 >
@@ -314,7 +336,7 @@ const FramerHeroSection = () => {
 
                 <Link
                   data-hero-cta
-                  to="/contact"
+                  href="/contact"
                   className={`${homeSecondaryButtonClass} justify-center shrink-0 min-w-[206px] px-6 sm:w-auto sm:min-w-[210px] sm:px-7`}
                   style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
                 >

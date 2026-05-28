@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 
 const TRANSITION_PHASE = {
-  HIDDEN: "hidden",
-  COVERING: "covering",
-  REVEALING: "revealing",
+  HIDDEN: 'hidden',
+  COVERING: 'covering',
+  REVEALING: 'revealing',
 };
 
 const NAVIGATION_START_DELAY_MS = 180;
@@ -16,7 +16,7 @@ function isModifiedClick(event) {
 }
 
 function resolveInternalHref(rawHref) {
-  if (!rawHref || rawHref.startsWith("#")) {
+  if (!rawHref || rawHref.startsWith('#')) {
     return null;
   }
 
@@ -35,7 +35,7 @@ function resolveInternalHref(rawHref) {
 
 function getPathnameFromHref(href) {
   if (!href) {
-    return "";
+    return '';
   }
 
   try {
@@ -45,9 +45,23 @@ function getPathnameFromHref(href) {
   }
 }
 
+function navigateHistory(router, path) {
+  if (path === -1) {
+    router.back();
+    return;
+  }
+
+  if (path === 1) {
+    router.forward();
+    return;
+  }
+
+  window.history.go(path);
+}
+
 export const usePageTransition = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
+  const pathname = usePathname() ?? '/';
+  const router = useRouter();
   const [transitionPhase, setTransitionPhase] = useState(TRANSITION_PHASE.HIDDEN);
   const [pendingPath, setPendingPath] = useState(null);
   const navigationTimerRef = useRef(null);
@@ -65,11 +79,11 @@ export const usePageTransition = () => {
 
   const finishTransition = useCallback(() => {
     clearTransitionTimers();
-    document.body.classList.remove("transition-active");
+    document.body.classList.remove('transition-active');
     setPendingPath(null);
     setTransitionPhase(TRANSITION_PHASE.HIDDEN);
     scrollTimerRef.current = window.setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: "instant" });
+      window.scrollTo({ top: 0, behavior: 'auto' });
     }, SCROLL_RESET_DELAY_MS);
   }, [clearTransitionTimers]);
 
@@ -77,39 +91,44 @@ export const usePageTransition = () => {
     (path, options = {}) => {
       const nextPathname = getPathnameFromHref(path);
 
-      if (typeof path === "number") {
-        navigate(path);
+      if (typeof path === 'number') {
+        navigateHistory(router, path);
         return;
       }
 
-      if (!path || nextPathname === location.pathname || transitionPhase !== TRANSITION_PHASE.HIDDEN) {
+      if (!path || nextPathname === pathname || transitionPhase !== TRANSITION_PHASE.HIDDEN) {
         return;
       }
 
       clearTransitionTimers();
-      document.body.classList.add("transition-active");
+      document.body.classList.add('transition-active');
       setPendingPath(nextPathname);
       setTransitionPhase(TRANSITION_PHASE.COVERING);
 
       navigationTimerRef.current = window.setTimeout(() => {
-        navigate(path, options);
+        if (options.replace) {
+          router.replace(path, { scroll: false });
+          return;
+        }
+
+        router.push(path, { scroll: false });
       }, NAVIGATION_START_DELAY_MS);
     },
-    [clearTransitionTimers, location.pathname, navigate, transitionPhase],
+    [clearTransitionTimers, pathname, router, transitionPhase],
   );
 
   useEffect(() => {
     if (
       transitionPhase === TRANSITION_PHASE.COVERING &&
       pendingPath &&
-      location.pathname === pendingPath
+      pathname === pendingPath
     ) {
       setTransitionPhase(TRANSITION_PHASE.REVEALING);
       revealTimerRef.current = window.setTimeout(() => {
         finishTransition();
       }, REVEAL_DURATION_MS);
     }
-  }, [finishTransition, location.pathname, pendingPath, transitionPhase]);
+  }, [finishTransition, pathname, pendingPath, transitionPhase]);
 
   useEffect(() => {
     const handleLinkClick = (event) => {
@@ -117,23 +136,23 @@ export const usePageTransition = () => {
         return;
       }
 
-      const link = event.target.closest("a[href]");
+      const link = event.target.closest('a[href]');
 
       if (!link) {
         return;
       }
 
       if (
-        link.hasAttribute("download") ||
-        link.getAttribute("target") === "_blank" ||
-        link.getAttribute("data-no-transition") === "true"
+        link.hasAttribute('download') ||
+        link.getAttribute('target') === '_blank' ||
+        link.getAttribute('data-no-transition') === 'true'
       ) {
         return;
       }
 
-      const href = resolveInternalHref(link.getAttribute("href"));
+      const href = resolveInternalHref(link.getAttribute('href'));
 
-      if (!href || href === `${location.pathname}${window.location.search}${window.location.hash}`) {
+      if (!href || href === `${pathname}${window.location.search}${window.location.hash}`) {
         return;
       }
 
@@ -141,22 +160,22 @@ export const usePageTransition = () => {
       navigateWithTransition(href);
     };
 
-    document.addEventListener("click", handleLinkClick, true);
+    document.addEventListener('click', handleLinkClick, true);
 
     return () => {
-      document.removeEventListener("click", handleLinkClick, true);
+      document.removeEventListener('click', handleLinkClick, true);
     };
-  }, [location.pathname, navigateWithTransition]);
+  }, [navigateWithTransition, pathname]);
 
   useEffect(() => {
     return () => {
       clearTransitionTimers();
-      document.body.classList.remove("transition-active");
+      document.body.classList.remove('transition-active');
     };
   }, [clearTransitionTimers]);
 
   return {
-    currentPath: location.pathname,
+    currentPath: pathname,
     isTransitioning: transitionPhase !== TRANSITION_PHASE.HIDDEN,
     navigateWithTransition,
     transitionPhase,

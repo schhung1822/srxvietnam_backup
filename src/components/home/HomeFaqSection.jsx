@@ -209,16 +209,8 @@ export default function HomeFaqSection({
                   aria-expanded={isActive}
                 >
                   <div
-                    className="grid min-h-[64px] grid-cols-[56px_minmax(0,1fr)_40px] items-center gap-3 px-0 transition-[color,min-height] duration-300 sm:min-h-[82px] sm:grid-cols-[92px_minmax(0,1fr)_64px] sm:gap-8 lg:min-h-[88px] lg:grid-cols-[110px_minmax(0,1fr)_88px] lg:px-0"
+                    className="grid min-h-[64px] grid-cols-[minmax(0,1fr)_40px] items-center gap-3 px-0 transition-[color,min-height] duration-300 sm:min-h-[82px] sm:grid-cols-[minmax(0,1fr)_64px] sm:gap-8 lg:min-h-[88px] lg:grid-cols-[minmax(0,1fr)_88px] lg:px-0"
                   >
-                    <div
-                      className={`text-[26px] font-semibold leading-none tracking-[-0.04em] sm:text-[38px] lg:text-[42px] font-['Inter',_sans-serif] ${
-                        isActive ? "text-black" : "text-[#bcbcbc]"
-                      }`}
-                    >
-                      {item.number}
-                    </div>
-
                     <div
                       className={`min-w-0 text-[14px] font-semibold leading-[1.18] tracking-[-0.04em] sm:text-[24px] lg:text-[26px] font-['Inter',_sans-serif] ${
                         isActive ? "text-black" : "text-[#b9b9b9]"
@@ -247,9 +239,7 @@ export default function HomeFaqSection({
                   }`}
                 >
                   <div className="min-h-0">
-                    <div className="pb-5 sm:grid sm:grid-cols-[92px_minmax(0,1fr)_64px] sm:gap-8 sm:pb-7 lg:grid-cols-[110px_minmax(0,1fr)_88px] lg:pb-8">
-                      <div className="hidden sm:block" />
-
+                    <div className="pb-5 sm:grid sm:grid-cols-[minmax(0,1fr)_64px] sm:gap-8 sm:pb-7 lg:grid-cols-[minmax(0,1fr)_88px] lg:pb-8">
                       <div
                         className={
                           hasImage

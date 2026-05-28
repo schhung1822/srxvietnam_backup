@@ -1,4 +1,7 @@
 import https from 'node:https';
+import { ensureServerEnvLoaded } from './env.js';
+
+ensureServerEnvLoaded();
 
 const LARK_WEBHOOK_URL =
   process.env.LARK_WEBHOOK_URL?.trim() ||

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ArrowDown, ArrowUp, ArrowUpRight } from 'lucide-react';
 import { gsap } from 'gsap';
@@ -267,6 +267,7 @@ export default function HomeProductTechnologySection() {
   const detailRef = useRef(null);
   const directionRef = useRef(1);
   const wheelLockRef = useRef(false);
+  const wheelUnlockTimeoutRef = useRef(null);
   const touchStartYRef = useRef(0);
   const [currentIndex, setCurrentIndex] = useState(technologyItems.length > 1 ? 1 : 0);
   const [isMobileView, setIsMobileView] = useState(false);
@@ -310,51 +311,64 @@ export default function HomeProductTechnologySection() {
   useEffect(() => {
     const ctx = gsap.context(() => {
       const isCompact = window.matchMedia('(max-width: 1023px)').matches;
+      const selector = gsap.utils.selector(sectionRef);
+      const introNodes = selector('[data-tech-intro]');
+      const sliderShellNodes = selector('[data-tech-slider-shell]');
+      const detailNodes = selector('[data-tech-detail]');
+      const ctaNodes = selector('[data-tech-cta]');
 
-      gsap.from('[data-tech-intro]', {
-        opacity: 0,
-        y: isCompact ? 0 : 36,
-        duration: isCompact ? 0.65 : 0.9,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top 78%',
-        },
-      });
+      if (introNodes.length) {
+        gsap.from(introNodes, {
+          opacity: 0,
+          y: isCompact ? 0 : 36,
+          duration: isCompact ? 0.65 : 0.9,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 78%',
+          },
+        });
+      }
 
-      gsap.from('[data-tech-slider-shell]', {
-        opacity: 0,
-        y: isCompact ? 18 : 28,
-        duration: isCompact ? 0.65 : 0.86,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top 72%',
-        },
-      });
+      if (sliderShellNodes.length) {
+        gsap.from(sliderShellNodes, {
+          opacity: 0,
+          y: isCompact ? 18 : 28,
+          duration: isCompact ? 0.65 : 0.86,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 72%',
+          },
+        });
+      }
 
-      gsap.from('[data-tech-detail]', {
-        opacity: 0,
-        y: isCompact ? 18 : 28,
-        x: isCompact ? 0 : 22,
-        duration: isCompact ? 0.65 : 0.82,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top 70%',
-        },
-      });
+      if (detailNodes.length) {
+        gsap.from(detailNodes, {
+          opacity: 0,
+          y: isCompact ? 18 : 28,
+          x: isCompact ? 0 : 22,
+          duration: isCompact ? 0.65 : 0.82,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 70%',
+          },
+        });
+      }
 
-      gsap.from('[data-tech-cta]', {
-        opacity: 0,
-        y: isCompact ? 0 : 24,
-        duration: isCompact ? 0.55 : 0.7,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top 66%',
-        },
-      });
+      if (ctaNodes.length) {
+        gsap.from(ctaNodes, {
+          opacity: 0,
+          y: isCompact ? 0 : 24,
+          duration: isCompact ? 0.55 : 0.7,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 66%',
+          },
+        });
+      }
     }, sectionRef);
 
     return () => ctx.revert();
@@ -365,31 +379,38 @@ export default function HomeProductTechnologySection() {
       return undefined;
     }
 
+    const detailNode = detailRef.current;
+    if (!detailNode) {
+      return undefined;
+    }
+
     const activeNodes =
       sliderViewportRef.current?.querySelectorAll('[aria-pressed="true"] h3, [aria-pressed="true"] p, [aria-pressed="true"] a') ??
       [];
-    const detailNodes = detailRef.current?.querySelectorAll('[data-tech-detail-node]') ?? [];
+    const detailNodes = detailNode.querySelectorAll('[data-tech-detail-node]') ?? [];
 
     const timeline = gsap.timeline({ defaults: { ease: 'power2.out' } });
 
-    timeline.fromTo(
-      activeNodes,
-      {
-        opacity: 0,
-        y: 14,
-      },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.26,
-        stagger: 0.04,
-        clearProps: 'opacity,transform',
-      },
-      0.08,
-    );
+    if (activeNodes.length) {
+      timeline.fromTo(
+        activeNodes,
+        {
+          opacity: 0,
+          y: 14,
+        },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.26,
+          stagger: 0.04,
+          clearProps: 'opacity,transform',
+        },
+        0.08,
+      );
+    }
 
     timeline.fromTo(
-      detailRef.current,
+      detailNode,
       {
         opacity: 0,
         x: directionRef.current > 0 ? 18 : -18,
@@ -404,44 +425,46 @@ export default function HomeProductTechnologySection() {
       0.04,
     );
 
-    timeline.fromTo(
-      detailNodes,
-      {
-        opacity: 0,
-        y: 14,
-      },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.24,
-        stagger: 0.035,
-        clearProps: 'opacity,transform',
-      },
-      0.1,
-    );
+    if (detailNodes.length) {
+      timeline.fromTo(
+        detailNodes,
+        {
+          opacity: 0,
+          y: 14,
+        },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.24,
+          stagger: 0.035,
+          clearProps: 'opacity,transform',
+        },
+        0.1,
+      );
+    }
 
     return () => {
       timeline.kill();
     };
   }, [currentIndex]);
 
-  const changeTechnology = (nextIndex, direction = 1) => {
+  const changeTechnology = useCallback((nextIndex, direction = 1) => {
     if (nextIndex === currentIndex) {
       return;
     }
 
     directionRef.current = direction >= 0 ? 1 : -1;
     setCurrentIndex(nextIndex);
-  };
+  }, [currentIndex]);
 
-  const handleStep = (direction) => {
+  const handleStep = useCallback((direction) => {
     changeTechnology(
       getWrappedIndex(currentIndex + direction, technologyItems.length),
       direction,
     );
-  };
+  }, [changeTechnology, currentIndex]);
 
-  const handleWheel = (event) => {
+  const handleWheel = useCallback((event) => {
     if (window.matchMedia('(max-width: 1023px)').matches || wheelLockRef.current) {
       return;
     }
@@ -453,10 +476,29 @@ export default function HomeProductTechnologySection() {
     event.preventDefault();
     wheelLockRef.current = true;
     handleStep(event.deltaY > 0 ? 1 : -1);
-    window.setTimeout(() => {
+    window.clearTimeout(wheelUnlockTimeoutRef.current);
+    wheelUnlockTimeoutRef.current = window.setTimeout(() => {
       wheelLockRef.current = false;
+      wheelUnlockTimeoutRef.current = null;
     }, 650);
-  };
+  }, [handleStep]);
+
+  useEffect(() => {
+    const viewportNode = sliderViewportRef.current;
+
+    if (!viewportNode) {
+      return undefined;
+    }
+
+    viewportNode.addEventListener('wheel', handleWheel, { passive: false });
+
+    return () => {
+      viewportNode.removeEventListener('wheel', handleWheel);
+      window.clearTimeout(wheelUnlockTimeoutRef.current);
+      wheelUnlockTimeoutRef.current = null;
+      wheelLockRef.current = false;
+    };
+  }, [handleWheel]);
 
   const handleTouchStart = (event) => {
     touchStartYRef.current = event.targetTouches[0]?.clientY ?? 0;
@@ -556,7 +598,6 @@ export default function HomeProductTechnologySection() {
                       ? 'flex flex-col gap-4'
                       : 'relative h-[680px] sm:h-[760px] lg:h-[860px]'
                   }
-                  onWheel={handleWheel}
                   onTouchStart={handleTouchStart}
                   onTouchEnd={handleTouchEnd}
                   style={{ touchAction: 'pan-x' }}
