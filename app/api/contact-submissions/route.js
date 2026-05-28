@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { deliverLeadFormNotificationToCrm } from '../../../src/lib/server/crm-web-notifications.js';
+import { formatErrorDetails } from '../../../src/lib/server/error-details.js';
 import { sendLeadFormNotification } from '../../../src/lib/server/lark.js';
 
 export const runtime = 'nodejs';
@@ -135,13 +136,13 @@ export async function POST(request) {
       await deliverLeadFormNotificationToCrm(submission);
       notificationDelivered = true;
     } catch (notificationError) {
-      console.error('Lead form CRM notification error:', notificationError);
+      console.error(`Lead form CRM notification error:\n${formatErrorDetails(notificationError)}`);
 
       try {
         await sendLeadFormNotification(submission);
         notificationDelivered = true;
       } catch (fallbackError) {
-        console.error('Lead form Lark fallback error:', fallbackError);
+        console.error(`Lead form Lark fallback error:\n${formatErrorDetails(fallbackError)}`);
       }
     }
 
@@ -159,7 +160,7 @@ export async function POST(request) {
       { status: 201 },
     );
   } catch (error) {
-    console.error('Lead form submission error:', error);
+    console.error(`Lead form submission error:\n${formatErrorDetails(error)}`);
 
     if (error instanceof Error && validationMessages.has(error.message)) {
       return NextResponse.json({ message: error.message }, { status: 400 });

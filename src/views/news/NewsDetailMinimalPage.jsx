@@ -189,7 +189,7 @@ function RelatedNewsCard({ article }) {
           <div className="font-['Inter',_sans-serif] text-[12px] font-medium tracking-[0.01em] text-[#7f8495]">
             {formatNewsDate(article.publishedAt)}
           </div>
-          <h3 className="mt-3 line-clamp-2 text-[22px] font-medium leading-[1.14] tracking-[-0.05em] text-[#2b3140]">
+          <h3 className="mt-3 line-clamp-2 text-[22px] font-medium leading-[1.2] tracking-[-0.05em] text-[#2b3140]">
             {article.title}
           </h3>
           <p className="mt-3 line-clamp-2 text-[14px] leading-7 text-[#616777]">{article.excerpt}</p>

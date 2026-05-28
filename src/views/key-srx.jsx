@@ -266,9 +266,7 @@ function HeroBanner() {
           className="absolute inset-0 bg-center bg-cover bg-no-repeat lg:hidden"
           style={{ backgroundImage: "url('/assets/images/key-srx/bg_keysrx.webp')" }}
         />
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(137,148,246,0.04),rgba(119,134,238,0.08))]" />
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(0deg,rgba(88,101,212,0.34)_0%,rgba(88,101,212,0.12)_18%,rgba(255,255,255,0)_42%)]" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.55),rgba(255,255,255,0)_24%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.08),rgba(0,0,0,0.4))]" />
 
         <div className="relative z-[2] aspect-square lg:min-h-[500px] lg:aspect-[21/9]">
           <div className="mx-auto flex h-full max-w-[1440px] px-6 pb-6 pt-28 sm:px-8 sm:pb-8 sm:pt-32 lg:flex-col justify-end lg:px-8 lg:pb-8">

@@ -167,7 +167,10 @@ async function postToLark(payload) {
 
       return;
     } catch (error) {
-      lastError = error;
+      lastError = new Error(
+        `Failed to deliver Lark webhook to ${LARK_WEBHOOK_URL}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        { cause: error },
+      );
 
       if (attempt < 3) {
         await wait(attempt * 500);

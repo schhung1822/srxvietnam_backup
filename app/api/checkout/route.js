@@ -14,6 +14,7 @@ import {
   normalizeAffiliateVisitorToken,
 } from '../../../src/lib/server/affiliate.js';
 import { getDbPool } from '../../../src/lib/server/db.js';
+import { formatErrorDetails } from '../../../src/lib/server/error-details.js';
 import { createRequestTimeoutSignal } from '../../../src/lib/server/request-timeout.js';
 import { getOrderTrackingContext } from '../../../src/lib/server/tracking.js';
 import { ensureServerEnvLoaded } from '../../../src/lib/server/env.js';
@@ -154,7 +155,7 @@ async function queueOrdersWebNotifications(payload) {
       cleanup();
     }
   } catch (error) {
-    console.error('Orders_web notification dispatch error:', error);
+    console.error(`Orders_web notification dispatch error:\n${formatErrorDetails(error)}`);
   }
 }
 

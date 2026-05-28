@@ -1,4 +1,5 @@
 import { ensureServerEnvLoaded } from './env.js';
+import { formatErrorDetails } from './error-details.js';
 import { createRequestTimeoutSignal } from './request-timeout.js';
 
 ensureServerEnvLoaded();
@@ -50,7 +51,7 @@ export function queueAffiliateApplicationNotificationToCrm(payload) {
     payload,
     label: 'affiliate-applications-web',
   }).catch((error) => {
-    console.error('Affiliate application CRM notification error:', error);
+    console.error(`Affiliate application CRM notification error:\n${formatErrorDetails(error)}`);
   });
 }
 

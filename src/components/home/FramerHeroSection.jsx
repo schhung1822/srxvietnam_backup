@@ -246,14 +246,17 @@ const FramerHeroSection = () => {
 
                   <div
                     data-hero-title-pill
-                    className="relative z-[4] overflow-hidden rounded-[36px] border border-[rgba(255,255,255,0.56)] bg-white/[0.06] px-5 py-2.5 shadow-[0_0_0_1px_rgba(255,255,255,0.18),0_14px_34px_rgba(150,136,240,0.22),inset_0_1px_0_rgba(255,255,255,0.34)] backdrop-blur-[10px] sm:rounded-[48px] sm:px-7 sm:py-3 lg:rounded-[56px] lg:px-[34px] lg:py-[12px]"
+                    className="relative z-[4] overflow-hidden rounded-[36px] border border-[rgba(255,255,255,0.64)] bg-[linear-gradient(180deg,rgba(255,255,255,0.24),rgba(255,255,255,0.08))] px-5 py-2.5 shadow-[0_0_0_1px_rgba(255,255,255,0.24),0_18px_42px_rgba(134,124,230,0.24),0_8px_20px_rgba(244,182,219,0.18),inset_0_1px_0_rgba(255,255,255,0.56),inset_0_-12px_24px_rgba(96,79,192,0.14)] backdrop-blur-[14px] sm:rounded-[48px] sm:px-7 sm:py-3 lg:rounded-[56px] lg:px-[34px] lg:py-[12px]"
                   >
-                    <div className="absolute inset-[3px] rounded-[32px] bg-[linear-gradient(90deg,rgba(130,153,252,0.92)_0%,rgba(173,150,255,0.9)_54%,rgba(245,177,221,0.92)_100%)] sm:rounded-[44px] lg:rounded-[52px]" />
-                    <div className="absolute inset-[3px] rounded-[32px] bg-[radial-gradient(circle_at_18%_30%,rgba(255,255,255,0.3),transparent_34%),radial-gradient(circle_at_82%_50%,rgba(255,255,255,0.12),transparent_30%)] sm:rounded-[44px] lg:rounded-[52px]" />
-                    <div className="absolute inset-x-[10%] top-[6%] h-[46%] rounded-full bg-white/18 blur-[18px]" />
+                    <div className="absolute inset-[2px] rounded-[34px] bg-[linear-gradient(92deg,rgba(126,151,255,0.96)_0%,rgba(151,145,255,0.94)_30%,rgba(196,155,255,0.94)_62%,rgba(244,180,220,0.96)_100%)] sm:rounded-[46px] lg:rounded-[54px]" />
+
+                    <div className="absolute bottom-[10%] left-[18%] right-[14%] h-[26%] rounded-full bg-[linear-gradient(180deg,rgba(121,106,236,0),rgba(88,74,190,0.32))] blur-[12px]" />
+
+                    <div className="pointer-events-none absolute inset-0 rounded-[36px] shadow-[inset_0_0_28px_rgba(255,255,255,0.48),inset_0_0_44px_rgba(255,255,255,0.18),inset_0_0_38px_rgba(72,56,178,0.24)] sm:rounded-[48px] lg:rounded-[56px]" />
+
                     <h1
                       data-hero-title-pill-text
-                      className={`${heroLegacyHeadingFont.className} relative text-[30px] font-medium leading-none tracking-[-0.05em] text-white sm:text-[58px] lg:text-[80px]`}
+                      className={`${heroLegacyHeadingFont.className} relative text-[30px] font-medium leading-none tracking-[-0.05em] text-white [text-shadow:0_2px_10px_rgba(255,255,255,0.16)] sm:text-[58px] lg:text-[80px]`}
                     >
                       Khoa học trị liệu
                     </h1>
