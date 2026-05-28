@@ -11,6 +11,9 @@ gsap.registerPlugin(ScrollTrigger);
 
 const Grainient = dynamic(() => import("./Grainient.jsx"), { ssr: false });
 
+const headingGradientClass =
+  "bg-[linear-gradient(90deg,#7ea0ff_0%,#f1a8e8_52%,#8d8dff_100%)] bg-clip-text text-transparent";
+
 const defaultSlides = [
   {
     id: "hemostasis",
@@ -236,7 +239,7 @@ export default function HealingProcessSection({
         >
           <div>
             <h2
-              className="whitespace-pre-line text-[48px] font-medium leading-[1] tracking-[-0.05em] text-[#6e96fb] md:hidden sm:text-[60px]"
+              className={`whitespace-pre-line text-[48px] font-medium leading-[1] tracking-[-0.05em] md:hidden sm:text-[60px] ${headingGradientClass}`}
               style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
             >
               {title}
@@ -245,8 +248,9 @@ export default function HealingProcessSection({
             <ScrollRevealHeading
               as="h2"
               className="hidden text-[48px] font-medium leading-[1] tracking-[-0.05em] md:block sm:text-[60px] lg:text-[74px]"
-              revealedClassName="text-[#6e96fb]"
-              baseStyle={{ color: "rgba(110,150,251,0.18)" }}
+              revealedClassName={headingGradientClass}
+              baseClassName={headingGradientClass}
+              baseStyle={{ opacity: 0.2 }}
               blurPx={4}
               start="top 90%"
               end="top 38%"
@@ -307,7 +311,7 @@ export default function HealingProcessSection({
           style={{ touchAction: "pan-y" }}
         >
           <Grainient
-            className="bg-[#050505] p-6 sm:p-10 lg:px-12 lg:py-16"
+            className="bg-[#050505] px-4 py-6 sm:p-6 sm:p-10 lg:px-12 lg:py-16"
             color1="#7C93F1"
             color2="#F6BFDF"
             color3="#B497CF"
@@ -331,7 +335,7 @@ export default function HealingProcessSection({
             centerY={0}
             zoom={0.8}
           >
-            <div className="pointer-events-none absolute inset-0 z-[1]" />
+            <div className="pointer-events-none absolute inset-0 z-[1] bg-[rgba(0,0,0,0.1)]" />
 
             <div className="relative z-10 min-h-[620px] sm:min-h-[720px] lg:min-h-[760px]">
               {slides.map((slide, index) => {
@@ -348,13 +352,13 @@ export default function HealingProcessSection({
                   >
                     <div className="flex h-full flex-col">
                       <p
-                        className="text-[24px] font-normal tracking-[-0.02em] text-white/82"
+                        className="text-[24px] font-normal tracking-[-0.02em] text-white/90"
                         style={{ fontFamily: '"Aeonik TRIAL Regular", "Manrope", sans-serif' }}
                       >
                         /{String(index + 1).padStart(2, "0")}
                       </p>
 
-                      <div className="mt-4 overflow-hidden rounded-[20px] border border-white/12 bg-white/10 backdrop-blur-[2px]">
+                      <div className="mt-4 overflow-hidden rounded-[12px] border border-white/12 bg-white/10 backdrop-blur-[2px]">
                         <div
                           className="w-full shrink-0 overflow-hidden"
                           style={{ aspectRatio: "5 / 4" }}
@@ -369,14 +373,14 @@ export default function HealingProcessSection({
 
                       <div className="mt-8 max-w-[100%] sm:max-w-[92%]">
                         <h3
-                          className="text-[28px] font-bold tracking-[-0.03em] text-black sm:text-[31px]"
+                          className="bg-[linear-gradient(90deg,#3B43CE,#9478FF,#474FEA)] bg-clip-text text-[28px] font-bold tracking-[-0.03em] text-transparent sm:text-[31px]"
                           style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
                         >
                           {slide.title}
                         </h3>
 
                         <p
-                          className="mt-4 min-h-[94px] text-[13px] leading-[1.65] text-white/74 sm:text-[14px]"
+                          className="mt-4 min-h-[94px] text-[13px] leading-[1.65] text-white sm:text-[14px]"
                           style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
                         >
                           {slide.description}

@@ -76,7 +76,7 @@ const technologyItems = [
     detailDescription:
       'Công nghệ Hydrogel tạo ra một màng giữ ẩm thông minh, giúp cố định hoạt chất trên bề mặt da lâu hơn và tăng cường khả năng ngậm nước. Điều này giúp cân bằng độ ẩm tức thì, làm dịu các ổ viêm và hỗ trợ quá trình phục hồi diễn ra nhanh chóng dưới tác động diễn ra nhanh chóng dưới tác động.',
     image: homeTechnologyImage('tech_6.webp'),
-    articleLink: '/follow-srx/cong-nghe-hdrogel',
+    articleLink: '/follow-srx/cong-nghe-hydrogel',
   },
 ];
 
@@ -155,13 +155,7 @@ function getSlideStyle(relativeOffset) {
   };
 }
 
-function TechnologySlideCard({
-  item,
-  itemIndex,
-  relativeOffset,
-  onSelect,
-  isMobileView,
-}) {
+function TechnologySlideCard({ item, itemIndex, relativeOffset, onSelect, isMobileView }) {
   const isActive = relativeOffset === 0;
   const cardStyle = getSlideStyle(relativeOffset);
   const isImageRight = isActive;
@@ -201,7 +195,9 @@ function TechnologySlideCard({
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.14),rgba(255,255,255,0)_48%)]" />
 
       <div
-        className={`relative z-10 grid items-center gap-3 px-3 py-3 sm:gap-6 sm:px-4 sm:py-4 lg:h-full lg:px-6 lg:py-5 ${
+        className={`relative z-10 grid items-center gap-3 px-3 py-3 sm:gap-6 sm:px-4 sm:py-4 lg:px-6 lg:py-5 ${
+          isMobileView ? '' : 'h-full '
+        }${
           isImageRight
             ? 'grid-cols-[minmax(0,1fr)_96px] sm:grid-cols-[minmax(0,1fr)_168px] lg:grid-cols-[minmax(0,1fr)_250px]'
             : 'grid-cols-[96px_minmax(0,1fr)] sm:grid-cols-[168px_minmax(0,1fr)] lg:grid-cols-[250px_minmax(0,1fr)]'
@@ -212,7 +208,7 @@ function TechnologySlideCard({
         >
           <div
             className={`relative aspect-square overflow-hidden rounded-full transition-all duration-700 ${
-              isActive ? 'w-[88px] sm:w-[150px] lg:w-[240px]' : 'w-[80px] sm:w-[132px] lg:w-[200px]'
+              isActive ? 'w-[100px] sm:w-[150px] lg:w-[240px]' : 'w-[80px] sm:w-[132px] lg:w-[200px]'
             }`}
           >
             <img
@@ -224,9 +220,11 @@ function TechnologySlideCard({
           </div>
         </div>
 
-        <div className={`${isImageRight ? 'order-1' : 'order-2'} min-w-0 pl-2 sm:pl-6 lg:pl-12`}>
+        <div
+          className={`${isImageRight ? 'order-1' : 'order-2'} flex min-w-0 flex-col justify-center pl-1 pr-2 sm:block sm:pl-6 sm:pr-0 lg:pl-12`}
+        >
           <div
-            className={`inline-flex rounded-full border px-3.5 py-1.5 text-[11px] font-medium shadow-[0_10px_24px_rgba(120,126,244,0.18),inset_0_1px_0_rgba(255,255,255,0.36)] ring-1 ring-white/24 backdrop-blur-md transition-all duration-500 sm:px-4 sm:py-2 sm:text-[12px] ${
+            className={`hidden rounded-full border px-3.5 py-1.5 text-[11px] font-medium shadow-[0_10px_24px_rgba(120,126,244,0.18),inset_0_1px_0_rgba(255,255,255,0.36)] ring-1 ring-white/24 backdrop-blur-md transition-all duration-500 sm:inline-flex sm:px-4 sm:py-2 sm:text-[12px] ${
               isActive
                 ? 'border-white/40 bg-[linear-gradient(180deg,rgba(121,120,244,0.94),rgba(98,106,236,0.86))] text-white'
                 : 'border-white/22 bg-[linear-gradient(180deg,rgba(121,120,244,0.72),rgba(98,106,236,0.58))] text-white'
@@ -237,10 +235,10 @@ function TechnologySlideCard({
           </div>
 
           <h3
-            className={`mt-4 bg-[linear-gradient(90deg,#3B43CE,#9478FF,#474FEA)] bg-clip-text font-semibold text-transparent transition-all duration-500 ${
+            className={`mt-0 bg-[linear-gradient(90deg,#3B43CE,#9478FF,#474FEA)] bg-clip-text text-balance font-semibold text-transparent transition-all duration-500 sm:mt-4 ${
               isActive
-                ? 'text-[24px] leading-[1.3] tracking-[-0.05em] sm:text-[38px] lg:text-[44px]'
-                : 'text-[20px] leading-[1.3] tracking-[-0.04em] sm:text-[26px] lg:text-[30px]'
+                ? 'text-[21px] leading-[1.14] tracking-[-0.04em] sm:text-[38px] sm:leading-[1.3] lg:text-[44px]'
+                : 'text-[18px] leading-[1.14] tracking-[-0.03em] sm:text-[26px] sm:leading-[1.3] lg:text-[30px]'
             }`}
             style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
           >
@@ -257,13 +255,6 @@ function TechnologySlideCard({
           >
             {item.shortDescription}
           </p>
-
-          <div
-            className={`overflow-hidden transition-all duration-500 ${
-              isActive ? 'mt-5 max-h-20 opacity-100' : 'mt-0 max-h-0 opacity-0'
-            }`}
-          >
-          </div>
         </div>
       </div>
     </article>
@@ -585,7 +576,7 @@ export default function HomeProductTechnologySection() {
                 <div data-tech-detail className="lg:pl-3">
                   <div
                     ref={detailRef}
-                    className="relative min-h-[320px] pl-6 sm:pl-8 lg:min-h-[460px] lg:pl-10"
+                    className="relative min-h-[320px] pl-0 sm:pl-8 lg:min-h-[460px] lg:pl-10"
                   >
                     <div className="flex h-full flex-col justify-center">
                       <div data-tech-detail-node>

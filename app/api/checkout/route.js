@@ -16,8 +16,11 @@ import {
 import { getDbPool } from '../../../src/lib/server/db.js';
 import { createRequestTimeoutSignal } from '../../../src/lib/server/request-timeout.js';
 import { getOrderTrackingContext } from '../../../src/lib/server/tracking.js';
+import { ensureServerEnvLoaded } from '../../../src/lib/server/env.js';
 
 export const runtime = 'nodejs';
+
+ensureServerEnvLoaded();
 
 const ORDERS_WEB_API_URL =
   process.env.SRX_ORDERS_WEB_API_URL?.trim() || 'https://crm.srx.vn/api/srx/orders_web';
@@ -142,6 +145,11 @@ async function queueOrdersWebNotifications(payload) {
           `orders_web returned ${response.status}${responseBody ? `: ${responseBody.slice(0, 300)}` : ''}`,
         );
       }
+    } catch (error) {
+      throw new Error(
+        `Failed to send orders_web notification to ${ORDERS_WEB_API_URL}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        { cause: error },
+      );
     } finally {
       cleanup();
     }

@@ -1,4 +1,7 @@
+import { ensureServerEnvLoaded } from './env.js';
 import { createRequestTimeoutSignal } from './request-timeout.js';
+
+ensureServerEnvLoaded();
 
 const AFFILIATE_APPLICATIONS_WEB_API_URL =
   process.env.SRX_AFFILIATE_APPLICATIONS_WEB_API_URL?.trim() ||
@@ -30,6 +33,11 @@ async function postCrmNotification({ url, token, payload, label, timeoutMs = 500
         `${label} returned ${response.status}${responseBody ? `: ${responseBody.slice(0, 300)}` : ''}`,
       );
     }
+  } catch (error) {
+    throw new Error(
+      `Failed to send CRM notification to ${label} (${url}): ${error instanceof Error ? error.message : 'Unknown error'}`,
+      { cause: error },
+    );
   } finally {
     cleanup();
   }
