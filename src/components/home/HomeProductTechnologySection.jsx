@@ -242,11 +242,6 @@ function TechnologySlideCard({ item, itemIndex, relativeOffset, onSelect, isMobi
                 isActive ? 'opacity-95 blur-[20px]' : 'opacity-50 blur-[16px]'
               }`}
             />
-            <div
-              className={`absolute inset-[7%] rounded-full border ${
-                isActive ? 'border-white/30' : 'border-white/16'
-              }`}
-            />
             <img
               src={item.image}
               alt={item.name}
@@ -691,19 +686,22 @@ export default function HomeProductTechnologySection() {
                         ))}
                       </div>
 
-                      {activeTechnology.articleLink === '__disabled__' && <div
-                        data-tech-detail-node
-                        className="mt-10 flex flex-wrap items-center gap-4"
-                      >
-                        <Link
-                          href={activeTechnology.articleLink || '/chu-de-khoa-hoc'}
-                          className="group inline-flex min-h-[52px] items-center justify-center rounded-full border border-white/22 bg-white/[0.06] px-6 text-[14px] font-medium text-white shadow-[0_14px_30px_rgba(120,126,244,0.08)] backdrop-blur-md transition hover:bg-white/16 sm:px-7"
-                          style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
-                        >
-                          <span>Xem chi tiết</span>
-                          <ArrowUpRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-                        </Link>
-                      </div>}
+                      {activeTechnology.articleLink &&
+                        activeTechnology.articleLink !== '__disabled__' && (
+                          <div
+                            data-tech-detail-node
+                            className="mt-10 flex flex-wrap items-center gap-4"
+                          >
+                            <Link
+                              href={activeTechnology.articleLink || '/chu-de-khoa-hoc'}
+                              className="group inline-flex min-h-[52px] items-center justify-center rounded-full border border-white/22 bg-white/[0.06] px-6 text-[14px] font-medium text-white shadow-[0_14px_30px_rgba(120,126,244,0.08)] backdrop-blur-md transition hover:bg-white/16 sm:px-7"
+                              style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
+                            >
+                              <span>Xem chi tiết</span>
+                              <ArrowUpRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                            </Link>
+                          </div>
+                        )}
                     </div>
                   </div>
                 </div>

@@ -18,6 +18,7 @@ const heroLegacyHeadingFont = Manrope({
 const HERO_ASSETS = {
   backgroundVideo: '/assets/images/home/video_bh_hero.mp4',
   infinityArtwork: '/assets/images/home/SRX_3D.webp',
+  titlePillFrame: '/assets/images/home/khoahoctrilieu_bg.webp',
   badgeIcon:
     'https://framerusercontent.com/images/8l5o7RMsH7c7Xe3dBJBR4Fpc3A.svg?width=16&height=16',
 };
@@ -246,17 +247,20 @@ const FramerHeroSection = () => {
 
                   <div
                     data-hero-title-pill
-                    className="relative z-[4] overflow-hidden rounded-[36px] border border-[rgba(255,255,255,0.64)] bg-[linear-gradient(180deg,rgba(255,255,255,0.24),rgba(255,255,255,0.08))] px-5 py-2.5 shadow-[0_0_0_1px_rgba(255,255,255,0.24),0_18px_42px_rgba(134,124,230,0.24),0_8px_20px_rgba(244,182,219,0.18),inset_0_1px_0_rgba(255,255,255,0.56),inset_0_-12px_24px_rgba(96,79,192,0.14)] backdrop-blur-[14px] sm:rounded-[48px] sm:px-7 sm:py-3 lg:rounded-[56px] lg:px-[34px] lg:py-[12px]"
+                    className="relative z-[4] inline-flex min-h-[58px] items-center justify-center px-7 py-3 sm:min-h-[94px] sm:px-10 sm:py-4 lg:min-h-[122px] lg:px-[46px] lg:py-[18px]"
                   >
-                    <div className="absolute inset-[2px] rounded-[34px] bg-[linear-gradient(92deg,rgba(126,151,255,0.96)_0%,rgba(151,145,255,0.94)_30%,rgba(196,155,255,0.94)_62%,rgba(244,180,220,0.96)_100%)] sm:rounded-[46px] lg:rounded-[54px]" />
+                    <img
+                      src={HERO_ASSETS.titlePillFrame}
+                      alt=""
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-0 h-full w-full object-fill drop-shadow-[0_18px_34px_rgba(114,113,221,0.26)] sm:drop-shadow-[0_22px_42px_rgba(114,113,221,0.3)]"
+                    />
 
-                    <div className="absolute bottom-[10%] left-[18%] right-[14%] h-[26%] rounded-full bg-[linear-gradient(180deg,rgba(121,106,236,0),rgba(88,74,190,0.32))] blur-[12px]" />
-
-                    <div className="pointer-events-none absolute inset-0 rounded-[36px] shadow-[inset_0_0_28px_rgba(255,255,255,0.48),inset_0_0_44px_rgba(255,255,255,0.18),inset_0_0_38px_rgba(72,56,178,0.24)] sm:rounded-[48px] lg:rounded-[56px]" />
+                    <div className="pointer-events-none absolute inset-[10px] rounded-full bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0)_28%,rgba(73,82,196,0.06)_100%)] sm:inset-[12px] lg:inset-[15px]" />
 
                     <h1
                       data-hero-title-pill-text
-                      className={`${heroLegacyHeadingFont.className} relative text-[30px] font-medium leading-none tracking-[-0.05em] text-white [text-shadow:0_2px_10px_rgba(255,255,255,0.16)] sm:text-[58px] lg:text-[80px]`}
+                      className={`${heroLegacyHeadingFont.className} relative z-[1] text-[30px] font-medium leading-none tracking-[-0.05em] text-white [text-shadow:0_2px_10px_rgba(255,255,255,0.16)] sm:text-[58px] lg:text-[80px]`}
                     >
                       Khoa học trị liệu
                     </h1>
@@ -301,14 +305,30 @@ const FramerHeroSection = () => {
             </div>
 
             <div className="relative mt-[240px] grid gap-3 px-0 sm:mt-[240px] sm:grid-cols-2 sm:gap-4 sm:px-2 lg:mt-0 lg:block lg:min-h-[520px] lg:w-[100%] lg:px-0">
-              {heroCards.map((card) => (
+              {heroCards.map((card, index) => (
                 <div
                   key={card.text}
                   data-hero-card
-                  className={`rounded-[32px] bg-[rgba(255,255,255,0.29)] px-6 py-7 backdrop-blur-[8px] sm:rounded-[56px] sm:px-5 sm:py-8 lg:rounded-[146px] ${card.desktopClass}`}
+                  className={`relative isolate overflow-hidden rounded-[32px] border border-white/45 bg-[linear-gradient(180deg,rgba(255,255,255,0.52),rgba(255,255,255,0.34)_42%,rgba(244,247,255,0.28)_100%)] px-6 py-7 shadow-[0_14px_34px_rgba(134,147,219,0.12),0_28px_52px_rgba(166,179,233,0.08),inset_0_1px_0_rgba(255,255,255,0.72)] backdrop-blur-[10px] sm:rounded-[56px] sm:px-5 sm:py-8 lg:rounded-[146px] ${card.desktopClass}`}
                 >
+                  <div className="pointer-events-none absolute inset-0 rounded-[inherit] bg-[linear-gradient(180deg,rgba(255,255,255,0.44),rgba(255,255,255,0.16)_30%,rgba(255,255,255,0.08)_100%)]" />
+
+                  <div className="pointer-events-none absolute inset-[1px] rounded-[31px] border border-white/35 sm:rounded-[55px] lg:rounded-[145px]" />
+
+                  <div
+                    className={`pointer-events-none absolute top-[3%] h-[38%] w-[56%] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.92),rgba(255,255,255,0.48)_42%,rgba(255,255,255,0)_75%)] blur-[12px] ${
+                      index % 2 === 0 ? 'left-[6%]' : 'right-[6%]'
+                    }`}
+                  />
+
+                  <div className="pointer-events-none absolute left-[8%] right-[8%] top-[4px] h-[16%] rounded-full bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(255,255,255,0.26)_55%,rgba(255,255,255,0)_100%)] opacity-95 blur-[3px]" />
+
+                  <div className="pointer-events-none absolute bottom-[10%] left-[14%] right-[14%] h-[24%] rounded-full bg-[linear-gradient(180deg,rgba(109,129,231,0),rgba(121,135,224,0.18)_62%,rgba(160,160,238,0.08)_100%)] blur-[18px]" />
+
+                  <div className="pointer-events-none absolute inset-0 rounded-[inherit] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.18),inset_0_-18px_24px_rgba(144,155,214,0.08)]" />
+
                   <p
-                    className="mx-auto max-w-[488px] text-center text-[14px] leading-[1.5] tracking-[-0.01em] text-[#465478] sm:text-[17px] lg:text-[20px]"
+                    className="relative z-[1] mx-auto max-w-[488px] text-center text-[14px] leading-[1.5] tracking-[-0.01em] text-[#465478] sm:text-[17px] lg:text-[20px]"
                     style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
                   >
                     {card.boldLead ? (
