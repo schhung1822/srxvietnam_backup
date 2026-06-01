@@ -24,9 +24,9 @@ const defaultFaqItems = [
   {
     id: "nourishing-ampoule",
     number: "003",
-    question: "Kem SRX Retinol A Cream chứa nồng độ Retinol lên tới 8% thì có gây kích ứng, bong tróc da không?",
+    question: "Kem SRX Retinol Enhance Peel chứa nồng độ Retinol lên tới 8% thì có gây kích ứng, bong tróc da không?",
     answer:
-      "Dù chứa phức hợp Retinol nồng độ rất cao (Retinol Complex 8%) kết hợp với Glycolic Acid 5%, SRX Retinol A Cream được thiết kế công nghệ thế hệ mới giúp đem lại hiệu quả tái tạo, làm mờ nhăn và căng bóng da cao nhất mà hoàn toàn không gây kích ứng hay khó chịu trên da. ",
+      "Dù chứa phức hợp Retinol nồng độ rất cao (Retinol Complex 8%) kết hợp với Glycolic Acid 5%, SRX Retinol Enhance Peel được thiết kế công nghệ thế hệ mới giúp đem lại hiệu quả tái tạo, làm mờ nhăn và căng bóng da cao nhất mà hoàn toàn không gây kích ứng hay khó chịu trên da. ",
     image: "/assets/images/home/sl3.webp",
   },
   {
@@ -34,7 +34,7 @@ const defaultFaqItems = [
     number: "004",
     question: "Da vừa thực hiện can thiệp xâm lấn (laser, peel da, phi kim) hoặc đang dùng treatment mạnh thì nên dùng sản phẩm nào?",
     answer:
-      "Bạn rất nên sử dụng Gel tăng cường phục hồi da SRX Recovery Booster hoặc Tinh chất SRX Repair Ampoule. Cả hai sản phẩm này đều là trợ thủ đắc lực giúp cấp nước tức thì, khôi phục hàng rào bảo vệ và cực kỳ an toàn cho làn da đang dùng treatment (như Retinoids) hoặc da đang tổn thương sau xâm lấn.",
+      "Bạn rất nên sử dụng Gel tăng cường phục hồi da SRX Recovery Booster hoặc Tinh chất SRX Nourishing Ampoule. Cả hai sản phẩm này đều là trợ thủ đắc lực giúp cấp nước tức thì, khôi phục hàng rào bảo vệ và cực kỳ an toàn cho làn da đang dùng treatment (như Retinoids) hoặc da đang tổn thương sau xâm lấn.",
     image: "/assets/images/home/sl4.webp",
   },
   {

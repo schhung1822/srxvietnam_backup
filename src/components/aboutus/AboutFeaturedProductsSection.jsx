@@ -4,8 +4,8 @@ import { useState } from 'react';
 
 const featuredProducts = [
   {
-    id: 'retinol-a-cream',
-    name: 'SRX Retinol A Cream',
+    id: 'retinol-enhance-peel',
+    name: 'SRX Retinol Enhance Peel',
     outline: '/assets/images/about/border_sp1.webp',
     preview: '/assets/images/about/sp1.webp',
     frameHeightClass: 'h-[210px] sm:h-[240px] lg:h-[360px]',
@@ -18,8 +18,8 @@ const featuredProducts = [
     frameHeightClass: 'h-[200px] sm:h-[232px] lg:h-[350px]',
   },
   {
-    id: 'repair-ampoule',
-    name: 'SRX Repair Ampoule',
+    id: 'nourishing-ampoule',
+    name: 'SRX Nourishing Ampoule',
     outline: '/assets/images/about/border_sp3.webp',
     preview: '/assets/images/about/sp3.webp',
     frameHeightClass: 'h-[175px] sm:h-[210px] lg:h-[310px]',
