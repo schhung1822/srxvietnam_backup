@@ -356,41 +356,78 @@ function buildInfoNotes(product) {
   ]).slice(0, 3);
 }
 
-function buildBenefitItems(product) {
-  const searchableText = [
-    ...(product.concerns ?? []),
-    ...(product.ingredients ?? []),
-    ...(product.skinTypes ?? []),
-    stripHtml(product.shortDescription),
-    stripHtml(product.description),
-  ].join(' ');
+const PRODUCT_BENEFIT_OPTIONS = [
+  {
+    id: 1,
+    label: 'Siêu cấp ẩm & Khóa dưỡng chất',
+    description: 'Cấp nước, cấp ẩm đa tầng chuyên sâu, khóa ẩm, hạn chế mất nước biểu bì.',
+    icon_img: '/assets/images/products/benefit-1.webp',
+    fallbackIcon: '/assets/images/products/Vector1.webp',
+  },
+  {
+    id: 2,
+    label: 'Phục hồi & Làm dịu da',
+    description: 'Phục hồi da tổn thương, hạ nhiệt, làm dịu tức thì, êm dịu không bong tróc.',
+    icon_img: '/assets/images/products/benefit-2.webp',
+    fallbackIcon: '/assets/images/products/Vector3.webp',
+  },
+  {
+    id: 3,
+    label: 'Tái tạo, Trẻ hóa & Căng bóng',
+    description: 'Tái tạo biểu bì/bề mặt, tăng sinh Collagen, trẻ hóa đa tầng, cải thiện bề mặt da căng bóng, mịn màng.',
+    icon_img: '/assets/images/products/benefit-3.webp',
+    fallbackIcon: '/assets/images/products/Vector.webp',
+  },
+  {
+    id: 4,
+    label: 'Củng cố hàng rào bảo vệ & Chống oxy hóa',
+    description: 'Bảo vệ hàng rào tự nhiên, chống oxy hóa trước các tác nhân môi trường.',
+    icon_img: '/assets/images/products/benefit-4.webp',
+    fallbackIcon: '/assets/images/products/Vector2.webp',
+  },
+  {
+    id: 5,
+    label: 'Dưỡng sáng & Mờ thâm',
+    description: 'Sáng da sinh học, mờ thâm, giúp da trắng hồng.',
+    icon_img: '/assets/images/products/benefit-5.webp',
+    fallbackIcon: '/assets/images/products/Vector.webp',
+  },
+  {
+    id: 6,
+    label: 'Kháng khuẩn & Giảm mụn',
+    description: 'Kháng khuẩn, hỗ trợ ngăn ngừa và giảm mụn.',
+    icon_img: '/assets/images/products/benefit-6.webp',
+    fallbackIcon: '/assets/images/products/Vector3.webp',
+  },
+  {
+    id: 7,
+    label: 'Bảo vệ chống nắng',
+    description: 'Chống nắng phổ rộng, bảo vệ toàn diện, kết cấu mỏng nhẹ thoáng khí.',
+    icon_img: '/assets/images/products/benefit-7.webp',
+    fallbackIcon: '/assets/images/products/Vector2.webp',
+  },
+  {
+    id: 8,
+    label: 'An toàn, lành tính',
+    description: 'Cam kết không chứa chất bào mòn, chất tẩy.',
+    icon_img: '/assets/images/products/benefit-8.webp',
+    fallbackIcon: '/assets/images/products/Vector1.webp',
+  },
+];
 
-  return [
-    {
-      icon_img: '/assets/images/products/Vector.webp',
-      label: /(tái tạo|chống lão hóa|phục hồi|retinol|peptide)/iu.test(searchableText)
-        ? 'Tái tạo & trẻ hóa'
-        : 'Hiệu quả nổi bật',
-    },
-    {
-      icon_img: '/assets/images/products/Vector1.webp',
-      label: /(cấp ẩm|hyalur|panthenol|ceramide|betaine|glycerin|dưỡng ẩm)/iu.test(searchableText)
-        ? 'Siêu cấp ẩm'
-        : 'Nuôi dưỡng mềm mượt',
-    },
-    {
-      icon_img: '/assets/images/products/Vector2.webp',
-      label: /(bảo vệ|uv|chống nắng|barrier|ceramide|nhạy cảm)/iu.test(searchableText)
-        ? 'Bảo vệ toàn diện'
-        : 'Bảo vệ hàng rào da',
-    },
-    {
-      icon_img: '/assets/images/products/Vector3.webp',
-      label: /(kiểm soát dầu|làm sáng|mụn|niacinamide|acid|bã nhờn)/iu.test(searchableText)
-        ? 'Kiểm soát dầu & dưỡng sáng'
-        : 'Làm dịu & cân bằng',
-    },
-  ];
+function buildBenefitItems(product) {
+  const benefitIds = String(product.benefit ?? '')
+    .match(/\d+/g)
+    ?.map((value) => Number(value))
+    .filter((value, index, list) => value >= 1 && value <= 8 && list.indexOf(value) === index);
+
+  if (!benefitIds?.length) {
+    return [];
+  }
+
+  return benefitIds
+    .map((benefitId) => PRODUCT_BENEFIT_OPTIONS.find((benefit) => benefit.id === benefitId))
+    .filter(Boolean);
 }
 
 export default function ProductDetailMinimalPage({ product, relatedProducts = [] }) {
@@ -434,7 +471,7 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
     ...(benefitSection?.paragraphs ?? []),
     ...(benefitSection?.items ?? []),
     ...infoIndications,
-    ...infoBenefits.map((benefit) => benefit.label),
+    ...infoBenefits.map((benefit) => `${benefit.label}: ${benefit.description}`),
   ]).slice(0, 5);
   const accordionIngredientItems = uniqueTextItems([
     ...(ingredientSection?.items ?? []),
@@ -826,23 +863,37 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
             </div>
           </div>
 
-          <div className="max-w-[1440px] mx-auto mt-12 grid grid-cols-2 gap-x-6 gap-y-10 pt-10 md:grid-cols-4 md:gap-x-8">
-            {infoBenefits.map((benefit) => {
-              return (
-                <div key={benefit.label} className="flex flex-col items-center text-center">
-                  <div className="flex h-12 w-12 items-center justify-center">
-                    <img
-                      src={benefit.icon_img}
-                      alt={benefit.label}
-                      className="h-10 w-10 object-contain"
-                      loading="lazy"
-                    />
+          {infoBenefits.length ? (
+            <div className="mx-auto mt-12 flex max-w-[1440px] flex-wrap justify-center gap-x-10 gap-y-10 pt-10">
+              {infoBenefits.map((benefit) => {
+                return (
+                  <div
+                    key={benefit.label}
+                    className="flex w-full max-w-[300px] flex-col items-center text-center sm:w-[300px]"
+                  >
+                    <div className="flex h-20 w-20 items-center justify-center rounded-[8px]">
+                      <img
+                        src={benefit.icon_img}
+                        alt={benefit.label}
+                        data-fallback-src={benefit.fallbackIcon}
+                        className="h-30 w-30 object-contain"
+                        loading="lazy"
+                        onError={(event) => {
+                          const fallbackSrc = event.currentTarget.dataset.fallbackSrc;
+
+                          if (fallbackSrc) {
+                            event.currentTarget.dataset.fallbackSrc = '';
+                            event.currentTarget.src = fallbackSrc;
+                          }
+                        }}
+                      />
+                    </div>
+                    <div className="mt-3 text-[15px] font-medium leading-6 text-[#342f4f]">{benefit.label}</div>
                   </div>
-                  <div className="mt-3 text-[15px] leading-6 text-[#585858]">{benefit.label}</div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          ) : null}
         </div>
 
         {product.tagEntries?.length ? (

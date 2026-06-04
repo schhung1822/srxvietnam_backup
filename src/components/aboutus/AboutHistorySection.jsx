@@ -22,7 +22,7 @@ const historyItems = [
     title: "Bước ngoặt tại thị trường Việt Nam",
     description:
       "Bước ngoặt tại thị trường Việt Nam: Sau một thời gian dài nghiên cứu chuyên sâu về thị trường, môi trường sống cũng như đặc điểm cơ địa của người Việt, SRX đã chính thức phát triển các dòng sản phẩm chuyên biệt nhằm đem lại giải pháp khắc phục hiệu quả các vấn đề da cho người dùng Việt Nam.",
-    image: "/assets/images/about/history3.webp",
+    image: "/assets/images/about/history2022.webp",
     imageAlt: "Các hộp sản phẩm SRX tượng trưng cho bước phát triển tại Việt Nam",
     imageClassName: "object-cover object-center",
   },
@@ -31,7 +31,7 @@ const historyItems = [
     title: "Phân phối độc quyền và phát triển mạnh mẽ",
     description:
       "Phân phối độc quyền và phát triển mạnh mẽ: Tại Việt Nam, EAC Group là đơn vị đối tác phân phối độc quyền của SRX, cam kết mang lại những giải pháp chăm sóc da hiệu quả và an toàn nhất. Thương hiệu ngày càng khẳng định vị thế vững chắc khi liên tục đồng hành cùng các chuyên gia, bác sĩ da liễu (như Bác sĩ Hoàng Văn Tâm trong việc lan tỏa giá trị chăm sóc da khoa học) và bùng nổ tại các sự kiện lớn của ngành làm đẹp như Beauty Summit 2025 hay triển lãm Cosmoprof CBE ASEAN 2025.",
-    image: "/assets/images/about/banner.webp",
+    image: "/assets/images/about/history2025.webp",
     imageAlt: "Sản phẩm ampoule của SRX đại diện cho giai đoạn tăng trưởng mạnh",
     imageClassName: "object-cover object-center",
   },

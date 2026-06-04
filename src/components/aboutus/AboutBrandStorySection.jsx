@@ -1,7 +1,7 @@
 const foundersParagraphs = [
-  "SRX được hình thành từ niềm tin rằng chăm sóc da hiệu quả phải bắt đầu từ dữ liệu, khả năng tương thích sinh học và sự minh bạch khoa học.",
-  "Ngay từ những ngày đầu, đội ngũ sáng lập đã theo đuổi một hướng đi rõ ràng: xây dựng hệ sinh thái mỹ phẩm nội khoa nơi mỗi công thức đều có mục đích lâm sàng, trải nghiệm cảm quan tinh gọn và hiệu quả đủ bền vững để đồng hành lâu dài cùng làn da châu Á.",
-  "Triết lý ấy giúp SRX không chạy theo sự hoàn hảo bề mặt, mà tập trung vào những giá trị cốt lõi hơn: phục hồi, ổn định và nuôi dưỡng nền da khỏe từ bên trong.",
+  "SRX - Tự hào cam kết về tính chuyên môn khoa học trị liệu chạm đến làn da",
+  "“Ngay từ những ngày đầu đặt viên gạch đầu tiên cho hệ sinh thái, SRX đã kiên định rẽ lối đi riêng, tách biệt khỏi các phương thức làm đẹp nể nổi thông thường. SRX không đơn thuần định vị mình là một đơn vị sản xuất mỹ phẩm, chúng tôi tự hào mang đến “Dấu ấn Rx” -  một chứng thư cao quý đại diện cho tinh hoa thật nghiệm cận, phác đồ chuyên khoa hóa và hiệu quả trị liệu được chứng minh lâm sàng trong từng hoạt động chất.”",
+  "Chúng tôi theo đuổi triết lý “Mỹ phẩm nội khoa” đích thực. Đó là nơi mỗi công thức ra đời đều mang một sứ mệnh y khoa sâu sắc, một trải nghiệm cảm quan tinh lọc được thiết kế để tiệm thấu và chữa lành từ cấp độ bào. Trải qua nhiều năm hoàn thiện cấu trúc, hệ sinh thái SRX giờ đây là sự kết hợp hoàn mỹ giữa nghiên cứu khoa học tiên tiến và khả năng thấu hiểu trọn vẹn những đặc trưng sinh học nhạy cảm của làn da Châu Á trước áp lực của khí hậu và môi trường hiện tại.",
 ];
 
 const visionParagraphs = [
@@ -84,7 +84,7 @@ export default function AboutBrandStorySection() {
                 className="text-[38px] font-medium leading-[0.95] tracking-[-0.065em] text-[#151515] sm:text-[52px] lg:text-[66px]"
                 style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
               >
-                The Founders
+                Brand Story
               </h2>
 
               <BodyCopy paragraphs={foundersParagraphs} className="mt-5 max-w-[360px]" />
@@ -99,7 +99,7 @@ export default function AboutBrandStorySection() {
 
           <div className="grid items-stretch lg:grid-cols-2 lg:gap-0">
             <StoryImagePanel
-              src="/assets/images/about/tamnhin_sumenh.webp"
+              src="/assets/images/about/nourishing_ampoule_2.webp"
               alt="Hình ảnh minh họa công nghệ sinh học cho tầm nhìn và sứ mệnh SRX"
               backgroundClass="bg-[#f3f0ff]"
             />
@@ -150,7 +150,7 @@ export default function AboutBrandStorySection() {
             </StoryTextPanel>
 
             <StoryImagePanel
-              src="/assets/images/about/trietly.webp"
+              src="/assets/images/about/lipoderm_mask.webp"
               alt="Sản phẩm SRX đại diện cho triết lý thương hiệu"
               backgroundClass="bg-[#f3f3f3]"
             />

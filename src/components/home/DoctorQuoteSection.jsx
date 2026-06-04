@@ -41,11 +41,9 @@ const defaultTestimonials = [
     alt: 'Bác sĩ Phạm Ly',
     content: (
       <>
-        <b>BSCKI. Phạm Ly:</b> Với hơn 10 năm kinh nghiệm trong điều trị da liễu và thẩm mỹ
-        nội khoa, bác sĩ theo đuổi định hướng cá nhân hóa phác đồ, phục hồi nền da và ưu
-        tiên các giải pháp tái tạo an toàn, bền vững cho làn da nhạy cảm. Đây cũng là nhóm
-        giá trị chuyên môn mà bác sĩ thường xuyên chia sẻ trong các chương trình đào tạo và
-        hội nghị da liễu thẩm mỹ.
+        <b>BSCKI. Phạm Ly:</b> Tôi rất bất ngờ với hiệu quả cấp ẩm, phục hồi và làm sáng da tức thì của SRX Lipoderm Mask. 
+        Nhờ công thức Liposome bọc hoạt chất nano độc quyền, miếng mặt nạ Tencel mỏng nhẹ này chính là giải pháp tối giản 
+        nhưng chuyên sâu để nuôi dưỡng và duy trì làn da sáng khỏe, mịn màng mỗi ngày.
       </>
     ),
   },

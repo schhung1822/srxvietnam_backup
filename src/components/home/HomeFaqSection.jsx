@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ChevronDown, Sparkles } from "lucide-react";
 import ScrollRevealHeading from "./ScrollRevealHeading.jsx";
 
 const defaultFaqItems = [
@@ -55,13 +55,8 @@ const defaultFaqItems = [
   },
 ];
 
-
-const orbitDots = [
-  "left-1/2 top-0 -translate-x-1/2 -translate-y-1/2",
-  "right-0 top-1/2 translate-x-1/2 -translate-y-1/2",
-  "left-1/2 bottom-0 -translate-x-1/2 translate-y-1/2",
-  "left-0 top-1/2 -translate-x-1/2 -translate-y-1/2",
-];
+const orbitDots = [0, 90, 180, 270];
+const orbitDuration = 9;
 
 export default function HomeFaqSection({
   title = "Câu hỏi thường gặp",
@@ -86,12 +81,11 @@ export default function HomeFaqSection({
           String(index + 1).padStart(3, "0"),
         question: item.question ?? item.title ?? "",
         answer: item.answer ?? item.description ?? "",
-        image: item.image ?? item.thumbnail ?? "",
       };
     });
   }, [items]);
 
-  const [activeIndex, setActiveIndex] = useState(null);
+  const [activeIndex, setActiveIndex] = useState(0);
   const faqOrbitRef = useRef(null);
   const faqCoreRef = useRef(null);
 
@@ -147,12 +141,18 @@ export default function HomeFaqSection({
             <div className="absolute inset-0 rounded-full border border-[#d8dbff]" />
             <div className="absolute inset-[14px] rounded-full border border-[#e9d2ff]" />
 
-            <div className="absolute inset-0 animate-faq-orbit-slow">
-              {orbitDots.map((position) => (
+            <div className="absolute inset-0">
+              {orbitDots.map((angle) => (
                 <span
-                  key={position}
-                  className={`absolute h-3 w-3 rounded-full bg-[#7e98ff] shadow-[0_0_0_3px_rgba(126,152,255,0.12)] sm:h-3.5 sm:w-3.5 ${position}`}
-                />
+                  key={angle}
+                  className="absolute inset-0 animate-faq-orbit-slow"
+                  style={{
+                    animationDelay: `${-(angle / 360) * orbitDuration}s`,
+                    animationDuration: `${orbitDuration}s`,
+                  }}
+                >
+                  <span className="absolute left-1/2 top-0 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#7e98ff] shadow-[0_0_0_3px_rgba(126,152,255,0.12)] sm:h-3.5 sm:w-3.5" />
+                </span>
               ))}
             </div>
 
@@ -180,110 +180,59 @@ export default function HomeFaqSection({
           </ScrollRevealHeading>
         </div>
 
-        <div className="mt-12 overflow-hidden border-t border-[#e5e5e5] sm:mt-16 lg:mt-20">
+        <div className="mx-auto mt-12 space-y-4 sm:mt-16 lg:mt-20">
           {faqItems.map((item, index) => {
             const isActive = index === activeIndex;
-            const hasImage = Boolean(item.image);
+            const answerId = `${item.id}-answer`;
 
             return (
               <article
                 key={item.id}
-                className={`group border-b border-[#e5e5e5] transition-colors duration-300 ${
-                  isActive ? "border-[#181818]" : ""
+                className={`overflow-hidden rounded-[8px] border-l-[3px] bg-[#faf9ff] shadow-[0_16px_34px_rgba(61,55,122,0.08)] ring-1 ring-[#eeeafd] transition-[background-color,border-color,box-shadow] duration-300 ${
+                  isActive
+                    ? "border-l-[#5d4cc4] bg-[#f8f6ff] shadow-[0_18px_42px_rgba(61,55,122,0.12)]"
+                    : "border-l-[#cac4ef]"
                 }`}
-                onMouseEnter={() => setActiveIndex(index)}
-                onMouseLeave={() =>
-                  setActiveIndex((current) => (current === index ? null : current))
-                }
               >
                 <button
                   type="button"
-                  onClick={() => setActiveIndex(index)}
-                  onFocus={() => setActiveIndex(index)}
-                  onBlur={(event) => {
-                    if (!event.currentTarget.contains(event.relatedTarget)) {
-                      setActiveIndex((current) => (current === index ? null : current));
-                    }
-                  }}
-                  className="w-full text-left"
+                  onClick={() =>
+                    setActiveIndex((current) => (current === index ? null : index))
+                  }
+                  className="grid w-full grid-cols-[minmax(0,1fr)_40px] items-center gap-4 px-4 py-4 text-left sm:grid-cols-[minmax(0,1fr)_48px] sm:px-6 sm:py-5"
                   aria-expanded={isActive}
+                  aria-controls={answerId}
                 >
-                  <div
-                    className="grid min-h-[64px] grid-cols-[minmax(0,1fr)_40px] items-center gap-3 px-0 transition-[color,min-height] duration-300 sm:min-h-[82px] sm:grid-cols-[minmax(0,1fr)_64px] sm:gap-8 lg:min-h-[88px] lg:grid-cols-[minmax(0,1fr)_88px] lg:px-0"
+                  <span
+                    className="min-w-0 text-[15px] font-semibold leading-[1.35] text-[#17122f] sm:text-[19px]"
+                    style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
                   >
-                    <div
-                      className={`min-w-0 text-[14px] font-semibold leading-[1.18] tracking-[-0.04em] sm:text-[24px] lg:text-[26px] font-['Inter',_sans-serif] ${
-                        isActive ? "text-black" : "text-[#b9b9b9]"
-                      }`}
-                    >
-                      {item.question}
-                    </div>
+                    {item.question}
+                  </span>
 
-                    <div className="flex justify-self-end sm:flex">
-                      <span
-                        className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors duration-300 sm:h-12 sm:w-12 lg:h-12 lg:w-12 ${
-                          isActive
-                            ? "bg-black text-white"
-                            : "bg-black text-white group-hover:bg-[#181818]"
-                        }`}
-                      >
-                        <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" strokeWidth={2.3} />
-                      </span>
-                    </div>
-                  </div>
+                  <span className="flex h-9 w-9 items-center justify-center justify-self-end rounded-full bg-[#5d4cc4] text-white shadow-[0_10px_22px_rgba(93,76,196,0.25)] sm:h-10 sm:w-10">
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform duration-300 ${
+                        isActive ? "rotate-180" : ""
+                      }`}
+                      strokeWidth={2.4}
+                    />
+                  </span>
                 </button>
 
                 <div
-                  className={`grid overflow-hidden transition-[grid-template-rows,opacity,margin] duration-500 ease-out ${
+                  id={answerId}
+                  className={`grid overflow-hidden transition-[grid-template-rows,opacity] duration-500 ease-out ${
                     isActive ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
                   }`}
                 >
-                  <div className="min-h-0">
-                    <div className="pb-5 sm:grid sm:grid-cols-[minmax(0,1fr)_64px] sm:gap-8 sm:pb-7 lg:grid-cols-[minmax(0,1fr)_88px] lg:pb-8">
-                      <div
-                        className={
-                          hasImage
-                            ? "lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(280px,340px)] lg:items-center lg:gap-12"
-                            : ""
-                        }
-                      >
-                        <div className="min-h-0 overflow-hidden pt-2">
-                          <p
-                            className="max-w-[760px] text-[14px] leading-[1.7] text-black/92 sm:text-[18px]"
-                            style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
-                          >
-                            {item.answer}
-                          </p>
-                        </div>
-
-                        {hasImage ? (
-                          <div className="min-h-0 lg:block">
-                            <div
-                              className={`mt-6 flex justify-start transition-[transform,opacity] duration-500 ease-out lg:mt-0 lg:justify-end ${
-                                isActive
-                                  ? "translate-y-0 opacity-100"
-                                  : "translate-y-6 opacity-0"
-                              }`}
-                            >
-                              <div className="hidden sm:block px-3 py-4">
-                                <figure className="rotate-[-6deg] animate-faq-thumb-float w-[210px] sm:w-[280px] lg:w-[320px]">
-                                  <div className="aspect-[16/9]  overflow-hidden rounded-[10px] bg-white shadow-[0_18px_40px_rgba(78,96,173,0.18)] ring-1 ring-black/5">
-                                    <img
-                                      src={item.image}
-                                      alt={item.question}
-                                      className="h-full w-full object-cover object-center"
-                                      loading="lazy"
-                                    />
-                                  </div>
-                                </figure>
-                              </div>
-                            </div>
-                          </div>
-                        ) : null}
-                      </div>
-
-                      <div className="hidden sm:block" />
-                    </div>
+                  <div className="min-h-0 px-4 sm:px-6">
+                    <p
+                      className="max-w-[920px] pb-5 text-[13px] leading-[1.75] text-[#3a3654] sm:pb-6 sm:text-[15px]"
+                      style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
+                    >
+                      {item.answer}
+                    </p>
                   </div>
                 </div>
               </article>
@@ -291,6 +240,24 @@ export default function HomeFaqSection({
           })}
         </div>
       </div>
+      <style jsx>{`
+        @keyframes faq-orbit-slow {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+
+        .animate-faq-orbit-slow {
+          animation-name: faq-orbit-slow;
+          animation-timing-function: linear;
+          animation-iteration-count: infinite;
+          transform-origin: center;
+          will-change: transform;
+        }
+      `}</style>
     </section>
   );
 }

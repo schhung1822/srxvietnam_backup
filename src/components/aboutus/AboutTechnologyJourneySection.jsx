@@ -4,7 +4,7 @@ const technologyCards = [
     title: 'Công nghệ Tế bào gốc & Hoạt chất sinh học tiên tiến',
     description:
       'Nền tảng công nghệ cốt lõi giúp SRX tập trung vào khả năng phục hồi, tái tạo và củng cố sức sống cho làn da bằng các hoạt chất sinh học có tính ứng dụng cao.',
-    backgroundImage: '/assets/images/about/dc1.webp',
+    backgroundImage: '/assets/images/about/cn1.webp',
     backgroundPosition: '14% center',
   },
   {
@@ -12,7 +12,7 @@ const technologyCards = [
     title: 'Công nghệ màng bọc TECA Liposome',
     description:
       'Cấu trúc màng bọc ổn định giúp hoạt chất tiếp cận bề mặt da mượt hơn, tăng khả năng dung nạp và hỗ trợ đưa tinh chất vào đúng điểm da cần chăm sóc.',
-    backgroundImage: '/assets/images/about/dc2.webp',
+    backgroundImage: '/assets/images/about/cn2.webp',
     backgroundPosition: '70% center',
     foregroundClassName:
       'bottom-0 left-5 w-[32%] min-w-[92px] sm:left-6 sm:w-[28%] lg:left-7 lg:w-[26%]',
@@ -22,7 +22,7 @@ const technologyCards = [
     title: 'Công nghệ Vi Tảo (Microneedle Spicule / Bio-Microneedling)',
     description:
       'Vi tảo sinh học tạo nên những vi dẫn siêu nhỏ giúp tăng khả năng dẫn truyền hoạt chất, hỗ trợ quá trình làm mới bề mặt da và tối ưu hiệu quả của routine điều trị.',
-    backgroundImage: '/assets/images/about/dc3.webp',
+    backgroundImage: '/assets/images/about/cn3.webp',
     backgroundPosition: 'center center',
   },
   {
@@ -30,7 +30,7 @@ const technologyCards = [
     title: 'Công nghệ PEPTIDES sinh học 5.0 - Quyền năng trẻ hóa thế hệ mới',
     description:
       'Tổ hợp peptide được thiết kế để hỗ trợ độ săn chắc, cải thiện cảm giác đàn hồi và mang lại hiệu ứng bề mặt da mịn, khỏe, sáng hơn theo thời gian.',
-    backgroundImage: '/assets/images/about/dc4.webp',
+    backgroundImage: '/assets/images/about/cn4.webp',
     foregroundClassName:
       'bottom-0 left-1/2 w-[56%] min-w-[160px] -translate-x-1/2 sm:w-[48%] lg:w-[52%]',
   },

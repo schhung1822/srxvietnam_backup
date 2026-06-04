@@ -6,12 +6,12 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 const fallbackSlides = [
   {
     id: "slider-1",
-    src: "/assets/images/home/slider1.avif",
+    src: "/assets/images/home/banner1.webp",
     alt: "SRX slider 1",
   },
   {
     id: "slider-2",
-    src: "/assets/images/home/slider2.webp",
+    src: "/assets/images/home/banner2.webp",
     alt: "SRX slider 2",
   },
   {
