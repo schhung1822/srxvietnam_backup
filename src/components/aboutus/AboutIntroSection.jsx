@@ -32,7 +32,7 @@ export default function AboutIntroSection() {
         <div className="mt-10 overflow-hidden bg-[#eef3ff] shadow-[0_24px_80px_rgba(190,201,236,0.24)] sm:mt-12 lg:mt-14">
           <div className="aspect-[16/11] w-full sm:aspect-[16/10] lg:aspect-[16/9]">
             <img
-              src="/assets/images/about/banner.webp"
+              src="/assets/images/about/banner_about.webp"
               alt="Banner giới thiệu SRX với hiệu ứng gợn nước mềm và cánh tay chạm mặt nước"
               className="h-full w-full object-cover"
               loading="eager"

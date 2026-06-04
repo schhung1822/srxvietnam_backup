@@ -81,7 +81,7 @@ export default function AboutBrandStorySection() {
           <div className="grid items-stretch lg:grid-cols-2 lg:gap-0">
             <StoryTextPanel>
               <h2
-                className="text-[38px] font-medium leading-[0.95] tracking-[-0.065em] text-[#151515] sm:text-[52px] lg:text-[66px]"
+                className="text-[34px] font-medium leading-[0.95] tracking-[-0.065em] text-[#151515] sm:text-[44px] lg:text-[54px]"
                 style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
               >
                 Brand Story
@@ -91,7 +91,7 @@ export default function AboutBrandStorySection() {
             </StoryTextPanel>
 
             <StoryImagePanel
-              src="/assets/images/about/founders.webp"
+              src="/assets/images/about/brand_story.webp"
               alt="Chân dung người mẫu đại diện cho hình ảnh nhà sáng lập SRX"
               backgroundClass="bg-[#f5f2ef]"
             />
