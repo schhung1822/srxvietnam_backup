@@ -27,12 +27,12 @@ const heroCards = [
   {
     text: 'SRX Tiên phong tích hợp công nghệ tiên tiến nhất trong nghiên cứu và phát triển sản phẩm chăm da',
     desktopClass:
-      'lg:absolute lg:left-[-10%] lg:top-[43%] lg:w-[634px] lg:max-w-[634px] lg:px-[42px] lg:py-[44px]',
+      'lg:absolute lg:left-4 lg:top-[43%] lg:w-[634px] lg:max-w-[calc(100vw-32px)] lg:px-[42px] lg:py-[44px] xl:left-[-4%] 2xl:left-[-10%]',
   },
   {
     text: 'SRX là thương hiệu dược mỹ phẩm cao cấp đến từ Hàn Quốc, chính thức ra đời vào năm 2005. Trải qua nhiều năm phát triển, SRX đã tạo được tiếng vang lớn không chỉ tại Hàn Quốc mà còn vươn ra thị trường quốc tế, có mặt ở các quốc gia lớn như Mỹ, Đức, Pháp, và hiện tại là Việt Nam.',
     desktopClass:
-      'lg:absolute lg:right-[-10%] lg:bottom-[-40%] lg:w-[686px] lg:max-w-[686px] lg:px-[54px] lg:py-[58px]',
+      'lg:absolute lg:right-4 lg:bottom-[-40%] lg:w-[686px] lg:max-w-[calc(100vw-32px)] lg:px-[54px] lg:py-[58px] xl:right-[-4%] 2xl:right-[-10%]',
     boldLead: 'SRX',
   },
 ];
@@ -328,7 +328,7 @@ const FramerHeroSection = () => {
                   <div className="pointer-events-none absolute inset-0 rounded-[inherit] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.18),inset_0_-18px_24px_rgba(144,155,214,0.08)]" />
 
                   <p
-                    className="relative z-[1] mx-auto max-w-[488px] text-center text-[14px] leading-[1.5] tracking-[-0.01em] text-[#465478] sm:text-[17px] lg:text-[20px]"
+                    className="relative z-[1] mx-auto w-full max-w-[488px] break-words text-center text-[14px] leading-[1.5] tracking-[-0.01em] text-[#465478] sm:text-[17px] lg:text-[20px]"
                     style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
                   >
                     {card.boldLead ? (

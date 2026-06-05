@@ -74,8 +74,9 @@ const Footer = () => {
             </div>
 
             <h3 className="mb-2 text-[16px] font-medium text-white">
-              CÔNG TY TNHH XUẤT NHẬP KHẨU TOÀN DIỆN EAC - Chuyên nhập khẩu & phân phối sản phẩm thẩm mỹ nội khoa, filler, skin booster, thiết bị y tế, dược mỹ phẩm
+              CÔNG TY TNHH XUẤT NHẬP KHẨU TOÀN DIỆN EAC
             </h3>
+            <p className="text-[14px] text-white">Xuất xứ từ Hàn Quốc, SRX mang đến dược mỹ phẩm chuyên sâu cho mọi loại da. Công nghệ dưỡng ẩm và phục hồi vượt trội giúp làm dịu, tái tạo và bảo vệ làn da.</p>
             <div className="space-y-3">
               <div className="text-[14px] text-white">
                 <span className="font-medium">Hotline:</span>
