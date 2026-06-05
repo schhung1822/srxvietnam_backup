@@ -85,7 +85,7 @@ function WaitingDots() {
 
 function SummaryCard({ label, value, hint }) {
   return (
-    <div className="rounded-[24px] border border-[#eadfce] bg-[linear-gradient(180deg,#fffdfa_0%,#fff8f1_100%)] p-5 shadow-[0_18px_50px_rgba(70,52,34,0.05)]">
+    <div className="rounded-[24px] border border-[#f1f1f1] bg-[#f1f1f1] p-5 shadow-[0_18px_50px_rgba(70,52,34,0.05)]">
       <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#9a826b]">{label}</div>
       <div className="mt-3 text-[22px] font-semibold tracking-[-0.03em] text-[#15110d]">{value}</div>
       {hint ? <div className="mt-2 text-[13px] leading-6 text-[#786757]">{hint}</div> : null}
@@ -95,7 +95,7 @@ function SummaryCard({ label, value, hint }) {
 
 function WaitingStatusCard() {
   return (
-    <div className="relative overflow-hidden rounded-[28px] border border-[#efd9b6] bg-[linear-gradient(135deg,#fff9ef_0%,#fff2df_100%)] p-5 shadow-[0_24px_60px_rgba(121,88,28,0.08)]">
+    <div className="relative overflow-hidden rounded-[28px] border border-[#f1f1f1] bg-[#f1f1f1] p-5 shadow-[0_24px_60px_rgba(121,88,28,0.08)]">
       <div className="pointer-events-none absolute inset-y-0 right-0 w-40 bg-[radial-gradient(circle_at_right,rgba(255,255,255,0.85),transparent_70%)]" />
 
       <div className="relative flex items-start gap-4">
@@ -318,7 +318,7 @@ export default function CheckoutPaymentPage({ orderNumber }) {
               />
             </div>
 
-            <div className="relative mt-6 rounded-[26px] border border-[#eadfce] bg-[linear-gradient(180deg,#fffdfa_0%,#fff8f1_100%)] p-5 shadow-[0_18px_40px_rgba(70,52,34,0.05)]">
+            <div className="relative mt-6 rounded-[26px] border border-[#f1f1f1] bg-[#f1f1f1] p-5 shadow-[0_18px_40px_rgba(70,52,34,0.05)]">
               <div className="flex items-start gap-3">
                 <ShieldCheck className="mt-1 h-5 w-5 flex-shrink-0 text-[#15110d]" />
                 <div className="text-[14px] leading-7 text-[#665a4e]">

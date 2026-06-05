@@ -43,7 +43,7 @@ export default function SepayPaymentPanel({ payment, paymentStatus = 'pending', 
   const isWaiting = paymentStatus === 'pending';
 
   return (
-    <div className="relative overflow-hidden rounded-[34px] border border-[#eadfce] bg-[linear-gradient(180deg,#fffdfa_0%,#fff8f0_100%)] p-6 shadow-[0_30px_80px_rgba(70,52,34,0.08)] md:p-7">
+    <div className="relative overflow-hidden rounded-[34px] border border-[#ccc] bg-[#fff] p-6 shadow-[0_30px_80px_rgba(70,52,34,0.08)] md:p-7">
       {showHeading ? (
         <>
           <div className="mt-4">
@@ -83,7 +83,7 @@ export default function SepayPaymentPanel({ payment, paymentStatus = 'pending', 
           </div>
         )}
 
-        <div className="mt-5 rounded-[24px] border border-[#eadfce] bg-white px-5 py-4 shadow-[0_16px_34px_rgba(70,52,34,0.05)]">
+        <div className="mt-5 rounded-[24px] border border-[#ccc] bg-white px-5 py-4 shadow-[0_16px_34px_rgba(70,52,34,0.05)]">
           <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.24em] text-[#9a826b]">
             Thông tin chuyển khoản
           </div>

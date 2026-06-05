@@ -1,4 +1,5 @@
 import '../src/index.css';
+import Script from 'next/script';
 import AppShell from '../src/components/AppShell';
 import JsonLd from '../src/components/SEO/JsonLd.jsx';
 import {
@@ -70,10 +71,25 @@ export const viewport = {
   themeColor: '#ffffff',
 };
 
+const GA_MEASUREMENT_ID = 'G-50F18GCWDQ';
+
 export default function RootLayout({ children }) {
   return (
     <html lang="vi-VN">
       <body>
+        <Script
+          async
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_MEASUREMENT_ID}');
+          `}
+        </Script>
         <JsonLd data={[createOrganizationSchema(), createWebsiteSchema()]} idPrefix="global-seo" />
         <AppShell>{children}</AppShell>
       </body>
