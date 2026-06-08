@@ -56,10 +56,10 @@ export const DEFAULT_KEYWORDS = [
   'sản phẩm SRX',
   'thành phần SRX',
 ];
-export const DEFAULT_OG_IMAGE = '/api/og';
-export const DEFAULT_OG_IMAGE_WIDTH = 1200;
-export const DEFAULT_OG_IMAGE_HEIGHT = 630;
-export const DEFAULT_OG_IMAGE_TYPE = 'image/png';
+export const DEFAULT_OG_IMAGE = '/assets/images/about/banner_about.webp';
+export const DEFAULT_OG_IMAGE_WIDTH = 1920;
+export const DEFAULT_OG_IMAGE_HEIGHT = 1080;
+export const DEFAULT_OG_IMAGE_TYPE = 'image/webp';
 export const CONTACT_PHONE = '+84903010692';
 export const CONTACT_EMAIL = 'eacgroup.vn@gmail.com';
 export const COMPANY_LEGAL_NAME = 'Công ty TNHH Xuất Nhập Khẩu Toàn Diện EAC';
