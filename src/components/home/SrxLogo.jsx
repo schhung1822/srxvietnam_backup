@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const defaultHighlights = [
   "Công nghệ sinh học",
@@ -15,13 +15,45 @@ const defaultHighlights = [
   "92% khách hàng đánh giá 5 sao",
 ];
 
+const SRX_LOGO_VIDEO_SRC = "/assets/images/home/video_bh_hero.mp4";
+const SRX_LOGO_POSTER_SRC = "/assets/images/home/background_hero.webp";
+
 
 export default function SrxLogo({ highlights = defaultHighlights } = {}) {
   const sectionRef = useRef(null);
+  const videoRef = useRef(null);
+  const [isVideoReady, setIsVideoReady] = useState(false);
   const SRX_LOGO_MASK_ID = "srx-logo-mask";
 
   const safeHighlights = Array.isArray(highlights) ? highlights.filter(Boolean) : [];
   const marqueeItems = [...safeHighlights, ...safeHighlights];
+
+  useEffect(() => {
+    const preloadId = "srx-logo-video-preload";
+    let preloadLink = document.getElementById(preloadId);
+
+    if (!preloadLink) {
+      preloadLink = document.createElement("link");
+      preloadLink.id = preloadId;
+      preloadLink.rel = "preload";
+      preloadLink.as = "video";
+      preloadLink.href = SRX_LOGO_VIDEO_SRC;
+      preloadLink.type = "video/mp4";
+      document.head.appendChild(preloadLink);
+    }
+
+    const video = videoRef.current;
+
+    if (video) {
+      video.load();
+      video.play().catch(() => {});
+    }
+  }, []);
+
+  const logoMaskStyle = {
+    mask: `url(#${SRX_LOGO_MASK_ID})`,
+    WebkitMask: `url(#${SRX_LOGO_MASK_ID})`,
+  };
 
   return (
     <section ref={sectionRef} className="bg-white py-4 sm:py-6 lg:py-8">
@@ -199,19 +231,35 @@ export default function SrxLogo({ highlights = defaultHighlights } = {}) {
               </svg>
 
               <video
+                ref={videoRef}
                 autoPlay
                 muted
                 loop
                 playsInline
                 preload="auto"
-                className="absolute inset-0 h-full w-full object-cover"
-                style={{
-                  mask: `url(#${SRX_LOGO_MASK_ID})`,
-                  WebkitMask: `url(#${SRX_LOGO_MASK_ID})`,
-                }}
+                poster={SRX_LOGO_POSTER_SRC}
+                className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
+                  isVideoReady ? "opacity-100" : "opacity-0"
+                }`}
+                style={logoMaskStyle}
+                onLoadedData={() => setIsVideoReady(true)}
+                onCanPlay={() => setIsVideoReady(true)}
               >
-                <source src="/assets/images/home/video_bh_hero.mp4" type="video/mp4" />
+                <source src={SRX_LOGO_VIDEO_SRC} type="video/mp4" />
               </video>
+
+              <img
+                src={SRX_LOGO_POSTER_SRC}
+                alt=""
+                aria-hidden="true"
+                className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
+                  isVideoReady ? "opacity-0" : "opacity-100"
+                }`}
+                style={logoMaskStyle}
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
+              />
 
               {/* Thêm pointer-events-none để lớp gradient không chặn các thao tác chuột (nếu có) */}
               <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.2),rgba(255,255,255,0)_55%)]" />

@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const featuredProducts = [
   {
     id: 'retinol-enhance-peel',
     name: 'SRX Retinol Enhance Peel',
     outline: '/assets/images/about/border_sp1.webp',
-    preview: '/assets/images/about/sp1.webp',
+    preview: '/assets/images/about/retinol_about.webp',
     frameHeightClass: 'h-[210px] sm:h-[240px] lg:h-[360px]',
   },
   {
@@ -21,12 +21,12 @@ const featuredProducts = [
     id: 'nourishing-ampoule',
     name: 'SRX Nourishing Ampoule',
     outline: '/assets/images/about/border_sp3.webp',
-    preview: '/assets/images/about/sp3.webp',
+    preview: '/assets/images/about/ampoule_about.webp',
     frameHeightClass: 'h-[175px] sm:h-[210px] lg:h-[310px]',
   },
   {
     id: 'rosy-veil-tone-up-glow-sun',
-    name: 'SRX Rosy Veil Tone Up Glow Sun SPF50+ PA++++',
+    name: 'SRX Rosy Veil Toneup Glow Sun SPF50+PA++++',
     outline: '/assets/images/about/border_sp4.webp',
     preview: '/assets/images/about/sp4.webp',
     frameHeightClass: 'h-[195px] sm:h-[228px] lg:h-[340px]',
@@ -40,8 +40,26 @@ const featuredProducts = [
   },
 ];
 
+const featuredProductImageSources = Array.from(
+  new Set(featuredProducts.flatMap((product) => [product.outline, product.preview]))
+);
+
 export default function AboutFeaturedProductsSection() {
   const [activeProductId, setActiveProductId] = useState(null);
+
+  useEffect(() => {
+    const preloadedImages = featuredProductImageSources.map((src) => {
+      const image = new Image();
+      image.decoding = 'async';
+      image.fetchPriority = 'high';
+      image.src = src;
+      return image;
+    });
+
+    return () => {
+      preloadedImages.length = 0;
+    };
+  }, []);
 
   return (
     <section className="bg-white px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
@@ -85,7 +103,9 @@ export default function AboutFeaturedProductsSection() {
                         ? 'scale-[0.985] opacity-0'
                         : 'scale-100 opacity-70 group-hover:opacity-100 group-focus-visible:opacity-100'
                     }`}
-                    loading="lazy"
+                    loading="eager"
+                    fetchPriority="high"
+                    decoding="async"
                   />
 
                   <img
@@ -96,7 +116,9 @@ export default function AboutFeaturedProductsSection() {
                         ? 'translate-y-0 scale-100 opacity-100'
                         : 'translate-y-3 scale-[0.985] opacity-0'
                     }`}
-                    loading="lazy"
+                    loading="eager"
+                    fetchPriority="high"
+                    decoding="async"
                   />
                 </div>
 
