@@ -13,19 +13,19 @@ import {
 const defaultSlides = [
   {
     id: "ls-01",
-    image: "/assets/images/home/5.chungminhlamsang_3sp.webp",
+    image: "/assets/images/home/chungminhlamsang_3sp.webp",
   },
   {
     id: "ls-02",
-    image: "/assets/images/home/5.chungminhlamsang_kcn_fix.webp",
+    image: "/assets/images/home/chungminhlamsang_kcn_fix.webp",
   },
   {
     id: "ls-03",
-    image: "/assets/images/home/5.chungminhlamsang_sga.webp",
+    image: "/assets/images/home/chungminhlamsang_sga.webp",
   },
   {
     id: "ls-04",
-    image: "/assets/images/home/5.chungminhlamsang_mask.webp",
+    image: "/assets/images/home/chungminhlamsang_mask.webp",
   },
 ];
 

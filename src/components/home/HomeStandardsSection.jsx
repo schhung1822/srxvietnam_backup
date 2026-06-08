@@ -3,25 +3,25 @@
 const defaultBadges = [
   {
     id: 'tag-1',
-    src: '/assets/images/home/3.icon1.webp',
+    src: '/assets/images/home/icon_1.webp',
     alt: 'Chứng minh lâm sàng bởi chuyên gia',
     title: 'Chứng minh lâm sàng bởi chuyên gia',
   },
   {
     id: 'tag-2',
-    src: '/assets/images/home/3.icon2.webp',
+    src: '/assets/images/home/icon_2.webp',
     alt: 'Tiêu chuẩn quốc tế cao nhất',
     title: 'Tiêu chuẩn quốc tế cao nhất',
   },
   {
     id: 'tag-3',
-    src: '/assets/images/home/3.icon3.webp',
+    src: '/assets/images/home/icon_3.webp',
     alt: 'Công nghệ dẫn truyền đột phá',
     title: 'Công nghệ dẫn truyền đột phá',
   },
   {
     id: 'tag-4',
-    src: '/assets/images/home/3.icon4.webp',
+    src: '/assets/images/home/icon_4.webp',
     alt: 'An toàn và lành tính',
     title: 'An toàn và lành tính',
   },
