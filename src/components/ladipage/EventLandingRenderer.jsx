@@ -1,7 +1,9 @@
 import DefaultEventLanding from './DefaultEventLanding.jsx';
+import StarryEventLanding from './StarryEventLanding.jsx';
 
 const templateRegistry = {
   default: DefaultEventLanding,
+  starry: StarryEventLanding,
 };
 
 export default function EventLandingRenderer({ event }) {
