@@ -262,8 +262,7 @@ export default function StarryEventLanding({ event }) {
   const header = event.config.header;
   const footer = event.config.footer;
   const infoEvent = event.config.infoEvent;
-  const title = event.eventName;
-  const titleld = header.titleText;
+  const title = event.eventName || header.titleText;
   const { date, year } = splitDateParts(footer);
   const agendaItems = getAgendaItems(event);
   const logoUrls = [infoEvent.logo1Url, infoEvent.logo2Url, infoEvent.logo3Url].filter(Boolean);
@@ -364,7 +363,7 @@ export default function StarryEventLanding({ event }) {
           )}
 
           <h1 className="relative z-[1] mx-auto mb-3 max-w-[390px] text-center text-xl font-black uppercase leading-[1.18] tracking-[-0.025em]">
-            {titleld}
+            {title}
           </h1>
 
           <div className="relative z-[1] mt-4 grid grid-cols-3 gap-2">
@@ -378,6 +377,17 @@ export default function StarryEventLanding({ event }) {
               <strong className="block text-lg font-black leading-none">{footer.placeName || 'SRX'}</strong>
             </div>
           </div>
+
+          {agendaItems.length > 0 && (
+            <ul className="relative z-[1] mt-4 list-none p-0">
+              {agendaItems.map((item, index) => (
+                <li key={`${item}-${index}`} className="grid grid-cols-[42px_1fr] items-start gap-2.5 border-b border-white/10 py-2.5 text-xs leading-[1.35] text-white/85 last:border-b-0">
+                  <b className="text-[25px] font-black leading-none tracking-[-0.04em] text-white shadow-[0_0_32px_rgba(226,28,42,0.42)]">{String(index + 1).padStart(2, '0')}</b>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
 
         <section className="relative bg-[linear-gradient(180deg,#070405_0%,#220609_42%,#080304_100%)] px-4 py-7 before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_18%_24%,rgba(255,255,255,0.12)_0_1px,transparent_2px),radial-gradient(circle_at_82%_18%,rgba(236,74,81,0.22)_0_2px,transparent_3px),radial-gradient(circle_at_74%_72%,rgba(255,255,255,0.10)_0_1px,transparent_2px)] before:bg-[length:86px_86px,122px_122px,68px_68px] before:opacity-70">
