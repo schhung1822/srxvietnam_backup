@@ -262,10 +262,11 @@ export default function StarryEventLanding({ event }) {
   const header = event.config.header;
   const footer = event.config.footer;
   const infoEvent = event.config.infoEvent;
-  const title = header.titleText || event.eventName;
+  const title = event.eventName;
+  const titleld = header.titleText;
   const { date, year } = splitDateParts(footer);
   const agendaItems = getAgendaItems(event);
-  const logoUrls = [infoEvent.logo1Url, infoEvent.logo2Url].filter(Boolean);
+  const logoUrls = [infoEvent.logo1Url, infoEvent.logo2Url, infoEvent.logo3Url].filter(Boolean);
   const pageStyle = {
     '--lp-bg': theme.bg || '#070405',
     '--lp-red': theme.primary || '#c4212b',
@@ -276,6 +277,14 @@ export default function StarryEventLanding({ event }) {
     background:
       'radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--lp-red) 18%, transparent), transparent 32%), linear-gradient(180deg, #050303, #170607 56%, #050303)',
   };
+  const footerStyle = {
+    color: footer.textColor || '#ffffff',
+    background: `linear-gradient(180deg, ${footer.gradientFrom || '#090304'}, ${footer.gradientTo || '#180608'} 58%, #050303)`,
+  };
+  const footerLogoGridClassName = joinClassNames(
+    'relative z-[1] mb-4 grid w-full max-w-[360px] items-center gap-2.5',
+    logoUrls.length === 1 ? 'grid-cols-1 justify-items-center' : logoUrls.length === 2 ? 'grid-cols-2' : 'grid-cols-3',
+  );
 
   function closeModal() {
     setModalState((currentState) => ({ ...currentState, open: false }));
@@ -355,34 +364,20 @@ export default function StarryEventLanding({ event }) {
           )}
 
           <h1 className="relative z-[1] mx-auto mb-3 max-w-[390px] text-center text-xl font-black uppercase leading-[1.18] tracking-[-0.025em]">
-            {title}
+            {titleld}
           </h1>
 
           <div className="relative z-[1] mt-4 grid grid-cols-3 gap-2">
-            <div className="min-h-[72px] rounded-2xl border border-white/15 bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.04))] px-2 py-3 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]">
+            <div className="min-h-[72px] rounded-2xl border border-white/15 my-auto bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.04))] px-2 py-3 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]">
               <strong className="block text-xl font-black leading-none">{date}</strong>
-              <span className="mt-1 block text-[10px] font-extrabold uppercase leading-tight text-white/75">{year}</span>
             </div>
-            <div className="min-h-[72px] rounded-2xl border border-white/15 bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.04))] px-2 py-3 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]">
+            <div className="min-h-[72px] rounded-2xl border border-white/15 my-auto bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.04))] px-2 py-3 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]">
               <strong className="block text-xl font-black leading-none">{footer.timeText || '--'}</strong>
-              <span className="mt-1 block text-[10px] font-extrabold uppercase leading-tight text-white/75">Thời gian</span>
             </div>
-            <div className="min-h-[72px] rounded-2xl border border-white/15 bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.04))] px-2 py-3 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]">
+            <div className="min-h-[72px] rounded-2xl border border-white/15 my-auto bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.04))] px-2 py-3 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]">
               <strong className="block text-lg font-black leading-none">{footer.placeName || 'SRX'}</strong>
-              <span className="mt-1 block text-[10px] font-extrabold uppercase leading-tight text-white/75">Địa điểm</span>
             </div>
           </div>
-
-          {agendaItems.length > 0 && (
-            <ul className="relative z-[1] mt-4 list-none p-0">
-              {agendaItems.map((item, index) => (
-                <li key={`${item}-${index}`} className="grid grid-cols-[42px_1fr] items-start gap-2.5 border-b border-white/10 py-2.5 text-xs leading-[1.35] text-white/85 last:border-b-0">
-                  <b className="text-[25px] font-black leading-none tracking-[-0.04em] text-white shadow-[0_0_32px_rgba(226,28,42,0.42)]">{String(index + 1).padStart(2, '0')}</b>
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          )}
         </section>
 
         <section className="relative bg-[linear-gradient(180deg,#070405_0%,#220609_42%,#080304_100%)] px-4 py-7 before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_18%_24%,rgba(255,255,255,0.12)_0_1px,transparent_2px),radial-gradient(circle_at_82%_18%,rgba(236,74,81,0.22)_0_2px,transparent_3px),radial-gradient(circle_at_74%_72%,rgba(255,255,255,0.10)_0_1px,transparent_2px)] before:bg-[length:86px_86px,122px_122px,68px_68px] before:opacity-70">
@@ -427,22 +422,40 @@ export default function StarryEventLanding({ event }) {
           </main>
         </section>
 
-        <footer className="relative flex min-h-[120px] flex-col items-center justify-center gap-2.5 border-t border-white/10 bg-[linear-gradient(180deg,#090304,#180608_58%,#050303)] px-4 pb-10 pt-8 text-white before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_18%_24%,rgba(255,255,255,0.12)_0_1px,transparent_2px),radial-gradient(circle_at_82%_18%,rgba(236,74,81,0.22)_0_2px,transparent_3px),radial-gradient(circle_at_74%_72%,rgba(255,255,255,0.10)_0_1px,transparent_2px)] before:bg-[length:86px_86px,122px_122px,68px_68px] before:opacity-70">
+        <footer
+          className="relative flex min-h-[120px] flex-col items-center justify-center border-t border-white/10 px-4 pb-10 pt-8 text-white before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_18%_24%,rgba(255,255,255,0.12)_0_1px,transparent_2px),radial-gradient(circle_at_82%_18%,rgba(236,74,81,0.22)_0_2px,transparent_3px),radial-gradient(circle_at_74%_72%,rgba(255,255,255,0.10)_0_1px,transparent_2px)] before:bg-[length:86px_86px,122px_122px,68px_68px] before:opacity-70"
+          style={footerStyle}
+        >
           {logoUrls.length > 0 && (
-            <div className="relative z-[1] mb-2 flex flex-wrap items-center justify-center gap-2.5">
-              {logoUrls.map((logoUrl) => (
-                <span key={logoUrl} className="inline-flex min-w-[100px] items-center justify-center px-3">
-                  <img src={logoUrl} alt="Logo sự kiện" className="h-11 w-auto object-contain" />
+            <div className={footerLogoGridClassName}>
+              {logoUrls.map((logoUrl, index) => (
+                <span
+                  key={`${logoUrl}-${index}`}
+                  className={joinClassNames(
+                    'flex h-[58px] min-w-0 items-center justify-center',
+                    logoUrls.length === 1 ? 'w-full max-w-[220px]' : '',
+                  )}
+                >
+                  <img src={logoUrl} alt={`Logo sự kiện ${index + 1}`} className="max-h-10 w-full object-contain" />
                 </span>
               ))}
             </div>
           )}
-          <div className="relative z-[1] text-center text-xs font-bold leading-[18px] text-white/80">
-            {footer.placeName ? <h3 className="mb-1 text-base font-black text-white">{footer.placeName}</h3> : null}
-            {footer.placeLine1 ? <div>{footer.placeLine1}</div> : null}
-            {footer.placeLine2 ? <div>{footer.placeLine2}</div> : null}
-            {footer.timeText ? <div>Thời gian: {[date, year].filter(Boolean).join('/')} · {footer.timeText}</div> : null}
-          </div>
+
+          {(footer.placeName || footer.placeLine1 || footer.placeLine2 || footer.timeText) && (
+            <div className="relative z-[1] w-full max-w-[360px] rounded-2xl p-2 text-center text-xs font-bold leading-[18px] text-white/80">
+              {footer.placeName ? <h3 className="mb-1 text-base font-black text-white">{footer.placeName}</h3> : null}
+              {footer.placeLine1 ? <div>{footer.placeLine1}</div> : null}
+              {footer.placeLine2 ? <div>{footer.placeLine2}</div> : null}
+              {footer.timeText ? <div>Thời gian: {[date, year].filter(Boolean).join('/')} - {footer.timeText}</div> : null}
+            </div>
+          )}
+
+          {footer.template2FooterText ? (
+            <p className="relative z-[1] mt-3 w-full max-w-[360px] whitespace-pre-line rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-center text-[11px] font-semibold leading-[17px] text-white/75 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+              {footer.template2FooterText}
+            </p>
+          ) : null}
         </footer>
       </div>
 

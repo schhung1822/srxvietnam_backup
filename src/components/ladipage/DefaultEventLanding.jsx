@@ -544,7 +544,7 @@ export default function DefaultEventLanding({ event }) {
               </p>
             ) : null}
 
-            {infoEvent.logo1Url || infoEvent.logo2Url ? (
+            {infoEvent.logo1Url || infoEvent.logo2Url || infoEvent.logo3Url ? (
               <div className="relative z-[1] my-4 flex flex-wrap items-center justify-center gap-4">
                 {infoEvent.logo1Url ? (
                   <img
@@ -557,6 +557,13 @@ export default function DefaultEventLanding({ event }) {
                   <img
                     src={infoEvent.logo2Url}
                     alt="Logo đơn vị tổ chức 2"
+                    className="max-h-16 max-w-[min(8rem,40vw)] object-contain]"
+                  />
+                ) : null}
+                {infoEvent.logo3Url ? (
+                  <img
+                    src={infoEvent.logo3Url}
+                    alt="Logo đơn vị tổ chức 3"
                     className="max-h-16 max-w-[min(8rem,40vw)] object-contain]"
                   />
                 ) : null}

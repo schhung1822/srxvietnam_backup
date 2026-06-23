@@ -73,7 +73,7 @@ function createEventStructuredData(event) {
   return compactObject({
     '@context': 'https://schema.org',
     '@type': 'Event',
-    name: event.config.header.titleText || event.eventName,
+    name: event.eventName || event.config.header.titleText,
     description: buildEventDescription(event),
     url: absoluteUrl(event.path),
     image: imageUrl ? [imageUrl] : undefined,
@@ -109,7 +109,7 @@ export async function generateMetadata({ params }) {
   }
 
   return buildMetadata({
-    title: event.config.header.titleText || event.eventName,
+    title: event.eventName || event.config.header.titleText,
     description: buildEventDescription(event),
     path: event.path,
     image: event.config.header.headingImageUrl || undefined,
@@ -132,7 +132,7 @@ export default async function EventLandingPage({ params }) {
           createBreadcrumbSchema([
             { name: 'Trang chủ', path: '/' },
             { name: 'Tin tức & Sự kiện', path: '/tin-tuc' },
-            { name: event.config.header.titleText || event.eventName, path: event.path },
+            { name: event.eventName || event.config.header.titleText, path: event.path },
           ]),
           createEventStructuredData(event),
         ]}

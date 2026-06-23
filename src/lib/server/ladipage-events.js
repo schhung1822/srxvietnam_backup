@@ -205,6 +205,7 @@ function normalizeEventConfig(row) {
       placeName: normalizeText(footer.placeName),
       placeLine1: normalizeText(footer.placeLine1),
       placeLine2: normalizeText(footer.placeLine2),
+      template2FooterText: normalizeText(footer.template2FooterText),
       textColor: normalizeText(footer.textColor, '#ffffff'),
       gradientFrom: normalizeText(footer.gradientFrom, theme.primary2),
       gradientTo: normalizeText(footer.gradientTo, theme.primary),
@@ -225,6 +226,7 @@ function normalizeEventConfig(row) {
       bottomText: normalizeText(infoEvent.bottomText),
       logo1Url: normalizeText(infoEvent.logo1Url),
       logo2Url: normalizeText(infoEvent.logo2Url),
+      logo3Url: normalizeText(infoEvent.logo3Url),
     },
     behavior: {
       source: normalizeText(behavior.source, 'event-landing-page'),
