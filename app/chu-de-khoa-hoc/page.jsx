@@ -5,10 +5,11 @@ import { buildMetadata } from '../../src/lib/seo.js';
 export const dynamic = 'force-dynamic';
 
 export const metadata = buildMetadata({
-  title: 'Chủ đề khoa học',
+  title: 'Chủ đề khoa học về chăm sóc da',
   description:
-    'Các bài viết chuyên sâu về khoa học làn da, thành phần và kiến thức chăm sóc da từ SRX Việt Nam.',
+    'Các bài viết chuyên sâu về khoa học làn da, hoạt chất mỹ phẩm, thành phần chăm sóc da và hướng dẫn sử dụng sản phẩm từ SRX Việt Nam.',
   path: '/chu-de-khoa-hoc',
+  keywords: ['khoa học làn da', 'thành phần mỹ phẩm', 'hoạt chất chăm sóc da', 'kiến thức skincare SRX', 'SRX'],
 });
 
 export default async function ScientificTopicsPage() {

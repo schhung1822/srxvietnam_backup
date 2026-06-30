@@ -13,7 +13,7 @@ function getSiteHostLabel() {
   try {
     return new URL(SITE_URL).host.replace(/^www\./i, '');
   } catch {
-    return 'srx.eventhub.vn';
+    return 'srxvietnam.vn';
   }
 }
 

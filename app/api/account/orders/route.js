@@ -63,8 +63,8 @@ export async function GET(request) {
           MAX(oa.ward) AS shipping_ward,
           MAX(oa.address_line) AS shipping_address_line,
           MAX(oa.postal_code) AS shipping_postal_code,
-          COUNT(oi.id) AS total_items,
-          COALESCE(SUM(oi.quantity), 0) AS total_quantity
+          COUNT(CASE WHEN COALESCE(oi.is_gift, 0) = 0 THEN oi.id END) AS total_items,
+          COALESCE(SUM(CASE WHEN COALESCE(oi.is_gift, 0) = 0 THEN oi.quantity ELSE 0 END), 0) AS total_quantity
         FROM orders o
         LEFT JOIN order_items oi ON oi.order_id = o.id
         LEFT JOIN order_addresses oa
@@ -100,7 +100,8 @@ export async function GET(request) {
           order_id,
           product_name,
           variant_name,
-          quantity
+          quantity,
+          is_gift
         FROM order_items
         WHERE order_id IN (${placeholders})
         ORDER BY order_id DESC, id ASC
@@ -113,6 +114,7 @@ export async function GET(request) {
         productName: item.product_name,
         variantName: item.variant_name,
         quantity: Number(item.quantity ?? 0),
+        isGift: Boolean(Number(item.is_gift ?? 0)),
       };
 
       if (!accumulator[item.order_id]) {

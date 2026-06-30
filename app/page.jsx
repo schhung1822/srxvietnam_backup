@@ -7,10 +7,18 @@ import { buildMetadata } from '../src/lib/seo.js';
 export const dynamic = 'force-dynamic';
 
 export const metadata = buildMetadata({
-  title: 'SRX Việt Nam',
+  title: 'SRX Việt Nam - Mỹ phẩm chăm sóc da chuyên sâu chính hãng',
   description:
-    'SRX Việt Nam mang công nghệ sinh học tiên tiến đến gần hơn với làn da Việt bằng hệ sản phẩm chăm sóc da chuyên sâu và chính hãng.',
+    'SRX Việt Nam cung cấp mỹ phẩm chăm sóc da chuyên sâu chính hãng, ứng dụng công nghệ sinh học trong phục hồi da, hỗ trợ xử lý mụn và làm sáng da.',
   path: '/',
+  keywords: [
+    'SRX Việt Nam',
+    'mỹ phẩm SRX chính hãng',
+    'dược mỹ phẩm chăm sóc da',
+    'phục hồi da SRX',
+    'skincare chuyên sâu',
+    'SRX',
+  ],
 });
 
 function pickRandomProducts(products, limit = 4) {

@@ -359,6 +359,57 @@ CREATE TABLE IF NOT EXISTS product_tag_links (
     ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+
+CREATE TABLE IF NOT EXISTS gift_rules (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  name VARCHAR(150) NOT NULL,
+  description VARCHAR(500) NULL,
+  rule_type ENUM('product_quantity', 'order_subtotal') NOT NULL,
+  product_id BIGINT UNSIGNED NULL,
+  variant_id BIGINT UNSIGNED NULL,
+  min_quantity INT UNSIGNED NOT NULL DEFAULT 1,
+  min_subtotal DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+  gift_product_id BIGINT UNSIGNED NULL,
+  gift_variant_id BIGINT UNSIGNED NULL,
+  gift_sku VARCHAR(100) NULL,
+  gift_name VARCHAR(200) NOT NULL,
+  gift_variant_name VARCHAR(200) NULL,
+  gift_img VARCHAR(500) NULL,
+  gift_quantity INT UNSIGNED NOT NULL DEFAULT 1,
+  limit_quantity INT UNSIGNED NULL,
+  multiply_by_matched_quantity TINYINT(1) NOT NULL DEFAULT 0,
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  starts_at DATETIME NULL,
+  ends_at DATETIME NULL,
+  priority INT NOT NULL DEFAULT 0,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_gift_rules_name (name),
+  KEY idx_gift_rules_active_dates (is_active, starts_at, ends_at),
+  KEY idx_gift_rules_rule_type (rule_type),
+  KEY idx_gift_rules_product_id (product_id),
+  KEY idx_gift_rules_variant_id (variant_id),
+  KEY idx_gift_rules_gift_product_id (gift_product_id),
+  KEY idx_gift_rules_gift_variant_id (gift_variant_id),
+  KEY idx_gift_rules_limit_quantity (limit_quantity),
+  CONSTRAINT fk_gift_rules_product
+    FOREIGN KEY (product_id) REFERENCES products (id)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE,
+  CONSTRAINT fk_gift_rules_variant
+    FOREIGN KEY (variant_id) REFERENCES product_variants (id)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE,
+  CONSTRAINT fk_gift_rules_gift_product
+    FOREIGN KEY (gift_product_id) REFERENCES products (id)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE,
+  CONSTRAINT fk_gift_rules_gift_variant
+    FOREIGN KEY (gift_variant_id) REFERENCES product_variants (id)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 CREATE TABLE IF NOT EXISTS article_categories (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   name VARCHAR(100) NOT NULL,
@@ -596,11 +647,15 @@ CREATE TABLE IF NOT EXISTS order_items (
   quantity INT UNSIGNED NOT NULL DEFAULT 1,
   discount_amount DECIMAL(12,2) NOT NULL DEFAULT 0.00,
   line_total DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+  is_gift TINYINT(1) NOT NULL DEFAULT 0,
+  gift_rule_id BIGINT UNSIGNED NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   KEY idx_order_items_order_id (order_id),
   KEY idx_order_items_product_id (product_id),
   KEY idx_order_items_variant_id (variant_id),
+  KEY idx_order_items_is_gift (is_gift),
+  KEY idx_order_items_gift_rule_id (gift_rule_id),
   CONSTRAINT fk_order_items_order
     FOREIGN KEY (order_id) REFERENCES orders (id)
     ON DELETE CASCADE
@@ -611,6 +666,10 @@ CREATE TABLE IF NOT EXISTS order_items (
     ON UPDATE CASCADE,
   CONSTRAINT fk_order_items_variant
     FOREIGN KEY (variant_id) REFERENCES product_variants (id)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE,
+  CONSTRAINT fk_order_items_gift_rule
+    FOREIGN KEY (gift_rule_id) REFERENCES gift_rules (id)
     ON DELETE SET NULL
     ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

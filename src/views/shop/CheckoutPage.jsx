@@ -12,6 +12,7 @@ import {
   MapPin,
   QrCode,
   ShieldCheck,
+  Gift,
   ShoppingBag,
   TicketPercent,
   Truck,
@@ -19,6 +20,7 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
 import { getCheckoutTotals, paymentMethodOptions } from '../../lib/commerce/checkout';
+import { useEligibleGifts } from '../../hooks/useEligibleGifts';
 
 
 const currencyFormatter = new Intl.NumberFormat('vi-VN', {
@@ -302,6 +304,7 @@ export default function CheckoutPage() {
       }),
     [appliedCouponCode, subtotal],
   );
+  const { gifts } = useEligibleGifts(items, appliedCouponCode);
 
   const selectedAddress = useMemo(
     () => addresses.find((address) => address.id === selectedAddressId) ?? null,
@@ -388,7 +391,7 @@ export default function CheckoutPage() {
         order: data.order,
         payment: data.payment,
         customer: contactSnapshot,
-        items: payloadItems,
+        items: [...payloadItems, ...(data.order?.gifts ?? [])],
       });
     } catch (error) {
       setSubmitError(error.message);
@@ -883,7 +886,7 @@ export default function CheckoutPage() {
 
               <div className="mt-6 space-y-3">
                 {items.map((item) => (
-                  <div key={item.lineId} className="rounded-[22px] border border-[#ece4da] bg-[#fcfaf8] p-4">
+                  <div key={item.lineId} className="rounded-[14px] border border-[#ece4da] bg-[#fcfaf8] p-4">
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0">
                         <div className="text-[15px] font-semibold text-[#15110d]">{item.name}</div>
@@ -897,6 +900,35 @@ export default function CheckoutPage() {
                   </div>
                 ))}
               </div>
+
+              {gifts.length ? (
+                <div className="mt-4 rounded-[14px] border border-[#e5d7c6] bg-[#fcfaf8] p-4">
+                  <div className="flex items-center gap-2 text-[13px] font-semibold uppercase tracking-[0.16em] text-[#444]">
+                    <Gift className="h-4 w-4" />
+                    Quà tặng kèm
+                  </div>
+                  <div className="mt-3 space-y-2">
+                    {gifts.map((gift) => (
+                      <div
+                        key={`${gift.giftRuleId}-${gift.name}`}
+                        className="flex items-center justify-between gap-3 text-[14px] text-[#15110d]"
+                      >
+                        <div className="flex min-w-0 items-center gap-3">
+                          {gift.giftImg ? (
+                            <img
+                              src={gift.giftImg}
+                              alt={gift.name}
+                              className="h-12 w-12 flex-shrink-0 rounded-[6px] border border-[#eadfce] object-cover"
+                            />
+                          ) : null}
+                          <span className="min-w-0 font-medium">{gift.name}</span>
+                        </div>
+                        <span className="flex-shrink-0 text-[#665a4e]">x{gift.quantity}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             </div>
 
             <div className="rounded-[32px] border border-[#ece4da] bg-white p-7 md:p-8">

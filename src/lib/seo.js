@@ -1,5 +1,5 @@
 export const SITE_NAME = 'SRX Việt Nam';
-const DEFAULT_SITE_URL = 'https://srx.eventhub.vn';
+const DEFAULT_SITE_URL = 'https://srx.vn';
 
 function normalizeSiteUrl(value = '') {
   const normalizedValue = String(value ?? '').trim();
@@ -45,12 +45,18 @@ function resolveSiteUrl() {
 
 export const SITE_URL = resolveSiteUrl();
 export const DEFAULT_DESCRIPTION =
-  'SRX Việt Nam mang công nghệ sinh học tiên tiến đến gần hơn với làn da Việt bằng hệ sản phẩm chăm sóc da chính hãng, an toàn và chuyên sâu.';
+  'SRX Việt Nam phân phối mỹ phẩm chăm sóc da chuyên sâu chính hãng, ứng dụng công nghệ sinh học và hoạt chất khoa học cho làn da Việt.';
 export const DEFAULT_KEYWORDS = [
   'SRX Việt Nam',
   'SRX',
+  'SRX chính hãng',
   'mỹ phẩm SRX',
-  'chăm sóc da',
+  'dược mỹ phẩm SRX',
+  'sản phẩm chăm sóc da SRX',
+  'chăm sóc da chuyên sâu',
+  'phục hồi da',
+  'điều trị mụn',
+  'làm sáng da',
   'skincare',
   'dược mỹ phẩm',
   'sản phẩm SRX',

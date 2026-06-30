@@ -18,6 +18,7 @@ import { formatErrorDetails } from '../../../src/lib/server/error-details.js';
 import { createRequestTimeoutSignal } from '../../../src/lib/server/request-timeout.js';
 import { getOrderTrackingContext } from '../../../src/lib/server/tracking.js';
 import { ensureServerEnvLoaded } from '../../../src/lib/server/env.js';
+import { decrementGiftRuleLimits, getEligibleGifts } from '../../../src/lib/server/gift-rules.js';
 
 export const runtime = 'nodejs';
 
@@ -380,6 +381,12 @@ export async function POST(request) {
 
     await connection.beginTransaction();
 
+    const giftItems = await getEligibleGifts(connection, {
+      items,
+      subtotal: totals.subtotal,
+      lockForUpdate: true,
+    });
+
     const affiliateAttribution = await getAffiliateAttributionForCheckout(connection, request, user?.id ?? null);
 
     let customer;
@@ -401,16 +408,20 @@ export async function POST(request) {
     const existingProductIds = await getExistingIds(
       connection,
       'products',
-      [...new Set(items.map((item) => item.productId).filter(Boolean))],
+      [...new Set([...items, ...giftItems].map((item) => item.productId).filter(Boolean))],
     );
     const existingVariantIds = await getExistingIds(
       connection,
       'product_variants',
-      [...new Set(items.map((item) => item.variantId).filter(Boolean))],
+      [...new Set([...items, ...giftItems].map((item) => item.variantId).filter(Boolean))],
     );
 
     const orderNumber = buildOrderNumber();
-    const notes = totals.coupon.isValid ? `Coupon: ${totals.coupon.code}` : null;
+    const noteSegments = [
+      totals.coupon.isValid ? `Coupon: ${totals.coupon.code}` : '',
+      giftItems.length ? `Gifts: ${giftItems.map((gift) => `${gift.name} x${gift.quantity}`).join(', ')}` : '',
+    ].filter(Boolean);
+    const notes = noteSegments.length ? noteSegments.join('\n') : null;
 
     const orderResult = await execute(
       connection,
@@ -491,7 +502,7 @@ export async function POST(request) {
       ],
     );
 
-    for (const item of lineItems) {
+    for (const item of [...lineItems, ...giftItems]) {
       await execute(
         connection,
         `
@@ -505,9 +516,11 @@ export async function POST(request) {
             unit_price,
             quantity,
             discount_amount,
-            line_total
+            line_total,
+            is_gift,
+            gift_rule_id
           )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `,
         [
           orderId,
@@ -520,9 +533,13 @@ export async function POST(request) {
           item.quantity,
           item.discountAmount,
           item.lineTotal,
+          item.isGift ? 1 : 0,
+          item.giftRuleId ?? null,
         ],
       );
     }
+
+    await decrementGiftRuleLimits(connection, giftItems);
 
     await execute(
       connection,
@@ -619,13 +636,14 @@ export async function POST(request) {
       subtotal: totals.subtotal,
       totalItems: items.length,
       totalQuantity: items.reduce((total, item) => total + item.quantity, 0),
+      gifts: giftItems,
       placedAt: new Date().toISOString(),
     };
 
     void queueOrdersWebNotifications({
       orderNumber,
       customer,
-      items: lineItems,
+      items: [...lineItems, ...giftItems],
       notes,
       payment: {
         details: paymentDetails

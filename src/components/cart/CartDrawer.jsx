@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, Minus, Plus, ShoppingBag, TicketPercent, Trash2, X } from 'lucide-react';
+import { ArrowRight, Gift, Minus, Plus, ShoppingBag, TicketPercent, Trash2, X } from 'lucide-react';
 import ProductArtwork from '../shop/ProductArtwork';
 import { useCart } from '../../contexts/CartContext';
 import { getCheckoutTotals } from '../../lib/commerce/checkout';
+import { useEligibleGifts } from '../../hooks/useEligibleGifts';
 
 const moneyFormatter = new Intl.NumberFormat('vi-VN');
 
@@ -22,6 +23,7 @@ export default function CartDrawer() {
   const [couponCode, setCouponCode] = useState('');
   const [discountAmount, setDiscountAmount] = useState(0);
   const [couponMessage, setCouponMessage] = useState('');
+  const { gifts } = useEligibleGifts(items, couponCode);
 
   useEffect(() => {
     if (!isCartOpen) {
@@ -150,6 +152,35 @@ export default function CartDrawer() {
               >
                 Xóa toàn bộ giỏ hàng
               </button>
+
+              {gifts.length ? (
+                <div className="rounded-[12px] border border-[#dedede] bg-[#fafafa] p-4">
+                  <div className="flex items-center gap-2 text-[13px] font-semibold uppercase tracking-[0.16em] text-[#444]">
+                    <Gift className="h-4 w-4" />
+                    Quà tặng kèm
+                  </div>
+                  <div className="mt-3 space-y-2">
+                    {gifts.map((gift) => (
+                      <div
+                        key={`${gift.giftRuleId}-${gift.name}`}
+                        className="flex items-center justify-between gap-3 text-[14px] text-[#15110d]"
+                      >
+                        <div className="flex min-w-0 items-center gap-3">
+                          {gift.giftImg ? (
+                            <img
+                              src={gift.giftImg}
+                              alt={gift.name}
+                              className="h-12 w-12 flex-shrink-0 rounded-[4px] border border-[#dedede] object-cover"
+                            />
+                          ) : null}
+                          <span className="min-w-0 font-medium">{gift.name}</span>
+                        </div>
+                        <span className="flex-shrink-0 text-[#665a4e]">x{gift.quantity}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             </div>
           ) : (
             <div className="flex h-full min-h-[320px] flex-col items-center justify-center px-6 text-center">

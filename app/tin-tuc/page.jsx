@@ -5,10 +5,11 @@ import { buildMetadata } from '../../src/lib/seo.js';
 export const dynamic = 'force-dynamic';
 
 export const metadata = buildMetadata({
-  title: 'Tin tức & Sự kiện',
+  title: 'Tin tức và sự kiện SRX',
   description:
-    'Trang tổng hợp tin tức và sự kiện của SRX Việt Nam, hiển thị trên cùng một giao diện thống nhất theo bố cục trang sự kiện.',
+    'Cập nhật tin tức, sự kiện, hoạt động thương hiệu và kiến thức chăm sóc da từ SRX Việt Nam.',
   path: '/tin-tuc',
+  keywords: ['tin tức SRX', 'sự kiện SRX', 'SRX Việt Nam', 'kiến thức chăm sóc da','SRX'],
 });
 
 export default async function NewsCategoryPage() {
