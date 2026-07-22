@@ -21,9 +21,57 @@ export function normalizeCouponCode(value) {
     .toUpperCase();
 }
 
-export function getCouponApplication(code, subtotal) {
+function normalizeDiscountCodeRecord(record) {
+  if (!record) {
+    return null;
+  }
+
+  const code = normalizeCouponCode(record.code);
+
+  if (!code) {
+    return null;
+  }
+
+  const maxDiscountAmountValue = record.maxDiscountAmount ?? record.max_discount_amount;
+
+  return {
+    id: record.id ?? code,
+    code,
+    name: String(record.name ?? code).trim() || code,
+    description: String(record.description ?? '').trim(),
+    discountType: String(record.discountType ?? record.discount_type ?? '').trim(),
+    discountValue: Number(record.discountValue ?? record.discount_value ?? 0) || 0,
+    maxDiscountAmount: maxDiscountAmountValue == null ? null : Number(maxDiscountAmountValue),
+    minOrderAmount: Number(record.minOrderAmount ?? record.min_order_amount ?? 0) || 0,
+    endsAt: record.endsAt ?? record.ends_at ?? null,
+  };
+}
+
+function getDiscountCodeAmount(discountCode, subtotal) {
+  if (!discountCode || subtotal < discountCode.minOrderAmount) {
+    return 0;
+  }
+
+  if (discountCode.discountType === 'percentage') {
+    const rawAmount = Math.round((subtotal * discountCode.discountValue) / 100);
+    return discountCode.maxDiscountAmount
+      ? Math.min(rawAmount, discountCode.maxDiscountAmount)
+      : rawAmount;
+  }
+
+  if (discountCode.discountType === 'fixed_amount') {
+    return discountCode.discountValue;
+  }
+
+  return 0;
+}
+
+export function getCouponApplication(code, subtotal, discountCodes = []) {
   const normalizedCode = normalizeCouponCode(code);
   const normalizedSubtotal = Math.max(Number(subtotal) || 0, 0);
+  const normalizedDiscountCodes = Array.isArray(discountCodes)
+    ? discountCodes.map(normalizeDiscountCodeRecord).filter(Boolean)
+    : [];
 
   if (!normalizedCode) {
     return {
@@ -31,6 +79,38 @@ export function getCouponApplication(code, subtotal) {
       discountAmount: 0,
       isValid: false,
       message: 'Nhập mã giảm giá để áp dụng.',
+    };
+  }
+
+  const matchedDiscountCode = normalizedDiscountCodes.find((discountCode) => discountCode.code === normalizedCode);
+
+  if (matchedDiscountCode) {
+    if (normalizedSubtotal < matchedDiscountCode.minOrderAmount) {
+      return {
+        code: normalizedCode,
+        discountAmount: 0,
+        isValid: false,
+        message: `Đơn hàng cần tối thiểu ${matchedDiscountCode.minOrderAmount.toLocaleString('vi-VN')}đ để áp dụng mã ${normalizedCode}.`,
+      };
+    }
+
+    const discountAmount = Math.min(getDiscountCodeAmount(matchedDiscountCode, normalizedSubtotal), normalizedSubtotal);
+
+    if (!discountAmount && matchedDiscountCode.discountType !== 'free_shipping') {
+      return {
+        code: normalizedCode,
+        discountAmount: 0,
+        isValid: false,
+        message: `Mã ${normalizedCode} chưa có giá trị giảm hợp lệ.`,
+      };
+    }
+
+    return {
+      code: normalizedCode,
+      discountAmount,
+      isValid: true,
+      message: `Đã áp dụng mã ${normalizedCode}.`,
+      discountCode: matchedDiscountCode,
     };
   }
 
@@ -60,9 +140,9 @@ export function getCouponApplication(code, subtotal) {
   };
 }
 
-export function getCheckoutTotals({ subtotal = 0, couponCode = '' } = {}) {
+export function getCheckoutTotals({ subtotal = 0, couponCode = '', discountCodes = [] } = {}) {
   const normalizedSubtotal = Math.max(Number(subtotal) || 0, 0);
-  const coupon = getCouponApplication(couponCode, normalizedSubtotal);
+  const coupon = getCouponApplication(couponCode, normalizedSubtotal, discountCodes);
   const discountTotal = Math.min(coupon.discountAmount, normalizedSubtotal);
   const grandTotal = Math.max(normalizedSubtotal - discountTotal, 0);
 

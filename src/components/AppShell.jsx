@@ -10,11 +10,11 @@ import AffiliateReferralTracker from './affiliate/AffiliateReferralTracker';
 import MetaTrackingCookieTracker from './tracking/MetaTrackingCookieTracker';
 import FloatingCallToAction from './FloatingCallToAction';
 import { AuthProvider } from '../contexts/AuthContext';
-import { CartProvider } from '../contexts/CartContext';
+import { CartProvider, useCart } from '../contexts/CartContext';
 import { usePageTransition } from '../hooks/usePageTransition';
 import { useSEO } from '../hooks/useSEO';
 
-export default function AppShell({ children }) {
+function AppShellContent({ children }) {
   const pathname = usePathname() ?? '/';
   const { transitionPhase } = usePageTransition();
 
@@ -23,10 +23,10 @@ export default function AppShell({ children }) {
   const isVerificationPage = pathname === '/tiktok-verification';
   const isEventLandingPage = pathname.startsWith('/events/');
   const hideSiteChrome = isVerificationPage || isEventLandingPage;
+  const { items } = useCart();
+  const hideFooter = hideSiteChrome || (pathname === '/checkout' && items.length > 0);
 
   return (
-    <AuthProvider>
-      <CartProvider>
         <div className="App min-h-screen flex flex-col">
           {!isEventLandingPage ? (
             <Suspense fallback={null}>
@@ -48,7 +48,7 @@ export default function AppShell({ children }) {
             {children}
           </main>
 
-          {!hideSiteChrome && <Footer />}
+          {!hideFooter && <Footer />}
           {!hideSiteChrome && <CartDrawer />}
           {!hideSiteChrome && <FloatingCallToAction />}
 
@@ -59,6 +59,14 @@ export default function AppShell({ children }) {
             />
           ) : null}
         </div>
+  );
+}
+
+export default function AppShell({ children }) {
+  return (
+    <AuthProvider>
+      <CartProvider>
+        <AppShellContent>{children}</AppShellContent>
       </CartProvider>
     </AuthProvider>
   );

@@ -79,18 +79,18 @@ const Footer = () => {
             <p className="text-[14px] text-white">Xuất xứ từ Hàn Quốc, SRX mang đến dược mỹ phẩm chuyên sâu cho mọi loại da. Công nghệ dưỡng ẩm và phục hồi vượt trội giúp làm dịu, tái tạo và bảo vệ làn da.</p>
             <div className="space-y-3">
               <div className="text-[14px] text-white">
-                <span className="font-medium">Hotline:</span>
-                <div className="text-white font-['Inter',_sans-serif]">+84 903.010.692</div>
+                <span className="font-medium mr-1">Hotline:</span>
+                <a href="tel:84903010692" className="text-white font-['Inter',_sans-serif]">+84 903.010.692</a>
               </div>
               <div className="text-[14px] text-white">
-                <span className="font-medium">Email:</span>
-                <div className="text-white font-['Inter',_sans-serif]">eacgroup.vn@gmail.com</div>
+                <span className="font-medium mr-1">Email:</span>
+                <a href="mailto:eacgroup.vn@gmail.com"  className="text-white font-['Inter',_sans-serif]">eacgroup.vn@gmail.com</a>
               </div>
               <div className="text-[14px] text-white">
-                <span className="font-medium">Address:</span>
-                <div className="text-white font-['Inter',_sans-serif]">
+                <span className="font-medium mr-1">Address:</span>
+                <a href="https://maps.app.goo.gl/Hbu317LPWRw8YgBv7" target="_blank"  className="text-white font-['Inter',_sans-serif]">
                   58 Phước Hưng, Phường 08, Quận 5, Thành phố Hồ Chí Minh, Việt Nam
-                </div>
+                </a>
               </div>
             </div>
           </div>

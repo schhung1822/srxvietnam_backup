@@ -268,3 +268,8 @@ video::-webkit-media-controls-fullscreen-button {
 .payment-orbit {
     animation: payment-orbit 3.6s linear infinite;
 }
+
+.page-content > .checkout-page {
+    transform: none;
+    -webkit-transform: none;
+}

@@ -273,6 +273,80 @@ function calculateAffiliateCommissionAmount(baseAmount, commissionType, commissi
   return Number(((normalizedBaseAmount * normalizedCommissionRate) / 100).toFixed(2));
 }
 
+async function getActiveDiscountCodeForCheckout(connection, couponCode) {
+  const normalizedCode = normalizeString(couponCode).toUpperCase();
+
+  if (!normalizedCode) {
+    return null;
+  }
+
+  const rows = await execute(
+    connection,
+    `
+      SELECT
+        dc.id,
+        dc.code,
+        dc.name,
+        dc.description,
+        dc.discount_type,
+        dc.discount_value,
+        dc.max_discount_amount,
+        dc.min_order_amount,
+        dc.total_usage_limit,
+        dc.per_user_limit,
+        dc.scope_type,
+        dc.starts_at,
+        dc.ends_at,
+        COUNT(dcr.id) AS used_count
+      FROM discount_codes dc
+      LEFT JOIN discount_code_redemptions dcr
+        ON dcr.discount_code_id = dc.id
+        AND dcr.status = 'applied'
+      WHERE dc.code = ?
+        AND dc.is_active = 1
+        AND (dc.starts_at IS NULL OR dc.starts_at <= NOW())
+        AND (dc.ends_at IS NULL OR dc.ends_at >= NOW())
+      GROUP BY
+        dc.id,
+        dc.code,
+        dc.name,
+        dc.description,
+        dc.discount_type,
+        dc.discount_value,
+        dc.max_discount_amount,
+        dc.min_order_amount,
+        dc.total_usage_limit,
+        dc.per_user_limit,
+        dc.scope_type,
+        dc.starts_at,
+        dc.ends_at
+      HAVING dc.total_usage_limit IS NULL OR used_count < dc.total_usage_limit
+      LIMIT 1
+    `,
+    [normalizedCode],
+  );
+
+  const row = rows[0] ?? null;
+
+  if (!row) {
+    return null;
+  }
+
+  return {
+    id: row.id,
+    code: row.code,
+    name: row.name,
+    description: row.description,
+    discountType: row.discount_type,
+    discountValue: Number(row.discount_value ?? 0),
+    maxDiscountAmount: row.max_discount_amount == null ? null : Number(row.max_discount_amount),
+    minOrderAmount: Number(row.min_order_amount ?? 0),
+    scopeType: row.scope_type,
+    startsAt: row.starts_at,
+    endsAt: row.ends_at,
+  };
+}
+
 async function getAffiliateAttributionForCheckout(connection, request, purchasingUserId) {
   const affiliateCode = normalizeAffiliateCode(
     request.cookies.get(AFFILIATE_REFERRAL_COOKIE_NAME)?.value,
@@ -373,9 +447,11 @@ export async function POST(request) {
     validateCheckoutItems(items);
 
     const subtotal = items.reduce((total, item) => total + item.price * item.quantity, 0);
+    const activeDiscountCode = await getActiveDiscountCodeForCheckout(connection, couponCode);
     const totals = getCheckoutTotals({
       subtotal,
       couponCode,
+      discountCodes: activeDiscountCode ? [activeDiscountCode] : [],
     });
     const lineItems = buildLineItems(items, totals.discountTotal, totals.subtotal);
 

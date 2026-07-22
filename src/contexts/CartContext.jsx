@@ -38,6 +38,13 @@ export function CartProvider({ children }) {
 
   const addItem = ({ product, variant, quantity = 1 }) => {
     const lineId = `${product.slug}:${variant.id}`;
+    const variantOptions = product.variants?.map((productVariant) => ({
+      id: productVariant.id,
+      label: productVariant.label,
+      price: productVariant.price,
+      originalPrice: productVariant.originalPrice ?? productVariant.price,
+      sku: productVariant.sku ?? null,
+    })) ?? [];
 
     setItems((current) => {
       const existingItem = current.find((item) => item.lineId === lineId);
@@ -64,6 +71,7 @@ export function CartProvider({ children }) {
           variantId: variant.id,
           variantLabel: variant.label,
           sku: variant.sku ?? null,
+          variantOptions,
           badge: product.badge ?? '',
           scene: product.gallery?.[0] ?? null,
         },
@@ -82,6 +90,48 @@ export function CartProvider({ children }) {
     setItems((current) =>
       current.map((item) => (item.lineId === lineId ? { ...item, quantity } : item))
     );
+  };
+
+  const updateVariant = (lineId, nextVariantId) => {
+    setItems((current) => {
+      const targetItem = current.find((item) => item.lineId === lineId);
+      const nextVariant = targetItem?.variantOptions?.find(
+        (variant) => String(variant.id) === String(nextVariantId),
+      );
+
+      if (!targetItem || !nextVariant) {
+        return current;
+      }
+
+      const nextLineId = `${targetItem.slug}:${nextVariant.id}`;
+      const existingItem = current.find(
+        (item) => item.lineId === nextLineId && item.lineId !== lineId,
+      );
+
+      if (existingItem) {
+        return current
+          .filter((item) => item.lineId !== lineId)
+          .map((item) =>
+            item.lineId === nextLineId
+              ? { ...item, quantity: item.quantity + targetItem.quantity }
+              : item,
+          );
+      }
+
+      return current.map((item) =>
+        item.lineId === lineId
+          ? {
+              ...item,
+              lineId: nextLineId,
+              variantId: nextVariant.id,
+              variantLabel: nextVariant.label,
+              price: nextVariant.price,
+              originalPrice: nextVariant.originalPrice ?? nextVariant.price,
+              sku: nextVariant.sku ?? null,
+            }
+          : item,
+      );
+    });
   };
 
   const removeItem = (lineId) => {
@@ -106,6 +156,7 @@ export function CartProvider({ children }) {
         toggleCart,
         addItem,
         updateQuantity,
+        updateVariant,
         removeItem,
         clearCart,
       }}
