@@ -7,6 +7,7 @@ import {
   paymentMethodOptions,
 } from '../../../src/lib/commerce/checkout.js';
 import { getAuthenticatedUserRow } from '../../../src/lib/server/account.js';
+import { resolveRequestOrigin } from '../../../src/lib/server/request-origin.js';
 import {
   AFFILIATE_REFERRAL_COOKIE_NAME,
   AFFILIATE_VISITOR_COOKIE_NAME,
@@ -736,7 +737,7 @@ export async function POST(request) {
         status: orderSummary.paymentStatus,
       },
       placedAt: new Date().toISOString(),
-      siteOrigin: request.nextUrl.origin,
+      siteOrigin: resolveRequestOrigin(request),
       source: 'Website SRX Việt Nam',
       totals: {
         discountTotal: totals.discountTotal,

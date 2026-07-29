@@ -9,19 +9,21 @@ import {
   resolveGoogleRedirectUri,
   sanitizeNextPath,
 } from '../../../../../src/lib/server/google-oauth.js';
+import { resolveRequestOrigin } from '../../../../../src/lib/server/request-origin.js';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET(request) {
   const requestUrl = new URL(request.url);
+  const publicOrigin = resolveRequestOrigin(request);
   const nextPath = sanitizeNextPath(requestUrl.searchParams.get('next'));
 
   try {
     const { isConfigured } = getGoogleOAuthConfig();
 
     if (!isConfigured) {
-      return NextResponse.redirect(new URL(`${nextPath}?authError=google_not_configured`, requestUrl.origin));
+      return NextResponse.redirect(new URL(`${nextPath}?authError=google_not_configured`, publicOrigin));
     }
 
     const state = createOAuthState();
@@ -39,6 +41,6 @@ export async function GET(request) {
     return response;
   } catch (error) {
     console.error('Google OAuth start error:', error);
-    return NextResponse.redirect(new URL(`${nextPath}?authError=google_failed`, requestUrl.origin));
+    return NextResponse.redirect(new URL(`${nextPath}?authError=google_failed`, publicOrigin));
   }
 }

@@ -4,6 +4,7 @@ import {
   getAffiliateSnapshotForUser,
   getAuthenticatedUserFromRequest,
 } from '../../../../src/lib/server/affiliate.js';
+import { resolveRequestOrigin } from '../../../../src/lib/server/request-origin.js';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -16,7 +17,7 @@ export async function GET(request) {
       return NextResponse.json({ message: 'Vui lòng đăng nhập để truy cập khu vực affiliate.' }, { status: 401 });
     }
 
-    const snapshot = await getAffiliateSnapshotForUser(user.id, request.nextUrl.origin);
+    const snapshot = await getAffiliateSnapshotForUser(user.id, resolveRequestOrigin(request));
 
     return NextResponse.json({
       user: formatAffiliateUser(user),

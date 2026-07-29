@@ -5,6 +5,7 @@ import {
   getAuthenticatedUserFromRequest,
   upsertAffiliateBankAccountForUser,
 } from '../../../../src/lib/server/affiliate.js';
+import { resolveRequestOrigin } from '../../../../src/lib/server/request-origin.js';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -22,7 +23,7 @@ export async function PUT(request) {
 
     const payload = await request.json();
     await upsertAffiliateBankAccountForUser(user.id, payload);
-    const snapshot = await getAffiliateSnapshotForUser(user.id, request.nextUrl.origin);
+    const snapshot = await getAffiliateSnapshotForUser(user.id, resolveRequestOrigin(request));
 
     return NextResponse.json({
       message: 'Đã cập nhật thông tin ngân hàng.',

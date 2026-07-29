@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+  import { NextResponse } from 'next/server';
 import { query } from '../../../../../src/lib/server/db.js';
 import {
   SESSION_COOKIE_NAME,
@@ -18,6 +18,7 @@ import {
   resolveGoogleRedirectUri,
   unpackStateCookie,
 } from '../../../../../src/lib/server/google-oauth.js';
+import { resolveRequestOrigin } from '../../../../../src/lib/server/request-origin.js';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -33,7 +34,7 @@ function redirectWithError(origin, nextPath, errorCode) {
 
 export async function GET(request) {
   const requestUrl = new URL(request.url);
-  const origin = requestUrl.origin;
+  const origin = resolveRequestOrigin(request);
   const storedState = unpackStateCookie(request.cookies.get(GOOGLE_OAUTH_STATE_COOKIE)?.value);
   const nextPath = storedState?.nextPath ?? '/account';
 

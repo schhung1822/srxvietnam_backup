@@ -8,6 +8,7 @@ import {
   normalizeEmail,
 } from '../../../../src/lib/server/auth.js';
 import { sendPasswordResetEmail } from '../../../../src/lib/server/mail.js';
+import { resolveRequestOrigin } from '../../../../src/lib/server/request-origin.js';
 
 export const runtime = 'nodejs';
 
@@ -36,7 +37,7 @@ export async function POST(request) {
       const rawToken = createPasswordResetToken();
       const storedToken = hashPasswordResetToken(rawToken);
       const expiresAt = getPasswordResetExpiryDate();
-      const resetLink = `${request.nextUrl.origin}/reset-password?token=${rawToken}`;
+      const resetLink = `${resolveRequestOrigin(request)}/reset-password?token=${rawToken}`;
 
       await query(`DELETE FROM password_reset_tokens WHERE user_id = ?`, [user.id]);
       await query(`DELETE FROM password_reset_tokens WHERE used_at IS NOT NULL OR expires_at <= NOW()`);
@@ -59,7 +60,7 @@ export async function POST(request) {
           fullName: user.full_name || user.display_name || user.email,
           resetLink,
           expiresInMinutes: PASSWORD_RESET_DURATION_MINUTES,
-          siteOrigin: request.nextUrl.origin,
+          siteOrigin: resolveRequestOrigin(request),
         });
       } catch (mailError) {
         if (insertResult?.insertId) {

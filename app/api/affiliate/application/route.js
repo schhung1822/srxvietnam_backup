@@ -6,6 +6,7 @@ import {
   upsertAffiliateApplicationForUser,
 } from '../../../../src/lib/server/affiliate.js';
 import { queueAffiliateApplicationNotificationToCrm } from '../../../../src/lib/server/crm-web-notifications.js';
+import { resolveRequestOrigin } from '../../../../src/lib/server/request-origin.js';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -20,7 +21,7 @@ async function handleUpsert(request) {
 
     const payload = await request.json();
     const normalizedPayload = await upsertAffiliateApplicationForUser(user, payload);
-    const snapshot = await getAffiliateSnapshotForUser(user.id, request.nextUrl.origin);
+    const snapshot = await getAffiliateSnapshotForUser(user.id, resolveRequestOrigin(request));
     const updatedUser = {
       ...user,
       full_name: normalizedPayload.legalFullName,
@@ -53,7 +54,7 @@ async function handleUpsert(request) {
         accountLabel,
         application,
         resubmitted: normalizedPayload.isResubmission,
-        siteOrigin: request.nextUrl.origin,
+        siteOrigin: resolveRequestOrigin(request),
         source: 'Website SRX Viet Nam',
       });
     }

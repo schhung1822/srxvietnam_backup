@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import { ensureServerEnvLoaded } from './env.js';
 import { query } from './db.js';
 import { hashPassword, normalizeEmail } from './auth.js';
+import { resolveRequestOrigin } from './request-origin.js';
 
 export const GOOGLE_OAUTH_STATE_COOKIE = 'srx_google_oauth';
 export const GOOGLE_OAUTH_STATE_MAX_AGE_SECONDS = 10 * 60;
@@ -38,7 +39,7 @@ export function resolveGoogleRedirectUri(request) {
     return configuredRedirectUri;
   }
 
-  return new URL('/api/auth/google/callback', new URL(request.url).origin).toString();
+  return new URL('/api/auth/google/callback', resolveRequestOrigin(request)).toString();
 }
 
 export function sanitizeNextPath(value) {
