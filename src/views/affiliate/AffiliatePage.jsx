@@ -8,6 +8,7 @@ import {
   ArrowRight,
   Banknote,
   BadgeCheck,
+  Check,
   Copy,
   ExternalLink,
   HelpCircle,
@@ -27,6 +28,18 @@ import { useAuth } from '../../contexts/AuthContext.jsx';
 const numberFormatter = new Intl.NumberFormat('vi-VN');
 const dateFormatter = new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium' });
 
+const NUM_FONT = "font-['Inter',_sans-serif]";
+const PANEL = 'rounded-[16px] border border-[#D9D9D9] bg-white shadow-[0_12px_36px_rgba(22,17,13,0.05)]';
+const TILE = 'rounded-[20px] border border-[#D9D9D9] bg-[#F6F6F6]';
+const BTN_PRIMARY =
+  'inline-flex items-center justify-center gap-2 rounded-full bg-[#15110d] px-5 py-2.5 text-[14px] font-semibold text-white transition hover:bg-[#2b2520] disabled:cursor-not-allowed disabled:opacity-60';
+const BTN_GHOST =
+  'inline-flex items-center justify-center gap-2 rounded-full border border-[#B7B7B7] bg-white px-5 py-2.5 text-[14px] font-semibold text-[#15110d] transition hover:border-[#15110d] hover:bg-[#15110d] hover:text-white';
+const FIELD_BASE =
+  'w-full rounded-[12px] border border-[#B7B7B7] bg-white text-[15px] text-[#16110d] outline-none transition placeholder:text-[#6B7280] focus:border-[#15110d]';
+const LABEL = 'mb-2 block text-[13px] font-medium text-[#3d332a]';
+const EYEBROW = 'text-[11px] font-semibold uppercase tracking-[0.18em] text-[#5E6266]';
+
 const genderOptions = [
   { value: 'prefer_not_to_say', label: 'Chưa muốn chia sẻ' },
   { value: 'male', label: 'Nam' },
@@ -44,7 +57,7 @@ const affiliateTabs = [
   },
   {
     id: 'performance',
-    label: 'Lượt click lượt mua',
+    label: 'Click & đơn hàng',
     description: 'Theo dõi click, đơn hàng và hoa hồng tích lũy.',
     icon: LineChart,
     requiresUnlock: true,
@@ -65,7 +78,7 @@ const affiliateTabs = [
   },
   {
     id: 'bank',
-    label: 'Tài khoản ngân hàng',
+    label: 'Ngân hàng',
     description: 'Lưu tài khoản nhận hoa hồng sau khi được kích hoạt.',
     icon: Wallet,
     requiresUnlock: true,
@@ -83,6 +96,7 @@ const applicationStatusMap = {
   pending: {
     label: 'Chờ duyệt',
     tone: 'border-[#ecd8a0] bg-[#fff8df] text-[#7e5c0c]',
+    dot: 'bg-[#c99a1b]',
     title: 'Hồ sơ affiliate đang chờ xét duyệt',
     description:
       'Quản trị viên đang kiểm tra hồ sơ bạn đã gửi. Sau khi được duyệt và tạo mã affiliate, các mục dashboard sẽ được mở khóa.',
@@ -90,6 +104,7 @@ const applicationStatusMap = {
   approved: {
     label: 'Đã duyệt',
     tone: 'border-[#b9e4ce] bg-[#eefbf3] text-[#167245]',
+    dot: 'bg-[#1f8b58]',
     title: 'Hồ sơ đã được duyệt',
     description:
       'Hồ sơ của bạn đã đạt yêu cầu. Khi tài khoản affiliate được kích hoạt trong hệ thống, các mục theo dõi click, link và ngân hàng sẽ hoạt động.',
@@ -97,6 +112,7 @@ const applicationStatusMap = {
   rejected: {
     label: 'Cần cập nhật',
     tone: 'border-[#f1c0c0] bg-[#fff1f1] text-[#a43838]',
+    dot: 'bg-[#c15252]',
     title: 'Hồ sơ cần bổ sung thông tin',
     description:
       'Bạn có thể chỉnh sửa lại hồ sơ ngay bên dưới. Sau khi lưu, hồ sơ sẽ quay về trạng thái chờ duyệt để quản trị viên xem xét lại.',
@@ -104,11 +120,19 @@ const applicationStatusMap = {
   idle: {
     label: 'Chưa đăng ký',
     tone: 'border-[#e7e1d8] bg-[#faf7f2] text-[#665a4e]',
+    dot: 'bg-[#a3968a]',
     title: 'Bạn chưa gửi hồ sơ affiliate',
     description:
       'Hoàn tất hồ sơ để bắt đầu quy trình xét duyệt. Sau khi được duyệt, toàn bộ công cụ affiliate sẽ được mở khóa.',
   },
 };
+
+// Một thang đơn sắc theo vòng đời hoa hồng: càng đậm là càng tiến gần tới lúc nhận tiền.
+const commissionSegments = [
+  { key: 'pending', label: 'Chờ duyệt', color: '#d9cec1' },
+  { key: 'approved', label: 'Sẵn sàng đối soát', color: '#5E6266' },
+  { key: 'paid', label: 'Đã thanh toán', color: '#15110d' },
+];
 
 const defaultApplicationValues = {
   legalFullName: '',
@@ -198,8 +222,12 @@ function getBankDefaults(bankAccount) {
   };
 }
 
+function isSuccessMessage(message) {
+  return message.startsWith('Đã');
+}
+
 function getMessageTone(message) {
-  return message.startsWith('Đã')
+  return isSuccessMessage(message)
     ? 'border-[#c7e7d3] bg-[#effbf3] text-[#156c42]'
     : 'border-[#efc4c4] bg-[#fff4f4] text-[#a33a3a]';
 }
@@ -217,15 +245,23 @@ function getLockedFeatureCopy(status) {
   }
 }
 
+function StatusPill({ statusMeta, className = '' }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[13px] font-semibold ${statusMeta.tone} ${className}`}
+    >
+      <span className={`h-1.5 w-1.5 rounded-full ${statusMeta.dot}`} />
+      {statusMeta.label}
+    </span>
+  );
+}
+
 function InputField({ label, error, className = '', ...props }) {
   return (
     <label className={`block ${className}`}>
-      <span className="mb-2 block text-[14px] font-medium text-[#3d332a]">{label}</span>
-      <input
-        {...props}
-        className="h-[52px] w-full rounded-[18px] border border-[#ddd3c6] bg-[#fcfaf8] px-4 text-[15px] text-[#16110d] outline-none transition placeholder:text-[#9e9489] focus:border-[#15110d] font-['Inter',_sans-serif]"
-      />
-      {error ? <span className="mt-2 block text-[13px] text-[#b42318]">{error}</span> : null}
+      <span className={LABEL}>{label}</span>
+      <input {...props} className={`${FIELD_BASE} ${NUM_FONT} h-[48px] px-4`} />
+      {error ? <span className="mt-1.5 block text-[12.5px] text-[#b42318]">{error}</span> : null}
     </label>
   );
 }
@@ -233,14 +269,11 @@ function InputField({ label, error, className = '', ...props }) {
 function SelectField({ label, error, children, className = '', ...props }) {
   return (
     <label className={`block ${className}`}>
-      <span className="mb-2 block text-[14px] font-medium text-[#3d332a]">{label}</span>
-      <select
-        {...props}
-        className="h-[52px] w-full rounded-[18px] border border-[#ddd3c6] bg-[#fcfaf8] px-4 text-[15px] text-[#16110d] outline-none transition focus:border-[#15110d]"
-      >
+      <span className={LABEL}>{label}</span>
+      <select {...props} className={`${FIELD_BASE} h-[48px] px-4`}>
         {children}
       </select>
-      {error ? <span className="mt-2 block text-[13px] text-[#b42318]">{error}</span> : null}
+      {error ? <span className="mt-1.5 block text-[12.5px] text-[#b42318]">{error}</span> : null}
     </label>
   );
 }
@@ -248,12 +281,9 @@ function SelectField({ label, error, children, className = '', ...props }) {
 function TextareaField({ label, error, className = '', ...props }) {
   return (
     <label className={`block ${className}`}>
-      <span className="mb-2 block text-[14px] font-medium text-[#3d332a]">{label}</span>
-      <textarea
-        {...props}
-        className="min-h-[138px] w-full rounded-[18px] border border-[#ddd3c6] bg-[#fcfaf8] px-4 py-3.5 text-[15px] text-[#16110d] outline-none transition placeholder:text-[#9e9489] focus:border-[#15110d]"
-      />
-      {error ? <span className="mt-2 block text-[13px] text-[#b42318]">{error}</span> : null}
+      <span className={LABEL}>{label}</span>
+      <textarea {...props} className={`${FIELD_BASE} min-h-[96px] px-4 py-3`} />
+      {error ? <span className="mt-1.5 block text-[12.5px] text-[#b42318]">{error}</span> : null}
     </label>
   );
 }
@@ -262,183 +292,225 @@ function MetricCard({ icon, label, value, helper }) {
   const IconComponent = icon;
 
   return (
-    <div className="rounded-[24px] border border-[#ece4da] bg-white p-5 shadow-[0_18px_40px_rgba(22,17,13,0.05)]">
-      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#15110d] text-white">
-        <IconComponent className="h-5 w-5" />
+    <div className="rounded-[20px] border border-[#D9D9D9] bg-white p-4 transition hover:border-[#d9cdbf]">
+      <div className="flex items-center gap-2.5">
+        <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-[#F6F6F6] text-[#15110d]">
+          <IconComponent className="h-4 w-4" />
+        </span>
+        <span className="text-[12px] font-semibold uppercase tracking-[0.12em] text-[#5E6266]">{label}</span>
       </div>
-      <div className="mt-4 text-[13px] uppercase tracking-[0.16em] text-[#8d7f72]">{label}</div>
-      <div className="mt-2 text-[30px] font-semibold tracking-[-0.05em] text-[#15110d] font-['Inter',_sans-serif]">{value}</div>
-      <div className="mt-2 text-[14px] leading-6 text-[#6a5e53]">{helper}</div>
+      <div className={`mt-3 text-[26px] font-semibold tracking-[-0.04em] text-[#15110d] ${NUM_FONT}`}>{value}</div>
+      <p className="mt-1.5 text-[13px] leading-6 text-[#5E6266]">{helper}</p>
     </div>
   );
 }
 
-function SectionShell({ eyebrow, title, description, actions, children }) {
+function DataTile({ label, value, helper, className = '' }) {
   return (
-    <section className="rounded-[30px] border border-[#ece4da] bg-white p-6 shadow-[0_22px_60px_rgba(22,17,13,0.06)] md:p-8">
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+    <div className={`${TILE} p-4 ${className}`}>
+      <div className={EYEBROW}>{label}</div>
+      <div className={`mt-2 text-[19px] font-semibold leading-7 tracking-[-0.02em] text-[#15110d] ${NUM_FONT}`}>
+        {value}
+      </div>
+      {helper ? <p className="mt-1.5 text-[13px] leading-6 text-[#5E6266]">{helper}</p> : null}
+    </div>
+  );
+}
+
+function Panel({ title, description, actions, children }) {
+  return (
+    <section className={`${PANEL} p-5 md:p-7`}>
+      <div className="flex flex-col gap-4 border-b border-[#f2ece3] pb-5 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <div className="text-[12px] font-semibold uppercase tracking-[0.24em] text-[#8d7f72]">{eyebrow}</div>
-          <h2 className="mt-4 text-[28px] font-semibold leading-tight tracking-[-0.05em] text-[#15110d] md:text-[34px]">
-            {title}
-          </h2>
+          <h2 className="text-[22px] font-semibold tracking-[-0.03em] text-[#15110d] md:text-[24px]">{title}</h2>
           {description ? (
-            <p className="mt-4 max-w-[760px] text-[15px] leading-8 text-[#665a4e]">{description}</p>
+            <p className="mt-2 max-w-[700px] text-[14px] leading-6 text-[#5E6266]">{description}</p>
           ) : null}
         </div>
-        {actions ? <div className="flex flex-wrap items-center gap-3">{actions}</div> : null}
+        {actions ? <div className="flex flex-wrap items-center gap-2.5">{actions}</div> : null}
       </div>
-      <div className="mt-8">{children}</div>
+      <div className="mt-6">{children}</div>
     </section>
   );
 }
 
-function DashboardTabButton({ tab, isActive, isLocked, onClick }) {
+function TabButton({ tab, isActive, isLocked, onClick }) {
   const Icon = tab.icon;
 
   return (
     <button
       type="button"
       onClick={() => onClick(tab.id)}
-      className={`flex w-full items-center gap-3 rounded-[22px] border px-4 py-3.5 text-left transition ${
+      title={tab.description}
+      className={`flex w-full items-center gap-2.5 rounded-[16px] border px-3 py-2.5 text-left transition sm:gap-3 sm:px-3.5 sm:py-3 ${
         isActive
-          ? 'border-[#15110d] bg-[#15110d] text-white shadow-[0_20px_48px_rgba(21,17,13,0.12)]'
-          : 'border-[#ece4da] bg-[#fcfaf8] text-[#15110d] hover:border-[#cabcae]'
+          ? 'border-[#15110d] bg-[#15110d] text-white'
+          : 'border-[#D9D9D9] bg-white text-[#15110d] hover:border-[#cabcae] hover:bg-[#F6F6F6]'
       }`}
     >
-      <div
-        className={`flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full ${
-          isActive ? 'bg-white/14 text-white' : 'bg-white text-[#15110d]'
+      <span
+        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] ${
+          isActive ? 'bg-white/15 text-white' : 'bg-[#F6F6F6] text-[#15110d]'
         }`}
       >
-        <Icon className="h-5 w-5" />
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="text-[15px] font-semibold leading-6">{tab.label}</div>
-          {isLocked ? (
-            <span
-              className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${
-                isActive
-                  ? 'border-white/20 bg-white/10 text-white'
-                  : 'border-[#e8dccf] bg-white text-[#7a6d60]'
-              }`}
-            >
-              <LockKeyhole className="h-3.5 w-3.5" />
-              Khóa
-            </span>
-          ) : null}
-        </div>
-      </div>
+        <Icon className="h-4 w-4" />
+      </span>
+      <span className="min-w-0 text-[13.5px] font-semibold leading-5 sm:text-[14.5px]">{tab.label}</span>
+      {isLocked ? (
+        <LockKeyhole className={`ml-auto h-3.5 w-3.5 shrink-0 ${isActive ? 'text-white/70' : 'text-[#a3968a]'}`} />
+      ) : null}
     </button>
   );
 }
 
-function LockedFeatureCard({ statusMeta, message, onOpenProfile }) {
+function NoticeCard({ icon, title, message, statusMeta, actionLabel, onAction, hint }) {
+  const IconComponent = icon;
+
   return (
-    <div className="rounded-[28px] border border-dashed border-[#d9ccbf] bg-[#fcfaf8] p-6 md:p-7">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#15110d] text-white">
-        <LockKeyhole className="h-5 w-5" />
-      </div>
-      <div className="mt-5 text-[24px] font-semibold tracking-[-0.04em] text-[#15110d]">
-        Chức năng này sẽ mở sau khi hồ sơ được duyệt
-      </div>
-      <p className="mt-4 max-w-[760px] text-[15px] leading-8 text-[#665a4e]">{message}</p>
-      <div className={`mt-5 inline-flex rounded-full border px-4 py-2 text-[13px] font-semibold ${statusMeta.tone}`}>
-        {statusMeta.label}
-      </div>
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-        <button
-          type="button"
-          onClick={onOpenProfile}
-          className="inline-flex items-center justify-center gap-2 rounded-full bg-[#15110d] px-5 py-3 text-[14px] font-semibold text-white transition hover:bg-[#2b2520]"
-        >
-          Đi tới hồ sơ
-          <ArrowRight className="h-4 w-4" />
-        </button>
-        <div className="text-[13px] leading-6 text-[#8d7f72]">
-          Hồ sơ duyệt xong sẽ mở khóa tổng quan, link, lượt click và tài khoản ngân hàng.
+    <div className="rounded-[22px] border border-dashed border-[#ddd0c1] bg-[#F6F6F6] p-5 md:p-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-[#15110d] text-white">
+          <IconComponent className="h-5 w-5" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-3">
+            <h3 className="text-[19px] font-semibold tracking-[-0.02em] text-[#15110d]">{title}</h3>
+            {statusMeta ? <StatusPill statusMeta={statusMeta} /> : null}
+          </div>
+          <p className="mt-2.5 max-w-[680px] text-[14px] leading-7 text-[#665a4e]">{message}</p>
+          <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <button type="button" onClick={onAction} className={BTN_PRIMARY}>
+              {actionLabel}
+              <ArrowRight className="h-4 w-4" />
+            </button>
+            {hint ? <span className="text-[13px] leading-6 text-[#5E6266]">{hint}</span> : null}
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-function ActivationPendingCard({ onOpenSupport }) {
+function CommissionBreakdown({ pending, approved, paid }) {
+  const values = { pending, approved, paid };
+  const total = pending + approved + paid;
+
   return (
-    <div className="rounded-[28px] border border-[#d7eadf] bg-[#f4fcf7] p-6 md:p-7">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#15110d] text-white">
-        <BadgeCheck className="h-5 w-5" />
+    <div className={`${TILE} p-5`}>
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <div className={EYEBROW}>Dòng chảy hoa hồng</div>
+        <div className={`text-[15px] font-semibold text-[#15110d] ${NUM_FONT}`}>Tổng {formatCurrency(total)}</div>
       </div>
-      <div className="mt-5 text-[24px] font-semibold tracking-[-0.04em] text-[#15110d]">
-        Hồ sơ đã duyệt, đang chờ cấp mã affiliate
+
+      <div className="mt-4 flex h-3 w-full gap-[2px] overflow-hidden rounded-full bg-[#d9e1ff]">
+        {total > 0
+          ? commissionSegments.map((segment) => {
+              const share = (values[segment.key] / total) * 100;
+
+              if (share <= 0) {
+                return null;
+              }
+
+              return (
+                <span
+                  key={segment.key}
+                  className="h-full rounded-full"
+                  style={{ width: `${share}%`, backgroundColor: segment.color }}
+                />
+              );
+            })
+          : null}
       </div>
-      <p className="mt-4 max-w-[760px] text-[15px] leading-8 text-[#665a4e]">
-        Các mục affiliate đã được mở theo trạng thái duyệt hồ sơ. Khi quản trị viên tạo xong mã affiliate và tài khoản
-        ref trong hệ thống, phần thống kê, link và ngân hàng sẽ tự có dữ liệu thật.
+
+      <div className="mt-5 space-y-3">
+        {commissionSegments.map((segment) => (
+          <div key={segment.key} className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2.5">
+              <span
+                className="h-2.5 w-2.5 shrink-0 rounded-full ring-1 ring-inset ring-black/10"
+                style={{ backgroundColor: segment.color }}
+              />
+              <span className="text-[14px] text-[#665a4e]">{segment.label}</span>
+            </div>
+            <span className={`text-[14.5px] font-semibold text-[#15110d] ${NUM_FONT}`}>
+              {formatCurrency(values[segment.key])}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <p className="mt-4 border-t border-[#eee5da] pt-4 text-[13px] leading-6 text-[#5E6266]">
+        Hoa hồng đi lần lượt từ chờ duyệt sang sẵn sàng đối soát rồi tới đã thanh toán.
       </p>
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-        <button
-          type="button"
-          onClick={onOpenSupport}
-          className="inline-flex items-center justify-center gap-2 rounded-full bg-[#15110d] px-5 py-3 text-[14px] font-semibold text-white transition hover:bg-[#2b2520]"
+    </div>
+  );
+}
+
+function ReferralLinkBox({ link, copyMessage, onCopy }) {
+  const isCopied = Boolean(copyMessage) && isSuccessMessage(copyMessage);
+
+  return (
+    <div className={`${TILE} p-5`}>
+      <div className={EYEBROW}>Link giới thiệu chính</div>
+      <div className="mt-3 flex flex-col gap-3 md:flex-row md:items-center">
+        <div
+          className={`min-w-0 flex-1 break-all rounded-[16px] border border-[#e4dacd] bg-white px-4 py-3 text-[14.5px] leading-6 text-[#15110d] ${NUM_FONT}`}
         >
-          Xem hỗ trợ
-          <ArrowRight className="h-4 w-4" />
-        </button>
-        <div className="text-[13px] leading-6 text-[#8d7f72]">
-          Đây là trạng thái trung gian khi hồ sơ đã được duyệt nhưng dữ liệu affiliate chưa được khởi tạo.
+          {link}
         </div>
+        <button type="button" onClick={onCopy} className={`${BTN_PRIMARY} shrink-0`}>
+          {isCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+          {isCopied ? 'Đã copy' : 'Sao chép'}
+        </button>
       </div>
+      {copyMessage ? (
+        <div className={`mt-2.5 text-[13px] ${isCopied ? 'text-[#156c42]' : 'text-[#a33a3a]'}`}>{copyMessage}</div>
+      ) : null}
     </div>
   );
 }
 
 function LockedState() {
   return (
-    <section className="rounded-[30px] border border-[#ece4da] bg-white p-7 shadow-[0_22px_60px_rgba(22,17,13,0.06)] md:p-9">
+    <section className={`${PANEL} p-6 md:p-9`}>
       <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
         <div>
-          <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#15110d] text-white">
-            <ShieldCheck className="h-6 w-6" />
-          </div>
-          <div className="mt-6 text-[32px] font-semibold leading-[1.02] tracking-[-0.06em] text-[#15110d] md:text-[42px]">
-            Đăng nhập để mở khu vực affiliate.
-          </div>
-          <p className="mt-4 max-w-[560px] text-[16px] leading-8 text-[#665a4e]">
+          <span className="inline-flex h-12 w-12 items-center justify-center rounded-[16px] bg-[#15110d] text-white">
+            <ShieldCheck className="h-5 w-5" />
+          </span>
+          <h1 className="mt-6 text-[30px] font-semibold leading-[1.08] tracking-[-0.05em] text-[#15110d] md:text-[38px]">
+            Đăng nhập để mở khu vực affiliate
+          </h1>
+          <p className="mt-4 max-w-[540px] text-[15px] leading-7 text-[#665a4e]">
             Sau khi đăng nhập, bạn có thể gửi hồ sơ đăng ký, chờ xét duyệt và theo dõi dashboard affiliate ngay trong
             một giao diện quản lý tương tự trang tài khoản của mình.
           </p>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link
-              href="/account"
-              className="inline-flex items-center justify-center rounded-full bg-[#15110d] px-6 py-3.5 text-[15px] font-semibold text-white transition hover:bg-[#2b2520]"
-            >
+          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+            <Link href="/account" className={`${BTN_PRIMARY} px-6 py-3.5 text-[15px]`}>
               Đăng nhập
             </Link>
-            <Link
-              href="/account?tab=register"
-              className="inline-flex items-center justify-center rounded-full border border-[#15110d] px-6 py-3.5 text-[15px] font-semibold text-[#15110d] transition hover:bg-[#15110d] hover:text-white"
-            >
+            <Link href="/account?tab=register" className={`${BTN_GHOST} px-6 py-3.5 text-[15px]`}>
               Tạo tài khoản mới
             </Link>
           </div>
         </div>
 
-        <div className="rounded-[28px] border border-[#ede6dc] bg-[#fcfaf8] p-6">
-          <div className="text-[12px] font-semibold uppercase tracking-[0.2em] text-[#8d7f72]">Quy trình tham gia</div>
-          <div className="mt-6 space-y-4">
+        <div className={`${TILE} p-5 md:p-6`}>
+          <div className={EYEBROW}>Quy trình tham gia</div>
+          <div className="mt-5 space-y-3">
             {[
               'Đăng nhập tài khoản SRX và điền hồ sơ affiliate đầy đủ.',
               'Quản trị viên duyệt hồ sơ và kích hoạt tài khoản affiliate.',
-              'Sau khi được duyệt, bạn dùng dashboard để theo dõi link, click, đơn hàng và ngân hàng nhận commission.',
+              'Dùng dashboard để theo dõi link, click, đơn hàng và ngân hàng nhận commission.',
             ].map((item, index) => (
-              <div key={item} className="flex gap-4 rounded-[20px] border border-[#ebe3d8] bg-white p-4">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#15110d] text-[13px] font-semibold text-white">
+              <div key={item} className="flex gap-3.5 rounded-[16px] border border-[#ebe3d8] bg-white p-4">
+                <span
+                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-[#15110d] text-[13px] font-semibold text-white ${NUM_FONT}`}
+                >
                   0{index + 1}
-                </div>
-                <div className="pt-1 text-[15px] leading-7 text-[#5f5449]">{item}</div>
+                </span>
+                <div className="text-[14.5px] leading-7 text-[#5f5449]">{item}</div>
               </div>
             ))}
           </div>
@@ -474,8 +546,8 @@ export default function AffiliatePage() {
   const statusMeta = getStatusMeta(status);
   const areAffiliateToolsUnlocked = status === 'approved';
   const hasAffiliateAccount = Boolean(snapshot?.account);
-  const isActivationPending = areAffiliateToolsUnlocked && !hasAffiliateAccount;
   const lockedFeatureCopy = getLockedFeatureCopy(status);
+  const activeTabMeta = affiliateTabs.find((tab) => tab.id === activeTab) ?? affiliateTabs[0];
 
   const overviewCards = useMemo(() => {
     if (!snapshot?.account) {
@@ -503,7 +575,7 @@ export default function AffiliatePage() {
       },
       {
         icon: Banknote,
-        label: 'Hoa hồng đã thanh toán',
+        label: 'Hoa hồng đã trả',
         value: formatCurrency(snapshot.account.paidCommission),
         helper: 'Tổng tiền commission đã được chi trả cho bạn.',
       },
@@ -683,27 +755,40 @@ export default function AffiliatePage() {
     }
   };
 
+  const renderGate = () =>
+    !areAffiliateToolsUnlocked ? (
+      <NoticeCard
+        icon={LockKeyhole}
+        title="Mục này mở sau khi hồ sơ được duyệt"
+        message={lockedFeatureCopy}
+        statusMeta={statusMeta}
+        actionLabel="Đi tới hồ sơ"
+        onAction={() => setActiveTab('profile')}
+        hint="Hồ sơ duyệt xong sẽ mở tổng quan, link, thống kê và ngân hàng."
+      />
+    ) : (
+      <NoticeCard
+        icon={BadgeCheck}
+        title="Hồ sơ đã duyệt, đang chờ cấp mã affiliate"
+        message="Khi quản trị viên tạo xong mã affiliate và tài khoản ref trong hệ thống, phần thống kê, link và ngân hàng sẽ tự có dữ liệu thật."
+        actionLabel="Xem hỗ trợ"
+        onAction={() => setActiveTab('support')}
+        hint="Đây là trạng thái trung gian giữa duyệt hồ sơ và khởi tạo dữ liệu."
+      />
+    );
+
   const renderOverviewSection = () => (
-    <SectionShell
-      eyebrow="Tổng quan"
+    <Panel
       title="Bảng điều khiển affiliate"
-      description="Sau khi hồ sơ được duyệt và mã affiliate được kích hoạt, đây là nơi bạn theo dõi toàn bộ trạng thái hoạt động, link giới thiệu và tiến độ commission."
+      description={activeTabMeta.description}
       actions={
         hasAffiliateAccount ? (
           <>
-            <button
-              type="button"
-              onClick={handleCopyLink}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-[#15110d] px-5 py-3 text-[14px] font-semibold text-white transition hover:bg-[#2b2520]"
-            >
+            <button type="button" onClick={handleCopyLink} className={BTN_PRIMARY}>
               <Copy className="h-4 w-4" />
               Sao chép link
             </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('links')}
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-[#15110d] px-5 py-3 text-[14px] font-semibold text-[#15110d] transition hover:bg-[#15110d] hover:text-white"
-            >
+            <button type="button" onClick={() => setActiveTab('links')} className={BTN_GHOST}>
               Xem link affiliate
               <ArrowRight className="h-4 w-4" />
             </button>
@@ -711,79 +796,73 @@ export default function AffiliatePage() {
         ) : null
       }
     >
-      {!areAffiliateToolsUnlocked ? (
-        <LockedFeatureCard statusMeta={statusMeta} message={lockedFeatureCopy} onOpenProfile={() => setActiveTab('profile')} />
-      ) : isActivationPending ? (
-        <ActivationPendingCard onOpenSupport={() => setActiveTab('support')} />
+      {!hasAffiliateAccount ? (
+        renderGate()
       ) : (
         <>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-3.5 sm:grid-cols-2 xl:grid-cols-4">
             {overviewCards.map((card) => (
               <MetricCard key={card.label} {...card} />
             ))}
           </div>
 
-          <div className="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_360px]">
-            <div className="rounded-[26px] border border-[#ece4da] bg-[#fcfaf8] p-5 md:p-6">
-              <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#8d7f72]">Link giới thiệu chính</div>
-              <div className="mt-3 break-all text-[15px] leading-7 text-[#15110d] font-['Inter',_sans-serif]">{snapshot.account.referralLink}</div>
-              <div className="mt-6 grid gap-4 md:grid-cols-2">
-                <div className="rounded-[20px] border border-[#e8dfd4] bg-white p-4">
-                  <div className="text-[12px] uppercase tracking-[0.16em] text-[#8d7f72]">Mã affiliate</div>
-                  <div className="font-['Inter',_sans-serif] mt-2 text-[22px] font-semibold tracking-[0.04em] text-[#15110d]">
-                    {snapshot.account.affiliateCode}
-                  </div>
-                </div>
-                <div className="rounded-[20px] border border-[#e8dfd4] bg-white p-4">
-                  <div className="text-[12px] uppercase tracking-[0.16em] text-[#8d7f72]">Cách tính commission</div>
-                  <div className="font-['Inter',_sans-serif] mt-2 text-[18px] font-semibold leading-7 text-[#15110d]">
-                    {snapshot.account.commissionType === 'percent'
+          <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
+            <div className="space-y-3.5">
+              <ReferralLinkBox
+                link={snapshot.account.referralLink}
+                copyMessage={copyMessage}
+                onCopy={handleCopyLink}
+              />
+              <div className="grid gap-3.5 sm:grid-cols-2">
+                <DataTile label="Mã affiliate" value={snapshot.account.affiliateCode} />
+                <DataTile
+                  label="Cách tính commission"
+                  value={
+                    snapshot.account.commissionType === 'percent'
                       ? `${snapshot.account.commissionRate}% / đơn hợp lệ`
-                      : `${formatCurrency(snapshot.account.commissionRate)} / đơn hợp lệ`}
-                  </div>
-                </div>
+                      : `${formatCurrency(snapshot.account.commissionRate)} / đơn hợp lệ`
+                  }
+                />
               </div>
-              {copyMessage ? <div className="mt-4 text-[13px] text-[#665a4e]">{copyMessage}</div> : null}
             </div>
 
-            <div className="space-y-4">
-              <div className="rounded-[26px] border border-[#ece4da] bg-white p-5">
-                <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#8d7f72]">Trạng thái hồ sơ</div>
-                <div className="mt-3 text-[22px] font-semibold leading-8 tracking-[-0.04em] text-[#15110d]">
+            <div className="space-y-3.5">
+              <div className={`${TILE} p-5`}>
+                <div className="flex items-start justify-between gap-3">
+                  <div className={EYEBROW}>Trạng thái hồ sơ</div>
+                  <StatusPill statusMeta={statusMeta} />
+                </div>
+                <div className="mt-3 text-[18px] font-semibold leading-7 tracking-[-0.02em] text-[#15110d]">
                   {statusMeta.title}
                 </div>
-                <div className="mt-3 text-[14px] leading-7 text-[#665a4e]">{statusMeta.description}</div>
+                <p className="mt-2 text-[13.5px] leading-6 text-[#5E6266]">{statusMeta.description}</p>
               </div>
 
-              <div className="rounded-[26px] border border-[#ece4da] bg-[#15110d] p-5 text-white">
-                <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-white/70">Cookie ghi nhận</div>
-                <div className="mt-2 text-[28px] font-semibold tracking-[-0.04em] font-['Inter',_sans-serif]">
+              <div className="rounded-[20px] bg-[#15110d] p-5 text-white">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/60">
+                  Cookie ghi nhận
+                </div>
+                <div className={`mt-2 text-[26px] font-semibold tracking-[-0.04em] ${NUM_FONT}`}>
                   {snapshot.account.cookieDurationDays} ngày
                 </div>
-                <div className="mt-3 text-[14px] leading-7 text-white/75">
+                <p className="mt-2 text-[13.5px] leading-6 text-white/70">
                   Người dùng truy cập qua link của bạn sẽ được hệ thống ghi nhận trong thời gian này.
-                </div>
+                </p>
               </div>
             </div>
           </div>
         </>
       )}
-    </SectionShell>
+    </Panel>
   );
 
   const renderPerformanceSection = () => (
-    <SectionShell
-      eyebrow="Lượt click lượt mua"
-      title="Hiệu suất affiliate"
-      description="Dữ liệu hiện tại hiển thị theo tổng tích lũy của tài khoản affiliate. Khi backend tracking chi tiết hơn được nối vào, phần này có thể mở rộng sang biểu đồ và lịch sử theo ngày."
-    >
-      {!areAffiliateToolsUnlocked ? (
-        <LockedFeatureCard statusMeta={statusMeta} message={lockedFeatureCopy} onOpenProfile={() => setActiveTab('profile')} />
-      ) : isActivationPending ? (
-        <ActivationPendingCard onOpenSupport={() => setActiveTab('support')} />
+    <Panel title="Hiệu suất affiliate" description={activeTabMeta.description}>
+      {!hasAffiliateAccount ? (
+        renderGate()
       ) : (
         <>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-3.5 sm:grid-cols-2 xl:grid-cols-4">
             <MetricCard
               icon={MousePointerClick}
               label="Lượt click"
@@ -810,159 +889,121 @@ export default function AffiliatePage() {
             />
           </div>
 
-          <div className="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
-            <div className="rounded-[26px] border border-[#ece4da] bg-[#fcfaf8] p-5 md:p-6">
-              <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#8d7f72]">Phân tích nhanh</div>
-              <div className="mt-4 grid gap-4 md:grid-cols-3">
-                <div className="rounded-[20px] border border-[#e9dfd4] bg-white p-4">
-                  <div className="text-[13px] uppercase tracking-[0.14em] text-[#8d7f72]">Click</div>
-                  <div className="mt-2 text-[28px] font-semibold tracking-[-0.04em] text-[#15110d] font-['Inter',_sans-serif]">
-                    {formatNumber(performanceStats.clicks)}
-                  </div>
-                  <p className="mt-2 text-[13px] leading-6 text-[#6a5e53]">Lượng truy cập từ social, bài viết và landing page của bạn.</p>
-                </div>
-                <div className="rounded-[20px] border border-[#e9dfd4] bg-white p-4">
-                  <div className="text-[13px] uppercase tracking-[0.14em] text-[#8d7f72]">Mua hàng</div>
-                  <div className="mt-2 text-[28px] font-semibold tracking-[-0.04em] text-[#15110d] font-['Inter',_sans-serif]">
-                    {formatNumber(performanceStats.orders)}
-                  </div>
-                  <p className="mt-2 text-[13px] leading-6 text-[#6a5e53]">Đơn hàng hợp lệ được hệ thống ghi nhận cho mã affiliate.</p>
-                </div>
-                <div className="rounded-[20px] border border-[#e9dfd4] bg-white p-4">
-                  <div className="text-[13px] uppercase tracking-[0.14em] text-[#8d7f72]">Chuyển đổi</div>
-                  <div className="mt-2 text-[28px] font-semibold tracking-[-0.04em] text-[#15110d] font-['Inter',_sans-serif]">
-                    {performanceStats.conversionRate}
-                  </div>
-                  <p className="mt-2 text-[13px] leading-6 text-[#6a5e53]">Chỉ số chuyển đổi tổng hợp dựa trên click và số đơn ghi nhận.</p>
-                </div>
-              </div>
-            </div>
+          <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+            <CommissionBreakdown
+              pending={performanceStats.pendingCommission}
+              approved={performanceStats.approvedCommission}
+              paid={performanceStats.paidCommission}
+            />
 
-            <div className="space-y-4">
-              <div className="rounded-[26px] border border-[#ece4da] bg-white p-5">
-                <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#8d7f72]">Commission chờ duyệt</div>
-                <div className="mt-2 text-[28px] font-semibold tracking-[-0.04em] text-[#15110d] font-['Inter',_sans-serif]">
-                  {formatCurrency(performanceStats.pendingCommission)}
-                </div>
-                <div className="mt-3 text-[14px] leading-7 text-[#665a4e]">Đơn đang chờ hoàn tất điều kiện để được tính vào đối soát.</div>
-              </div>
-
-              <div className="rounded-[26px] border border-[#ece4da] bg-white p-5">
-                <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#8d7f72]">Commission đã thanh toán</div>
-                <div className="mt-2 text-[28px] font-semibold tracking-[-0.04em] text-[#15110d]">
-                  {formatCurrency(performanceStats.paidCommission)}
-                </div>
-                <div className="mt-3 text-[14px] leading-7 text-[#665a4e]">Tổng tiền hoa hồng đã được chi trả vào tài khoản của bạn.</div>
-              </div>
+            <div className="space-y-3.5">
+              <DataTile
+                label="Commission chờ duyệt"
+                value={formatCurrency(performanceStats.pendingCommission)}
+                helper="Đơn đang chờ hoàn tất điều kiện để được tính vào đối soát."
+              />
+              <DataTile
+                label="Commission đã thanh toán"
+                value={formatCurrency(performanceStats.paidCommission)}
+                helper="Tổng tiền hoa hồng đã được chi trả vào tài khoản của bạn."
+              />
+              <DataTile
+                label="Trung bình mỗi đơn"
+                value={
+                  performanceStats.orders > 0
+                    ? formatCurrency(
+                        Math.round(
+                          (performanceStats.pendingCommission +
+                            performanceStats.approvedCommission +
+                            performanceStats.paidCommission) /
+                            performanceStats.orders,
+                        ),
+                      )
+                    : '—'
+                }
+                helper="Tổng hoa hồng chia cho số đơn hàng đã ghi nhận."
+              />
             </div>
           </div>
         </>
       )}
-    </SectionShell>
+    </Panel>
   );
 
   const renderLinksSection = () => (
-    <SectionShell
-      eyebrow="Link affiliate"
+    <Panel
       title="Quản lý link giới thiệu"
-      description="Bạn có thể dùng link này cho bài viết, social hoặc landing page cá nhân. Mọi đơn hợp lệ đi từ link này sẽ được hệ thống gắn vào tài khoản affiliate của bạn."
+      description={activeTabMeta.description}
       actions={
         hasAffiliateAccount ? (
-          <>
-            <button
-              type="button"
-              onClick={handleCopyLink}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-[#15110d] px-5 py-3 text-[14px] font-semibold text-white transition hover:bg-[#2b2520]"
-            >
-              <Copy className="h-4 w-4" />
-              Copy link
-            </button>
-            <a
-              href={snapshot.account.referralLink}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-[#15110d] px-5 py-3 text-[14px] font-semibold text-[#15110d] transition hover:bg-[#15110d] hover:text-white"
-            >
-              <ExternalLink className="h-4 w-4" />
-              Mở thử link
-            </a>
-          </>
+          <a href={snapshot.account.referralLink} target="_blank" rel="noreferrer" className={BTN_GHOST}>
+            <ExternalLink className="h-4 w-4" />
+            Mở thử link
+          </a>
         ) : null
       }
     >
-      {!areAffiliateToolsUnlocked ? (
-        <LockedFeatureCard statusMeta={statusMeta} message={lockedFeatureCopy} onOpenProfile={() => setActiveTab('profile')} />
-      ) : isActivationPending ? (
-        <ActivationPendingCard onOpenSupport={() => setActiveTab('support')} />
+      {!hasAffiliateAccount ? (
+        renderGate()
       ) : (
-        <>
-          <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_360px]">
-            <div className="rounded-[26px] border border-[#ece4da] bg-[#fcfaf8] p-5 md:p-6">
-              <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#8d7f72]">Link chính</div>
-              <div className="mt-3 break-all rounded-[20px] border border-[#e8dfd4] bg-white px-4 py-4 text-[15px] leading-7 text-[#15110d] font-['Inter',_sans-serif]">
-                {snapshot.account.referralLink}
-              </div>
-              {copyMessage ? <div className="mt-3 text-[13px] text-[#665a4e]">{copyMessage}</div> : null}
-
-              <div className="mt-6 grid gap-4 md:grid-cols-2">
-                <div className="rounded-[20px] border border-[#e8dfd4] bg-white p-4">
-                  <div className="text-[12px] uppercase tracking-[0.16em] text-[#8d7f72]">Mã affiliate</div>
-                  <div className="mt-2 text-[24px] font-semibold tracking-[0.04em] text-[#15110d] font-['Inter',_sans-serif]">
-                    {snapshot.account.affiliateCode}
-                  </div>
-                </div>
-                <div className="rounded-[20px] border border-[#e8dfd4] bg-white p-4">
-                  <div className="text-[12px] uppercase tracking-[0.16em] text-[#8d7f72]">Cookie</div>
-                  <div className="mt-2 text-[24px] font-semibold tracking-[0.04em] text-[#15110d] font-['Inter',_sans-serif]">
-                    {snapshot.account.cookieDurationDays} ngày
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-[26px] border border-[#ece4da] bg-white p-5">
-              <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#8d7f72]">Cách dùng hiệu quả</div>
-              <div className="mt-4 space-y-3">
-                {[
-                  'Gắn link affiliate vào bio social, bài viết và landing page riêng.',
-                  'Dùng cùng nội dung review hoặc chia sẻ routine để tăng tỷ lệ click.',
-                  'Theo dõi lượt click và lượt mua tại mục thống kê để tối ưu kênh bán.',
-                ].map((item) => (
-                  <div key={item} className="flex gap-3 rounded-[20px] border border-[#ece4da] bg-[#fcfaf8] p-4">
-                    <BadgeCheck className="mt-0.5 h-5 w-5 shrink-0 text-[#15110d]" />
-                    <div className="text-[14px] leading-7 text-[#665a4e]">{item}</div>
-                  </div>
-                ))}
-              </div>
+        <div className="grid gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
+          <div className="space-y-3.5">
+            <ReferralLinkBox
+              link={snapshot.account.referralLink}
+              copyMessage={copyMessage}
+              onCopy={handleCopyLink}
+            />
+            <div className="grid gap-3.5 sm:grid-cols-2">
+              <DataTile label="Mã affiliate" value={snapshot.account.affiliateCode} />
+              <DataTile label="Thời gian cookie" value={`${snapshot.account.cookieDurationDays} ngày`} />
             </div>
           </div>
-        </>
+
+          <div className={`${TILE} p-5`}>
+            <div className={EYEBROW}>Cách dùng hiệu quả</div>
+            <div className="mt-4 space-y-2.5">
+              {[
+                'Gắn link affiliate vào bio social, bài viết và landing page riêng.',
+                'Dùng cùng nội dung review hoặc chia sẻ routine để tăng tỷ lệ click.',
+                'Theo dõi lượt click và lượt mua tại mục thống kê để tối ưu kênh bán.',
+              ].map((item) => (
+                <div key={item} className="flex gap-3 rounded-[16px] border border-[#ebe3d8] bg-white p-3.5">
+                  <BadgeCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#15110d]" />
+                  <div className="text-[13.5px] leading-6 text-[#665a4e]">{item}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
-    </SectionShell>
+    </Panel>
   );
 
   const renderProfileSection = () => (
-    <SectionShell
-      eyebrow="Hồ sơ"
+    <Panel
       title="Quản lý hồ sơ affiliate"
-      description="Hồ sơ này là điều kiện mở khóa toàn bộ công cụ affiliate. Sau khi hồ sơ được duyệt, bạn vẫn có thể cập nhật thông tin mà không làm mất mã affiliate hiện tại."
+      description={activeTabMeta.description}
+      actions={<StatusPill statusMeta={statusMeta} />}
     >
       {snapshot?.application?.reviewNote ? (
-        <div className="mb-6 rounded-[22px] border border-[#efc7c7] bg-[#fff5f5] px-5 py-4 text-[14px] leading-7 text-[#8e3939]">
-          <div className="font-semibold">Ghi chú từ quản trị viên</div>
-          <div className="mt-1">{snapshot.application.reviewNote}</div>
+        <div className="mb-5 flex gap-3 rounded-[18px] border border-[#efc7c7] bg-[#fff5f5] px-4 py-3.5 text-[13.5px] leading-6 text-[#8e3939]">
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+          <div>
+            <div className="font-semibold">Ghi chú từ quản trị viên</div>
+            <div className="mt-1">{snapshot.application.reviewNote}</div>
+          </div>
         </div>
       ) : null}
 
       {applicationMessage ? (
-        <div className={`mb-6 rounded-[22px] border px-5 py-4 text-[14px] leading-7 ${getMessageTone(applicationMessage)}`}>
+        <div className={`mb-5 rounded-[18px] border px-4 py-3.5 text-[13.5px] leading-6 ${getMessageTone(applicationMessage)}`}>
           {applicationMessage}
         </div>
       ) : null}
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-        <form onSubmit={handleApplicationSubmit} className="space-y-5 rounded-[26px] border border-[#ece4da] bg-[#fcfaf8] p-5 md:p-6">
-          <div className="grid gap-5 md:grid-cols-2">
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
+        <form onSubmit={handleApplicationSubmit} className={`${TILE} space-y-4 p-5 md:p-6`}>
+          <div className="grid gap-4 md:grid-cols-2">
             <InputField
               label="Họ và tên"
               placeholder="Nguyễn Văn A"
@@ -973,7 +1014,7 @@ export default function AffiliatePage() {
             />
             <InputField
               label="Số CCCD"
-              placeholder="079123456789"
+              placeholder="09xxxxxxxx"
               error={applicationForm.formState.errors.nationalIdNumber?.message}
               {...applicationForm.register('nationalIdNumber', {
                 required: 'Vui lòng nhập số CCCD.',
@@ -990,7 +1031,7 @@ export default function AffiliatePage() {
             })}
           />
 
-          <div className="grid gap-5 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-3">
             <InputField
               label="Số điện thoại"
               type="tel"
@@ -1022,7 +1063,7 @@ export default function AffiliatePage() {
             </SelectField>
           </div>
 
-          <div className="grid gap-5 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2">
             <InputField
               label="Link Facebook"
               placeholder="https://facebook.com/yourprofile"
@@ -1041,15 +1082,11 @@ export default function AffiliatePage() {
             />
           </div>
 
-          <div className="flex flex-col gap-3 border-t border-[#eee6db] pt-6 sm:flex-row sm:items-center sm:justify-between">
-            <div className="text-[13px] leading-6 text-[#8d7f72]">
-              Quản trị viên sẽ xét duyệt thủ công dựa trên thông tin hồ sơ và kênh social của bạn.
+          <div className="flex flex-col gap-3 border-t border-[#eee6db] pt-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="text-[13px] leading-6 text-[#5E6266]">
+              Quản trị viên sẽ xét duyệt thủ công dựa trên hồ sơ và kênh social của bạn.
             </div>
-            <button
-              type="submit"
-              disabled={isSavingApplication}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-[#15110d] px-6 py-3.5 text-[15px] font-semibold text-white transition hover:bg-[#2b2520] disabled:cursor-not-allowed disabled:opacity-60"
-            >
+            <button type="submit" disabled={isSavingApplication} className={`${BTN_PRIMARY} shrink-0`}>
               {isSavingApplication ? (
                 <>
                   <LoaderCircle className="h-4 w-4 animate-spin" />
@@ -1065,71 +1102,61 @@ export default function AffiliatePage() {
           </div>
         </form>
 
-        <div className="space-y-4">
-          <div className="rounded-[26px] border border-[#ece4da] bg-white p-5">
-            <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#8d7f72]">Trạng thái hiện tại</div>
-            <div className="mt-3 text-[22px] font-semibold leading-8 tracking-[-0.04em] text-[#15110d]">{statusMeta.title}</div>
-            <div className="mt-3 text-[14px] leading-7 text-[#665a4e]">{statusMeta.description}</div>
-          </div>
-
-          <div className="rounded-[26px] border border-[#ece4da] bg-white p-5">
-            <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#8d7f72]">Ngày gửi hồ sơ</div>
-            <div className="font-['Inter',_sans-serif] mt-2 text-[20px] font-semibold text-[#15110d]">{formatDate(snapshot?.application?.createdAt)}</div>
-          </div>
-
-          <div className="rounded-[26px] border border-[#ece4da] bg-white p-5">
-            <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#8d7f72]">Ngày xét duyệt</div>
-            <div className="font-['Inter',_sans-serif] mt-2 text-[20px] font-semibold text-[#15110d]">
-              {formatDate(snapshot?.account?.approvedAt ?? snapshot?.application?.reviewedAt)}
+        <div className="space-y-3.5">
+          <div className="rounded-[20px] border border-[#D9D9D9] bg-white p-5">
+            <div className={EYEBROW}>Trạng thái hiện tại</div>
+            <div className="mt-3 text-[18px] font-semibold leading-7 tracking-[-0.02em] text-[#15110d]">
+              {statusMeta.title}
             </div>
+            <p className="mt-2 text-[13.5px] leading-6 text-[#5E6266]">{statusMeta.description}</p>
           </div>
+
+          <DataTile label="Ngày gửi hồ sơ" value={formatDate(snapshot?.application?.createdAt)} />
+          <DataTile
+            label="Ngày xét duyệt"
+            value={formatDate(snapshot?.account?.approvedAt ?? snapshot?.application?.reviewedAt)}
+          />
         </div>
       </div>
-    </SectionShell>
+    </Panel>
   );
 
   const renderBankSection = () => (
-    <SectionShell
-      eyebrow="Tài khoản ngân hàng"
-      title="Cập nhật tài khoản nhận commission"
-      description="Sau khi hồ sơ đã được duyệt và tài khoản affiliate được mở, bạn có thể lưu tài khoản ngân hàng để phục vụ bước chi trả commission."
-    >
-      {!areAffiliateToolsUnlocked ? (
-        <LockedFeatureCard statusMeta={statusMeta} message={lockedFeatureCopy} onOpenProfile={() => setActiveTab('profile')} />
-      ) : isActivationPending ? (
-        <ActivationPendingCard onOpenSupport={() => setActiveTab('support')} />
+    <Panel title="Tài khoản nhận commission" description={activeTabMeta.description}>
+      {!hasAffiliateAccount ? (
+        renderGate()
       ) : (
         <>
           {bankMessage ? (
-            <div className={`mb-6 rounded-[22px] border px-5 py-4 text-[14px] leading-7 ${getMessageTone(bankMessage)}`}>
+            <div className={`mb-5 rounded-[18px] border px-4 py-3.5 text-[13.5px] leading-6 ${getMessageTone(bankMessage)}`}>
               {bankMessage}
             </div>
           ) : null}
 
-          <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
-            <div className="space-y-4">
-              <div className="rounded-[26px] border border-[#ece4da] bg-white p-5">
-                <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#8d7f72]">Tài khoản hiện tại</div>
-                <div className="mt-3 text-[22px] font-semibold leading-8 tracking-[-0.04em] text-[#15110d]">
+          <div className="grid gap-5 xl:grid-cols-[300px_minmax(0,1fr)]">
+            <div className="space-y-3.5">
+              <div className="rounded-[20px] border border-[#D9D9D9] bg-white p-5">
+                <div className={EYEBROW}>Tài khoản hiện tại</div>
+                <div className="mt-3 text-[18px] font-semibold leading-7 tracking-[-0.02em] text-[#15110d]">
                   {snapshot?.bankAccount?.bankName || 'Chưa lưu ngân hàng'}
                 </div>
-                <div className="mt-2 text-[14px] leading-7 text-[#665a4e]">
+                <div className="mt-1.5 text-[13.5px] leading-6 text-[#5E6266]">
                   {snapshot?.bankAccount?.accountHolderName || 'Chưa có tên chủ tài khoản'}
                 </div>
-                <div className="mt-1 text-[14px] leading-7 text-[#665a4e]">{maskAccountNumber(snapshot?.bankAccount?.accountNumber)}</div>
-              </div>
-
-              <div className="rounded-[26px] border border-[#ece4da] bg-[#fcfaf8] p-5">
-                <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#8d7f72]">Lần cập nhật gần nhất</div>
-                <div className="font-['Inter',_sans-serif] mt-2 text-[20px] font-semibold text-[#15110d]">{formatDate(snapshot?.bankAccount?.updatedAt)}</div>
-                <div className="mt-3 text-[14px] leading-7 text-[#665a4e]">
-                  Hãy kiểm tra kỹ số tài khoản và tên chủ tài khoản trước khi lưu.
+                <div className={`mt-1 text-[14px] leading-6 text-[#665a4e] ${NUM_FONT}`}>
+                  {maskAccountNumber(snapshot?.bankAccount?.accountNumber)}
                 </div>
               </div>
+
+              <DataTile
+                label="Lần cập nhật gần nhất"
+                value={formatDate(snapshot?.bankAccount?.updatedAt)}
+                helper="Hãy kiểm tra kỹ số tài khoản và tên chủ tài khoản trước khi lưu."
+              />
             </div>
 
-            <form onSubmit={handleBankSubmit} className="space-y-5 rounded-[26px] border border-[#ece4da] bg-[#fcfaf8] p-5 md:p-6">
-              <div className="grid gap-5 md:grid-cols-2">
+            <form onSubmit={handleBankSubmit} className={`${TILE} space-y-4 p-5 md:p-6`}>
+              <div className="grid gap-4 md:grid-cols-2">
                 <InputField
                   label="Tên chủ tài khoản"
                   placeholder="NGUYEN VAN A"
@@ -1148,7 +1175,7 @@ export default function AffiliatePage() {
                 />
               </div>
 
-              <div className="grid gap-5 md:grid-cols-2">
+              <div className="grid gap-4 md:grid-cols-2">
                 <InputField
                   label="Chi nhánh"
                   placeholder="Chi nhánh TP.HCM"
@@ -1165,12 +1192,8 @@ export default function AffiliatePage() {
                 />
               </div>
 
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  disabled={isSavingBank}
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-[#15110d] px-6 py-3.5 text-[15px] font-semibold text-white transition hover:bg-[#2b2520] disabled:cursor-not-allowed disabled:opacity-60"
-                >
+              <div className="flex justify-end border-t border-[#eee6db] pt-5">
+                <button type="submit" disabled={isSavingBank} className={BTN_PRIMARY}>
                   {isSavingBank ? (
                     <>
                       <LoaderCircle className="h-4 w-4 animate-spin" />
@@ -1188,78 +1211,79 @@ export default function AffiliatePage() {
           </div>
         </>
       )}
-    </SectionShell>
+    </Panel>
   );
 
   const renderSupportSection = () => (
-    <SectionShell
-      eyebrow="Hỗ trợ"
+    <Panel
       title="Hướng dẫn vận hành affiliate"
-      description="Khi cần cập nhật hồ sơ, kiểm tra trạng thái duyệt hoặc xử lý thắc mắc về commission, bạn có thể theo dõi các bước dưới đây."
+      description={activeTabMeta.description}
+      actions={
+        <Link href="/chinh-sach-affiliate" className={BTN_GHOST}>
+          Chính sách affiliate
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+      }
     >
-      <div className="grid gap-5 lg:grid-cols-3">
-        <div className="rounded-[24px] border border-[#ece4da] bg-[#fcfaf8] p-5">
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#15110d] text-white">
-            <ShieldCheck className="h-5 w-5" />
-          </div>
-          <div className="mt-4 text-[21px] font-semibold tracking-[-0.04em] text-[#15110d]">1. Hoàn tất hồ sơ</div>
-          <p className="mt-3 text-[14px] leading-7 text-[#665a4e]">
-            Kiểm tra lại họ tên, CCCD, số điện thoại và social link ở mục Hồ sơ trước khi gửi xét duyệt.
-          </p>
-        </div>
+      <div className="grid gap-3.5 lg:grid-cols-3">
+        {[
+          {
+            icon: ShieldCheck,
+            title: 'Hoàn tất hồ sơ',
+            body: 'Kiểm tra lại họ tên, CCCD, số điện thoại và social link ở mục Hồ sơ trước khi gửi xét duyệt.',
+          },
+          {
+            icon: BadgeCheck,
+            title: 'Chờ kích hoạt',
+            body: 'Sau khi hồ sơ được duyệt, quản trị viên sẽ kích hoạt tài khoản affiliate để mở tổng quan, link và ngân hàng.',
+          },
+          {
+            icon: Wallet,
+            title: 'Đối soát commission',
+            body: 'Hãy lưu sẵn tài khoản ngân hàng để sẵn sàng cho bước chi trả khi commission được duyệt thanh toán.',
+          },
+        ].map((step, index) => {
+          const StepIcon = step.icon;
 
-        <div className="rounded-[24px] border border-[#ece4da] bg-[#fcfaf8] p-5">
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#15110d] text-white">
-            <BadgeCheck className="h-5 w-5" />
-          </div>
-          <div className="mt-4 text-[21px] font-semibold tracking-[-0.04em] text-[#15110d]">2. Chờ kích hoạt</div>
-          <p className="mt-3 text-[14px] leading-7 text-[#665a4e]">
-            Sau khi hồ sơ được duyệt, quản trị viên sẽ kích hoạt tài khoản affiliate để mở các mục tổng quan, link và ngân hàng.
-          </p>
-        </div>
-
-        <div className="rounded-[24px] border border-[#ece4da] bg-[#fcfaf8] p-5">
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#15110d] text-white">
-            <Wallet className="h-5 w-5" />
-          </div>
-          <div className="mt-4 text-[21px] font-semibold tracking-[-0.04em] text-[#15110d]">3. Đối soát commission</div>
-          <p className="mt-3 text-[14px] leading-7 text-[#665a4e]">
-            Hãy lưu sẵn tài khoản ngân hàng để sẵn sàng cho bước chi trả khi commission được duyệt thanh toán.
-          </p>
-        </div>
+          return (
+            <div key={step.title} className={`${TILE} p-5`}>
+              <div className="flex items-center gap-3">
+                <span className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-[#15110d] text-white">
+                  <StepIcon className="h-4 w-4" />
+                </span>
+                <span className={`text-[13px] font-semibold text-[#5E6266] ${NUM_FONT}`}>0{index + 1}</span>
+              </div>
+              <div className="mt-4 text-[17px] font-semibold tracking-[-0.02em] text-[#15110d]">{step.title}</div>
+              <p className="mt-2 text-[13.5px] leading-6 text-[#5E6266]">{step.body}</p>
+            </div>
+          );
+        })}
       </div>
 
-      <div className="mt-6 rounded-[26px] border border-[#ece4da] bg-white p-5 md:p-6">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+      <div className="mt-5 rounded-[20px] border border-[#D9D9D9] bg-white p-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#8d7f72]">Cần hỗ trợ thêm?</div>
-            <div className="mt-3 text-[22px] font-semibold tracking-[-0.04em] text-[#15110d]">
+            <div className={EYEBROW}>Cần hỗ trợ thêm?</div>
+            <div className="mt-2.5 text-[18px] font-semibold tracking-[-0.02em] text-[#15110d]">
               Bạn có thể gửi yêu cầu hỗ trợ hoặc cập nhật hồ sơ bất cứ lúc nào.
             </div>
-            <p className="mt-3 max-w-[760px] text-[14px] leading-7 text-[#665a4e]">
+            <p className="mt-2 max-w-[680px] text-[13.5px] leading-6 text-[#5E6266]">
               Nếu hồ sơ đang bị từ chối hoặc chờ duyệt quá lâu, hãy liên hệ đội ngũ SRX để được kiểm tra lại trạng thái.
             </p>
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row">
-            <button
-              type="button"
-              onClick={() => setActiveTab('profile')}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-[#15110d] px-5 py-3 text-[14px] font-semibold text-white transition hover:bg-[#2b2520]"
-            >
+            <button type="button" onClick={() => setActiveTab('profile')} className={BTN_PRIMARY}>
               Xem hồ sơ
               <ArrowRight className="h-4 w-4" />
             </button>
-            <Link
-              href="/contact"
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-[#15110d] px-5 py-3 text-[14px] font-semibold text-[#15110d] transition hover:bg-[#15110d] hover:text-white"
-            >
+            <Link href="/contact" className={BTN_GHOST}>
               Liên hệ hỗ trợ
             </Link>
           </div>
         </div>
       </div>
-    </SectionShell>
+    </Panel>
   );
 
   const renderActiveSection = () => {
@@ -1280,44 +1304,52 @@ export default function AffiliatePage() {
   };
 
   return (
-    <section className="bg-[#f9f9f9] py-12 md:py-16 lg:py-20">
-      <div className="mx-auto max-w-[1560px] px-4 md:px-6">
-        <div className="mt-8">
+    <section className="bg-[#f9f9f9] py-10 md:py-16 md:min-h-[960px]">
+      <div className="mx-auto max-w-[1440px] px-4 md:px-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <h1 className="mt-3 text-[28px] font-semibold leading-tight tracking-[-0.04em] text-[#15110d] md:text-[34px]">
+              Khu vực cộng tác viên
+            </h1>
+          </div>
+          {user ? <StatusPill statusMeta={statusMeta} className="self-start lg:self-auto" /> : null}
+        </div>
+
+        <div className="mt-7">
           {isLoading ? (
-            <div className="flex min-h-[280px] items-center justify-center rounded-[30px] border border-[#ece4da] bg-white text-[15px] text-[#665a4e] shadow-[0_18px_60px_rgba(22,17,13,0.06)]">
+            <div className={`${PANEL} flex min-h-[260px] items-center justify-center text-[15px] text-[#665a4e]`}>
               <LoaderCircle className="mr-3 h-5 w-5 animate-spin" />
               Đang kiểm tra trạng thái tài khoản...
             </div>
           ) : !user ? (
             <LockedState />
           ) : (
-            <div className="grid gap-8 xl:grid-cols-[320px_minmax(0,1fr)]">
-              <aside className="space-y-5">
-                <div className="rounded-[20px] border border-[#ece4da] bg-white p-5 shadow-[0_18px_50px_rgba(22,17,13,0.05)]">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#15110d] text-white">
-                      <UserRound className="h-6 w-6" />
-                    </div>
-                    <div className={`inline-flex rounded-full border px-4 py-2 text-[13px] font-semibold ${statusMeta.tone}`}>
-                      {statusMeta.label}
+            <div className="grid gap-5 xl:grid-cols-[280px_minmax(0,1fr)] xl:items-start">
+              <aside className="space-y-4 xl:sticky xl:top-24">
+                <div className={`${PANEL} p-5`}>
+                  <div className="flex items-center gap-3.5">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-[#15110d] text-white">
+                      <UserRound className="h-5 w-5" />
+                    </span>
+                    <div className="min-w-0">
+                      <div className="truncate text-[16px] font-semibold leading-6 tracking-[-0.02em] text-[#15110d]">
+                        {affiliateUser?.fullName || affiliateUser?.displayName || affiliateUser?.email}
+                      </div>
+                      <div className="truncate text-[13px] text-[#5E6266]">{affiliateUser?.email}</div>
                     </div>
                   </div>
-                  <div className="mt-5 text-[12px] uppercase tracking-[0.2em] text-[#8d7f72]">Thành viên</div>
-                  <div className="mt-2 text-[24px] font-semibold leading-tight tracking-[-0.05em] text-[#15110d]">
-                    {affiliateUser?.fullName || affiliateUser?.displayName || affiliateUser?.email}
-                  </div>
-                  <div className="mt-2 text-[14px] text-[#665a4e]">{affiliateUser?.email}</div>
-                  {affiliateUser?.phone ? <div className="font-['Inter',_sans-serif] mt-1 text-[14px] text-[#665a4e]">{affiliateUser.phone}</div> : null}
-
+                  {affiliateUser?.phone ? (
+                    <div className={`mt-3.5 border-t border-[#f2ece3] pt-3.5 text-[13.5px] text-[#5E6266] ${NUM_FONT}`}>
+                      {affiliateUser.phone}
+                    </div>
+                  ) : null}
                 </div>
 
-                <div className="rounded-[20px] border border-[#ece4da] bg-white p-3 shadow-[0_18px_50px_rgba(22,17,13,0.05)]">
-                  <div className="mb-2 px-3 pt-3 text-[12px] font-semibold uppercase tracking-[0.2em] text-[#8d7f72]">
-                    Khu vực affiliate
-                  </div>
-                  <div className="space-y-3">
+                <div className={`${PANEL} p-3`}>
+                  <div className={`${EYEBROW} px-2 pb-2.5 pt-1.5`}>Khu vực affiliate</div>
+                  <nav className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-1 xl:gap-1.5">
                     {affiliateTabs.map((tab) => (
-                      <DashboardTabButton
+                      <TabButton
                         key={tab.id}
                         tab={tab}
                         isActive={activeTab === tab.id}
@@ -1325,32 +1357,31 @@ export default function AffiliatePage() {
                         onClick={setActiveTab}
                       />
                     ))}
-                  </div>
+                  </nav>
                 </div>
               </aside>
 
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {snapshot?.schemaNeedsUpdate ? (
-                  <div className="rounded-[24px] border border-[#f2d2a6] bg-[#fff7ea] px-5 py-4 text-[14px] leading-7 text-[#7b5b1a]">
-                    <div className="flex gap-3">
-                      <AlertCircle className="mt-1 h-5 w-5 shrink-0" />
-                      <div>
-                        Cơ sở dữ liệu hiện chưa có đủ trường cho affiliate. Hãy chạy file
-                        <span className="mx-1 font-semibold">database/mysql/05_affiliate_management.sql</span>
-                        trước khi dùng dữ liệu thật.
-                      </div>
+                  <div className="flex gap-3 rounded-[20px] border border-[#f2d2a6] bg-[#fff7ea] px-4 py-3.5 text-[13.5px] leading-6 text-[#7b5b1a]">
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                    <div>
+                      Cơ sở dữ liệu hiện chưa có đủ trường cho affiliate. Hãy chạy file
+                      <span className="mx-1 font-semibold">database/mysql/05_affiliate_management.sql</span>
+                      trước khi dùng dữ liệu thật.
                     </div>
                   </div>
                 ) : null}
 
                 {snapshotError ? (
-                  <div className="rounded-[24px] border border-[#efc4c4] bg-[#fff4f4] px-5 py-4 text-[14px] leading-7 text-[#a33a3a]">
-                    {snapshotError}
+                  <div className="flex gap-3 rounded-[20px] border border-[#efc4c4] bg-[#fff4f4] px-4 py-3.5 text-[13.5px] leading-6 text-[#a33a3a]">
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                    <div>{snapshotError}</div>
                   </div>
                 ) : null}
 
                 {isSnapshotLoading && !snapshot ? (
-                  <div className="flex min-h-[220px] items-center justify-center rounded-[30px] border border-[#ece4da] bg-white text-[15px] text-[#665a4e] shadow-[0_18px_50px_rgba(22,17,13,0.05)]">
+                  <div className={`${PANEL} flex min-h-[220px] items-center justify-center text-[15px] text-[#665a4e]`}>
                     <LoaderCircle className="mr-3 h-5 w-5 animate-spin" />
                     Đang tải dữ liệu affiliate...
                   </div>

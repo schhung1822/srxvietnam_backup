@@ -43,6 +43,9 @@ export default function PrivacyPolicyPage() {
                                 <p>
                                     Hoa hồng mỗi tháng sẽ được tính từ ngày 1 đến ngày cuối cùng của tháng. Tiền hoa hồng sẽ được chuyển vào tài khoản trong khoảng từ 5-7 ngày đầu tiên của tháng tiếp theo thông qua số tài khoản cung cấp
                                 </p>
+                                <p>
+                                    Mức hoa hồng mặc định của một Affilate cho SRX là <strong>18% hoa hồng / doanh số.</strong>
+                                </p>
                             </div>
 
                              <h3 className="text-[20px] lg:text-[22px] font-bold text-black mb-4 mt-8">
@@ -61,16 +64,16 @@ export default function PrivacyPolicyPage() {
 
                             <div className="space-y-4 text-[15px] lg:text-[16px] text-gray-800 leading-relaxed">
                                 <p>
-                                    Nhận hoa hồng trên những đơn hàng hoàn thành thanh toán và vận chuyển.
+                                    - Nhận hoa hồng trên những đơn hàng hoàn thành thanh toán và vận chuyển.
                                 </p>
                                 <p>
-                                    Được quảng bá hình ảnh trên các kênh truyền thông của medicube, gia tăng độ nhận diện.
+                                    - Được quảng bá hình ảnh trên các kênh truyền thông của medicube, gia tăng độ nhận diện.
                                 </p>
                                 <p>
-                                    Được dùng thử sản phẩm của medicube.
+                                    - Được dùng thử sản phẩm của medicube.
                                 </p>
                                 <p>
-                                    Cơ hội trở thành đại sứ thương hiệu của medicube  và hợp tác trong các project trong tương lai 
+                                    - Cơ hội trở thành đại sứ thương hiệu của medicube  và hợp tác trong các project trong tương lai 
                                 </p>
                             </div>
 
@@ -80,16 +83,16 @@ export default function PrivacyPolicyPage() {
 
                             <div className="space-y-4 text-[15px] lg:text-[16px] text-gray-800 leading-relaxed">
                                 <p>
-                                    Khách hàng mua sắm trên website https://srxvietnam.vn/ , đăng nhập bằng máy tính hay điện thoại đều được tính. 
+                                    - Khách hàng mua sắm trên website https://srx.vn/ , đăng nhập bằng máy tính hay điện thoại đều được tính. 
                                 </p>
                                 <p>
-                                    Khách mua hàng và hoàn thành thanh toán và vận chuyển. Không đổi trả trong vòng 7 ngày 
+                                    - Khách mua hàng và hoàn thành thanh toán và vận chuyển. Không đổi trả trong vòng 7 ngày 
                                 </p>
                                 <p>
-                                    Link affiliate chỉ được lưu giữ trên tài khoản cookie của khách hàng trong vòng 30 ngày. Sau 30 ngày sẽ không đựợc tính hoa hồng. 
+                                    - Link affiliate chỉ được lưu giữ trên tài khoản cookie của khách hàng trong vòng 30 ngày. Sau 30 ngày sẽ không đựợc tính hoa hồng. 
                                 </p>
                                 <p>
-                                    Trong trường hợp nhận sản phẩm dùng thử từ medicube để làm content, Publisher phải báo cáo lại với nhãn hàng vị trí gắn link và nội dung content để medicube  xét duyệt trước khi lên bài. Ngoài ra, medicube có toàn quyền sử dụng content của Publisher để quảng bá trên các kênh truyền thông chính thống của medicube. . 
+                                    - Trong trường hợp nhận sản phẩm dùng thử từ medicube để làm content, Publisher phải báo cáo lại với nhãn hàng vị trí gắn link và nội dung content để medicube  xét duyệt trước khi lên bài. Ngoài ra, medicube có toàn quyền sử dụng content của Publisher để quảng bá trên các kênh truyền thông chính thống của medicube. . 
                                 </p>
                             </div>
 
@@ -101,7 +104,7 @@ export default function PrivacyPolicyPage() {
                             </h4>
                             <div className="space-y-4 text-[15px] lg:text-[16px] text-gray-800 leading-relaxed">
                                 <p>
-                                    Hành vi Spam 
+                                    <strong>Hành vi Spam </strong>
                                 </p>
                                 <ul>
                                     <li>Gửi nhiều Affiliate link đến tin nhắn của người theo dõi để làm phiền</li>
@@ -109,7 +112,7 @@ export default function PrivacyPolicyPage() {
                                     <li>Spam Affiliate link lên các kênh trang không phù hợp gây ảnh hưởng danh tiếng thương hiệu </li>
                                 </ul>
                                 <p>
-                                    Hành vi nội dung không phù hợp, bị cấm 
+                                    <strong>Hành vi nội dung không phù hợp, bị cấm </strong>
                                 </p>
                                 <ul>
                                     <li>Đăng tải các thông tin kích động, bôi xấu sản phẩm của medicube.</li>
@@ -124,10 +127,10 @@ export default function PrivacyPolicyPage() {
                             </h4>
                             <div className="space-y-4 text-[15px] lg:text-[16px] text-gray-800 leading-relaxed">
                                 <p>
-                                    Lần 1: Cắt 50% hoa hồng trong tháng 
+                                    <strong>Lần 1:</strong> Cắt 50% hoa hồng trong tháng 
                                 </p>
                                 <p>
-                                    Lần 2: Cắt 100% hoa hồng và không được Affiliate nữa.  
+                                    <strong>Lần 2:</strong> Cắt 100% hoa hồng và không được Affiliate nữa.  
                                 </p>
                             </div>
 
@@ -164,12 +167,12 @@ export default function PrivacyPolicyPage() {
                             </div>
 
                              <h2 className="text-[20px] lg:text-[24px] font-bold text-black mb-4 mt-8">
-                                *Lưu ý
+                                <strong>*Lưu ý</strong>
                             </h2>
                             <div className="space-y-4 text-[15px] lg:text-[16px] text-gray-800 leading-relaxed">
                                 <ul>
                                     <li>Bước 1: Danh mục "Đường dẫn giới thiệu" ở đây sẽ điền mã giới thiệu là ID hoặc tên của Publisher. </li>
-                                    <li>Bước 2: Khi sao chép link để dán về trang cá nhân xin vui lòng lấy link theo cú pháp https://srxvietnam.vn/?ref=mã giới thiệu để nhận hoa hồng - mã giới thiệu tự đặt hoặc hệ thống sẽ tự cập nhập</li>
+                                    <li>Bước 2: Khi sao chép link để dán về trang cá nhân xin vui lòng lấy link theo cú pháp https://srx.vn/?ref=mã giới thiệu để nhận hoa hồng - mã giới thiệu tự đặt hoặc hệ thống sẽ tự cập nhập</li>
                                     <li>Bước 3: Đọc kỹ và tick vào ô "Tôi đã đọc và đồng ý với Điều khoản dịch vụ" -- Trở thành đối tác </li>
                                     <li>Bước 4: Điền thêm thông tin mẫu đơn đăng kí hợp tác tại đây và chờ xét duyệt trong vòng từ 3-5 ngày (Trừ ngày lễ, cuối tuần). Sau khi thông tin của bạn được xét duyệt medicube sẽ thông báo cho các bạn thông qua Email, điện thoại.</li>
                                 </ul>

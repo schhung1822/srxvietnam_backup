@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import AccountPage from '../../src/views/auth/AccountPage.jsx';
 import { buildMetadata } from '../../src/lib/seo.js';
+import { isGoogleAuthEnabled } from '../../src/lib/server/google-oauth.js';
 
 export const metadata = buildMetadata({
   title: 'Tài khoản',
@@ -8,6 +9,9 @@ export const metadata = buildMetadata({
   path: '/account',
   noIndex: true,
 });
+
+// Đọc cấu hình Google theo từng request để chỉ cần thêm biến môi trường là nút Google bật lên.
+export const dynamic = 'force-dynamic';
 
 export default function AccountRoute() {
   return (
@@ -20,7 +24,7 @@ export default function AccountRoute() {
         </section>
       }
     >
-      <AccountPage />
+      <AccountPage isGoogleAuthEnabled={isGoogleAuthEnabled()} />
     </Suspense>
   );
 }
