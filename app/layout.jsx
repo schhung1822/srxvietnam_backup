@@ -26,6 +26,9 @@ export const metadata = {
   authors: [{ name: SITE_NAME, url: SITE_URL }],
   creator: SITE_NAME,
   publisher: SITE_NAME,
+  other: {
+    'zalo-platform-site-verification': 'NlMH6zpw1YCAqTObszfbUmtnn6FXXnuvDZao',
+  },
   alternates: {
     canonical: '/',
   },

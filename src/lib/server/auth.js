@@ -10,6 +10,56 @@ export function normalizeEmail(email) {
     .toLowerCase();
 }
 
+/**
+ * Đưa số điện thoại về dạng nội địa 0xxxxxxxxx (bỏ mọi khoảng trắng, dấu, tiền tố +84).
+ */
+export function normalizePhone(value) {
+  const digits = String(value ?? '').replace(/\D/gu, '');
+
+  if (!digits) {
+    return '';
+  }
+
+  if (digits.startsWith('84') && digits.length >= 11) {
+    return `0${digits.slice(2)}`;
+  }
+
+  if (digits.startsWith('0')) {
+    return digits;
+  }
+
+  return digits.length === 9 ? `0${digits}` : digits;
+}
+
+/**
+ * 9 chữ số cuối là phần định danh duy nhất của một số di động Việt Nam, không phụ thuộc
+ * người dùng nhập 0903..., +84903... hay 0903 010 692. Dùng để so khớp khi đăng nhập vì
+ * cột users.phone lưu đúng chuỗi người dùng đã gõ lúc đăng ký nên định dạng không đồng nhất.
+ */
+export function getPhoneMatchKey(value) {
+  const digits = String(value ?? '').replace(/\D/gu, '');
+
+  return digits.length >= 9 ? digits.slice(-9) : '';
+}
+
+/**
+ * Người dùng có thể đăng nhập bằng email hoặc số điện thoại; dấu @ là dấu hiệu phân biệt.
+ */
+export function isEmailIdentifier(value) {
+  return String(value ?? '').includes('@');
+}
+
+/**
+ * Biểu thức SQL bỏ các ký tự phân tách thường gặp trong cột phone rồi lấy 9 số cuối,
+ * để so với getPhoneMatchKey().
+ */
+export const PHONE_MATCH_KEY_SQL = `
+  RIGHT(
+    REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(phone, ' ', ''), '-', ''), '.', ''), '(', ''), ')', ''), '+', ''),
+    9
+  )
+`;
+
 export function hashPassword(password) {
   const iterations = 120000;
   const salt = crypto.randomBytes(16).toString('hex');

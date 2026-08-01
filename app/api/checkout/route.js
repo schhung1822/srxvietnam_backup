@@ -7,6 +7,8 @@ import {
   paymentMethodOptions,
 } from '../../../src/lib/commerce/checkout.js';
 import { getAuthenticatedUserRow } from '../../../src/lib/server/account.js';
+import { EMAIL_PATTERN, toContactEmail } from '../../../src/lib/email-address.js';
+import { sendOrderConfirmationEmail } from '../../../src/lib/server/mail.js';
 import { resolveRequestOrigin } from '../../../src/lib/server/request-origin.js';
 import {
   AFFILIATE_REFERRAL_COOKIE_NAME,
@@ -59,7 +61,8 @@ function normalizeCustomer(body) {
   return {
     fullName: normalizeString(body?.fullName),
     phone: normalizeString(body?.phone),
-    email: normalizeString(body?.email).toLowerCase(),
+    // Email là tùy chọn: rỗng hoặc placeholder đều quy về '' để bỏ qua bước gửi thư.
+    email: toContactEmail(body?.email),
     province: normalizeString(body?.province),
     ward: normalizeString(body?.ward),
     addressLine: normalizeString(body?.addressLine),
@@ -99,8 +102,9 @@ function validateCustomer(customer) {
     throw new Error('Vui lòng nhập số điện thoại hợp lệ.');
   }
 
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customer.email)) {
-    throw new Error('Vui lòng nhập email hợp lệ.');
+  // Email không bắt buộc. Khách có điền thì mới kiểm tra định dạng để không gửi thư vào hư không.
+  if (customer.email && !EMAIL_PATTERN.test(customer.email)) {
+    throw new Error('Email chưa đúng định dạng. Bạn có thể để trống nếu không muốn nhận email.');
   }
 
   if (customer.province.length < 2) {
@@ -235,7 +239,8 @@ function buildCustomerFromSavedAddress(user, address) {
   return {
     fullName: address.recipient_name,
     phone: address.recipient_phone,
-    email: normalizeString(user?.email).toLowerCase(),
+    // Tài khoản đăng nhập bằng Zalo có email placeholder -> coi như không có email.
+    email: toContactEmail(user?.email),
     province: address.province,
     ward: address.ward || address.district || '',
     addressLine: address.address_line,
@@ -716,6 +721,27 @@ export async function POST(request) {
       gifts: giftItems,
       placedAt: new Date().toISOString(),
     };
+
+    // Khách có để lại email thì gửi thêm thư xác nhận đơn. Không có email thì bỏ qua,
+    // đơn hàng vẫn được tạo bình thường. Chạy nền như thông báo CRM: SMTP chậm hoặc lỗi
+    // không được làm hỏng đơn đã ghi nhận thành công.
+    if (customer.email) {
+      void sendOrderConfirmationEmail({
+        to: customer.email,
+        orderNumber,
+        customer,
+        items: [...lineItems, ...giftItems],
+        subtotal: totals.subtotal,
+        discountTotal: totals.discountTotal,
+        grandTotal: totals.grandTotal,
+        paymentMethodLabel,
+        notes,
+        paymentDetails,
+        siteOrigin: resolveRequestOrigin(request),
+      }).catch((error) => {
+        console.error(`Không gửi được email xác nhận đơn ${orderNumber}:`, error);
+      });
+    }
 
     void queueOrdersWebNotifications({
       orderNumber,

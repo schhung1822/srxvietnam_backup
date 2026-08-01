@@ -20,6 +20,7 @@ import useBrowserSearchParams from '../../hooks/useBrowserSearchParams.js';
 import { AuthField, AuthPasswordField } from '../../components/auth/AuthField.jsx';
 import { AuthAlert, AuthDivider, AuthSubmitButton, AuthTabs } from '../../components/auth/AuthPrimitives.jsx';
 import GoogleAuthButton from '../../components/auth/GoogleAuthButton.jsx';
+import ZaloQrLoginButton from '../../components/auth/ZaloQrLoginButton.jsx';
 import { getAuthErrorMessage } from '../../components/auth/authErrors.js';
 
 const dashboardTabIds = ['profile', 'password', 'orders', 'logout'];
@@ -422,7 +423,7 @@ function OrderDetailModal({ order, onClose }) {
   );
 }
 
-export default function AccountPage({ isGoogleAuthEnabled = false }) {
+export default function AccountPage({ isGoogleAuthEnabled = false, isZaloQrLoginEnabled = false }) {
   const router = useRouter();
   const searchParams = useBrowserSearchParams();
   const { user, isLoading, login, register: registerAccount, logout, refreshUser } = useAuth();
@@ -445,7 +446,7 @@ export default function AccountPage({ isGoogleAuthEnabled = false }) {
 
   const loginForm = useForm({
     defaultValues: {
-      email: '',
+      identifier: '',
       password: '',
     },
   });
@@ -1086,25 +1087,30 @@ export default function AccountPage({ isGoogleAuthEnabled = false }) {
                       Đăng nhập
                     </h2>
                     <p className="mt-2 text-[14.5px] leading-7 text-[#5E6266]">
-                      Nhập email và mật khẩu đã đăng ký để truy cập tài khoản.
+                      Nhập email hoặc số điện thoại đã đăng ký cùng mật khẩu để truy cập tài khoản.
                     </p>
 
-                    {isGoogleAuthEnabled ? (
+                    {isGoogleAuthEnabled || isZaloQrLoginEnabled ? (
                       <div className="mt-6 space-y-5">
-                        <GoogleAuthButton nextPath="/account" />
-                        <AuthDivider />
+                        {/* Máy tính: hai nút nằm cùng một hàng; điện thoại: xếp dọc. */}
+                        <div className="flex flex-col gap-3 sm:flex-row">
+                          {isGoogleAuthEnabled ? <GoogleAuthButton className="sm:min-w-0 sm:flex-1" nextPath="/account" /> : null}
+                          {isZaloQrLoginEnabled ? <ZaloQrLoginButton className="sm:min-w-0 sm:flex-1" nextPath="/account" /> : null}
+                        </div>
+                        <AuthDivider label="hoặc dùng email / sđt" />
                       </div>
                     ) : null}
 
                     <div className="mt-5 space-y-4">
                       <AuthField
-                        label="Email"
-                        type="email"
-                        autoComplete="email"
-                        placeholder="you@example.com"
-                        error={loginForm.formState.errors.email?.message}
-                        {...loginForm.register('email', {
-                          required: 'Vui lòng nhập email.',
+                        label="Email hoặc số điện thoại"
+                        type="text"
+                        inputMode="email"
+                        autoComplete="username"
+                        placeholder="you@example.com hoặc 09xxxxxxxx"
+                        error={loginForm.formState.errors.identifier?.message}
+                        {...loginForm.register('identifier', {
+                          required: 'Vui lòng nhập email hoặc số điện thoại.',
                         })}
                       />
 
@@ -1153,9 +1159,16 @@ export default function AccountPage({ isGoogleAuthEnabled = false }) {
                       Điền thông tin cơ bản để tạo tài khoản và đăng nhập ngay sau đó.
                     </p>
 
-                    {isGoogleAuthEnabled ? (
+                    {isGoogleAuthEnabled || isZaloQrLoginEnabled ? (
                       <div className="mt-6 space-y-5">
-                        <GoogleAuthButton label="Đăng ký với Google" nextPath="/account" />
+                        <div className="flex flex-col gap-3 sm:flex-row">
+                          {isGoogleAuthEnabled ? (
+                            <GoogleAuthButton className="sm:min-w-0 sm:flex-1" label="Đăng ký với Google" nextPath="/account" />
+                          ) : null}
+                          {isZaloQrLoginEnabled ? (
+                            <ZaloQrLoginButton className="sm:min-w-0 sm:flex-1" nextPath="/account" />
+                          ) : null}
+                        </div>
                         <AuthDivider />
                       </div>
                     ) : null}

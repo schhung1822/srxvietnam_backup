@@ -10,6 +10,7 @@ import useBrowserSearchParams from '../../hooks/useBrowserSearchParams.js';
 import { AuthField, AuthPasswordField } from '../../components/auth/AuthField.jsx';
 import { AuthAlert, AuthDivider, AuthSubmitButton } from '../../components/auth/AuthPrimitives.jsx';
 import GoogleAuthButton from '../../components/auth/GoogleAuthButton.jsx';
+import ZaloQrLoginButton from '../../components/auth/ZaloQrLoginButton.jsx';
 import { getAuthErrorMessage } from '../../components/auth/authErrors.js';
 
 const highlights = [
@@ -18,7 +19,7 @@ const highlights = [
   { icon: LockKeyhole, text: 'Session được lưu bằng cookie bảo mật trên website.' },
 ];
 
-export default function LoginPage({ isGoogleAuthEnabled = false }) {
+export default function LoginPage({ isGoogleAuthEnabled = false, isZaloQrLoginEnabled = false }) {
   const router = useRouter();
   const searchParams = useBrowserSearchParams();
   const { login, user, isLoading } = useAuth();
@@ -30,7 +31,7 @@ export default function LoginPage({ isGoogleAuthEnabled = false }) {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      email: '',
+      identifier: '',
       password: '',
     },
   });
@@ -98,26 +99,30 @@ export default function LoginPage({ isGoogleAuthEnabled = false }) {
                 Đăng nhập
               </h2>
               <p className="mt-2 text-[14.5px] leading-7 text-[#5E6266]">
-                Nhập email và mật khẩu đã đăng ký để truy cập tài khoản.
+                Nhập email hoặc số điện thoại đã đăng ký cùng mật khẩu để truy cập tài khoản.
               </p>
 
               <AuthAlert className="mt-5">{authErrorMessage}</AuthAlert>
 
-              {isGoogleAuthEnabled ? (
+              {isGoogleAuthEnabled || isZaloQrLoginEnabled ? (
                 <div className="mt-6 space-y-5">
-                  <GoogleAuthButton nextPath="/login" />
-                  <AuthDivider />
+                  <div className="flex flex-col gap-3 sm:flex-row">
+                    {isGoogleAuthEnabled ? <GoogleAuthButton className="sm:min-w-0 sm:flex-1" nextPath="/login" /> : null}
+                    {isZaloQrLoginEnabled ? <ZaloQrLoginButton className="sm:min-w-0 sm:flex-1" nextPath="/" /> : null}
+                  </div>
+                  <AuthDivider label="hoặc dùng email / sđt" />
                 </div>
               ) : null}
 
               <div className="mt-5 space-y-4">
                 <AuthField
-                  label="Email"
-                  type="email"
-                  autoComplete="email"
-                  placeholder="you@example.com"
-                  error={errors.email?.message}
-                  {...register('email', { required: 'Vui lòng nhập email.' })}
+                  label="Email hoặc số điện thoại"
+                  type="text"
+                  inputMode="email"
+                  autoComplete="username"
+                  placeholder="you@example.com hoặc 09xxxxxxxx"
+                  error={errors.identifier?.message}
+                  {...register('identifier', { required: 'Vui lòng nhập email hoặc số điện thoại.' })}
                 />
 
                 <AuthPasswordField

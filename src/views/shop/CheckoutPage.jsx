@@ -24,6 +24,7 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
 import { getCheckoutTotals, paymentMethodOptions } from '../../lib/commerce/checkout';
+import { EMAIL_PATTERN, toContactEmail } from '../../lib/email-address.js';
 import ProductArtwork from '../../components/shop/ProductArtwork';
 import provinceData from '../../../province.json';
 import wardData from '../../../ward.json';
@@ -451,7 +452,8 @@ export default function CheckoutPage() {
     checkoutForm.reset({
       fullName: currentValues.fullName || user?.fullName || '',
       phone: currentValues.phone || user?.phone || '',
-      email: currentValues.email || user?.email || '',
+      // toContactEmail lọc email placeholder của tài khoản đăng nhập bằng Zalo.
+      email: currentValues.email || toContactEmail(user?.email),
       province: currentValues.province || '',
       ward: currentValues.ward || '',
       addressLine: currentValues.addressLine || '',
@@ -664,7 +666,7 @@ export default function CheckoutPage() {
         ? {
             fullName: checkoutAddress.recipientName ?? user?.fullName ?? '',
             phone: checkoutAddress.recipientPhone ?? user?.phone ?? '',
-            email: user?.email ?? normalizedValues.email ?? '',
+            email: toContactEmail(user?.email) || normalizedValues.email || '',
             province: checkoutAddress.province ?? '',
             ward: checkoutAddress.ward || checkoutAddress.district || '',
             addressLine: checkoutAddress.addressLine ?? '',
@@ -842,12 +844,18 @@ export default function CheckoutPage() {
                           {formatCheckoutContactValue(completedCheckout.customer.phone)}
                         </div>
                       </div>
-                      <div className="px-4 py-1">
-                        <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Email</div>
-                        <div className="mt-1 break-all text-[15px] font-semibold text-[#15110d]">
-                          {formatCheckoutContactValue(completedCheckout.customer.email)}
+                      {/* Email là tùy chọn nên chỉ hiện khi khách có điền. */}
+                      {completedCheckout.customer.email ? (
+                        <div className="px-4 py-1">
+                          <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Email</div>
+                          <div className="mt-1 break-all text-[15px] font-semibold text-[#15110d]">
+                            {completedCheckout.customer.email}
+                          </div>
+                          <div className="mt-1 text-[12.5px] leading-5 text-[#8d7f72]">
+                            Thư xác nhận đơn hàng đã được gửi tới địa chỉ này.
+                          </div>
                         </div>
-                      </div>
+                      ) : null}
                       <div className="px-4 py-1">
                         <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Địa chỉ giao hàng</div>
                         <div className="mt-1 text-[15px] font-semibold leading-6 text-[#15110d]">
@@ -1056,20 +1064,27 @@ export default function CheckoutPage() {
                   </div>
 
                   <div className="md:col-span-2">
-                    <label className="mb-1.5 block pl-3 text-[13px] font-medium text-[#555]">Email</label>
+                    <label className="mb-1.5 block pl-3 text-[13px] font-medium text-[#555]">
+                      Email <span className="text-[#8a8a8a]">(không bắt buộc)</span>
+                    </label>
                     <input
                       type="email"
                       {...checkoutForm.register('email', {
-                        required: 'Vui lòng nhập email.',
-                        pattern: {
-                          value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                          message: 'Email không hợp lệ.',
-                        },
+                        // Bỏ trống được; chỉ kiểm tra định dạng khi khách có nhập.
+                        validate: (value) =>
+                          !String(value ?? '').trim() ||
+                          EMAIL_PATTERN.test(String(value).trim()) ||
+                          'Email không hợp lệ.',
                       })}
                       className="min-h-[44px] w-full rounded-full border border-[#d8d8d8] bg-white px-5 text-[14px] outline-none transition focus:border-[#2540dd]"
                       placeholder="example@gmail.com"
                     />
                     <FieldError error={checkoutForm.formState.errors.email} />
+                    {!checkoutForm.formState.errors.email ? (
+                      <p className="mt-1.5 pl-3 text-[12.5px] leading-5 text-[#8a8a8a]">
+                        Điền email nếu bạn muốn nhận thêm thư xác nhận đơn hàng. Để trống vẫn đặt hàng bình thường.
+                      </p>
+                    ) : null}
                   </div>
 
                   <LocationSelect

@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import AccountPage from '../../src/views/auth/AccountPage.jsx';
 import { buildMetadata } from '../../src/lib/seo.js';
 import { isGoogleAuthEnabled } from '../../src/lib/server/google-oauth.js';
+import { isZaloQrLoginEnabled } from '../../src/lib/server/zalo-miniapp.js';
 
 export const metadata = buildMetadata({
   title: 'Tài khoản',
@@ -24,7 +25,7 @@ export default function AccountRoute() {
         </section>
       }
     >
-      <AccountPage isGoogleAuthEnabled={isGoogleAuthEnabled()} />
+      <AccountPage isGoogleAuthEnabled={isGoogleAuthEnabled()} isZaloQrLoginEnabled={isZaloQrLoginEnabled()} />
     </Suspense>
   );
 }
