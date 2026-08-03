@@ -7,7 +7,7 @@ import ZaloLogo from './ZaloLogo.jsx';
 import ZaloQrLoginModal from './ZaloQrLoginModal.jsx';
 
 export default function ZaloQrLoginButton({
-  label = 'Quét mã QR Zalo',
+  label = 'Đăng nhập bằng Zalo',
   nextPath = '/account',
   disabled = false,
   className = '',
