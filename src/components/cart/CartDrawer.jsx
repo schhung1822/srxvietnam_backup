@@ -1,11 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, Gift, Minus, Plus, ShoppingBag, TicketPercent, Trash2, X } from 'lucide-react';
+import { ArrowRight, Gift, Minus, Plus, ShoppingBag, Trash2, X } from 'lucide-react';
 import ProductArtwork from '../shop/ProductArtwork';
+import VoucherField from './VoucherField';
+import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
 import { getCheckoutTotals } from '../../lib/commerce/checkout';
+import { useDiscountCodes } from '../../hooks/useDiscountCodes';
 import { useEligibleGifts } from '../../hooks/useEligibleGifts';
 
 const moneyFormatter = new Intl.NumberFormat('vi-VN');
@@ -20,10 +23,21 @@ export default function CartDrawer() {
     removeItem,
     clearCart,
   } = useCart();
+  const { user } = useAuth();
+  const { discountCodes, isLoading: isLoadingDiscountCodes } = useDiscountCodes();
   const [couponCode, setCouponCode] = useState('');
-  const [discountAmount, setDiscountAmount] = useState(0);
-  const [couponMessage, setCouponMessage] = useState('');
   const { gifts } = useEligibleGifts(items, couponCode);
+
+  const totals = useMemo(
+    () => getCheckoutTotals({ subtotal, couponCode, discountCodes }),
+    [couponCode, discountCodes, subtotal],
+  );
+
+  useEffect(() => {
+    if (couponCode && !totals.coupon.isValid) {
+      setCouponCode('');
+    }
+  }, [couponCode, totals.coupon.isValid]);
 
   useEffect(() => {
     if (!isCartOpen) {
@@ -37,18 +51,6 @@ export default function CartDrawer() {
       document.body.style.overflow = previousOverflow;
     };
   }, [isCartOpen]);
-
-  const applyCoupon = () => {
-    const totals = getCheckoutTotals({
-      subtotal,
-      couponCode,
-    });
-
-    setDiscountAmount(totals.discountTotal);
-    setCouponMessage(totals.coupon.message);
-  };
-
-  const total = Math.max(subtotal - discountAmount, 0);
 
   return (
     <>
@@ -64,7 +66,7 @@ export default function CartDrawer() {
           isCartOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        <div className="flex items-center justify-between border-b border-[#e9e3da] px-5 py-5">
+        <div className="flex items-center justify-between border-b border-[#D7D7D7] px-5 py-5">
           <div className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#15110d] text-white">
               <ShoppingBag className="h-5 w-5" />
@@ -204,46 +206,32 @@ export default function CartDrawer() {
         </div>
 
         <div className="border-t border-[#d7d7d7] px-5 py-5">
-          <div className=" border-[#ece4da]">
-            <div className="mb-3 flex items-center gap-2 text-[13px] font-semibold uppercase tracking-[0.16em] text-[#333]">
-              <TicketPercent className="h-4 w-4" />
-              Mã giảm giá
-            </div>
+          <VoucherField
+            subtotal={subtotal}
+            discountCodes={discountCodes}
+            isLoading={isLoadingDiscountCodes}
+            appliedCode={totals.coupon.isValid ? totals.coupon.code : ''}
+            discountTotal={totals.discountTotal}
+            onApply={setCouponCode}
+            onRemove={() => setCouponCode('')}
+            isLoggedIn={Boolean(user)}
+            loginHref="/login?next=/checkout"
+          />
 
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={couponCode}
-                onChange={(event) => setCouponCode(event.target.value)}
-                placeholder="Ví dụ: SRX10"
-                className="min-w-0 flex-1 rounded-full border border-[#d7d7d7] bg-white px-4 py-3 text-[14px] text-[#15110d] outline-none transition focus:border-[#15110d]"
-              />
-              <button
-                type="button"
-                onClick={applyCoupon}
-                className="rounded-full bg-[#15110d] px-4 py-3 text-[13px] font-semibold text-white"
-              >
-                Áp dụng
-              </button>
-            </div>
-
-            {couponMessage ? (
-              <div className="mt-3 text-[13px] text-[#75695d]">{couponMessage}</div>
-            ) : null}
-          </div>
-
-          <div className="mt-4 space-y-2 text-[14px] text-[#6d6053]">
+          <div className="mt-5 space-y-2 border-t border-[#B7B7B7] pt-4 text-[14px] text-[#6d6053]">
             <div className="flex items-center justify-between">
               <span>Tạm tính</span>
-              <span className="font-['Inter',_sans-serif] font-medium text-[#15110d]">{moneyFormatter.format(subtotal)}đ</span>
+              <span className="font-['Inter',_sans-serif] font-medium text-[#15110d]">{moneyFormatter.format(totals.subtotal)}đ</span>
             </div>
             <div className="flex items-center justify-between">
               <span>Giảm giá</span>
-              <span className="font-['Inter',_sans-serif] font-medium text-[#15110d]">-{moneyFormatter.format(discountAmount)}đ</span>
+              <span className={`font-['Inter',_sans-serif] font-medium ${totals.discountTotal > 0 ? 'text-[#3f6b39]' : 'text-[#15110d]'}`}>
+                -{moneyFormatter.format(totals.discountTotal)}đ
+              </span>
             </div>
             <div className="flex items-center justify-between pt-2 text-[18px] font-semibold text-[#15110d]">
               <span>Tổng cộng</span>
-              <span className="font-['Inter',_sans-serif]">{moneyFormatter.format(total)}đ</span>
+              <span className="font-['Inter',_sans-serif]">{moneyFormatter.format(totals.grandTotal)}đ</span>
             </div>
           </div>
 

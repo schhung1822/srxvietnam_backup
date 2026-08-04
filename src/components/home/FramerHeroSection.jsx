@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+﻿import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Manrope } from 'next/font/google';
 import gsap from 'gsap';

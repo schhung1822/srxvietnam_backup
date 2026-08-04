@@ -17,15 +17,16 @@ import {
   QrCode,
   ShieldCheck,
   ShoppingBag,
-  TicketPercent,
   Trash2,
   Truck,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
 import { getCheckoutTotals, paymentMethodOptions } from '../../lib/commerce/checkout';
+import { useDiscountCodes } from '../../hooks/useDiscountCodes';
 import { EMAIL_PATTERN, toContactEmail } from '../../lib/email-address.js';
 import ProductArtwork from '../../components/shop/ProductArtwork';
+import VoucherField from '../../components/cart/VoucherField';
 import provinceData from '../../../province.json';
 import wardData from '../../../ward.json';
 
@@ -268,25 +269,6 @@ function CheckoutCartLine({ item, onQuantityChange, onVariantChange, onRemove })
   );
 }
 
-function formatDiscountCodeDate(value) {
-  if (!value) return '';
-  const parsedDate = new Date(value);
-  return Number.isNaN(parsedDate.getTime()) ? '' : new Intl.DateTimeFormat('vi-VN').format(parsedDate);
-}
-
-function getDiscountCodeSummary(discountCode) {
-  if (discountCode.description) return discountCode.description;
-  if (discountCode.discountType === 'percentage') return 'Giảm ' + discountCode.discountValue + '%' + (discountCode.minOrderAmount ? ' cho đơn từ ' + Number(discountCode.minOrderAmount).toLocaleString('vi-VN') + '?' : '');
-  if (discountCode.discountType === 'fixed_amount') return 'Giảm ' + Number(discountCode.discountValue).toLocaleString('vi-VN') + '?' + (discountCode.minOrderAmount ? ' cho đơn từ ' + Number(discountCode.minOrderAmount).toLocaleString('vi-VN') + '?' : '');
-  if (discountCode.discountType === 'free_shipping') return 'Miễn phí giao hàng';
-  return discountCode.name;
-}
-
-function isDiscountCodeEligible(discountCode, subtotal) {
-  return Number(subtotal) >= Number(discountCode.minOrderAmount ?? 0);
-}
-
-
 function LocationSelect({ label, value, options, placeholder, disabled = false, inputProps, error, onChange }) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -410,11 +392,9 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { user, isLoading: isAuthLoading } = useAuth();
   const { items, subtotal, clearCart, isReady, updateQuantity, updateVariant, removeItem } = useCart();
+  const { discountCodes, isLoading: isLoadingDiscountCodes } = useDiscountCodes();
   const [paymentMethod, setPaymentMethod] = useState('cod');
-  const [couponCode, setCouponCode] = useState('');
   const [appliedCouponCode, setAppliedCouponCode] = useState('');
-  const [couponMessage, setCouponMessage] = useState('');
-  const [couponMessageType, setCouponMessageType] = useState('');
   const [submitError, setSubmitError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [completedCheckout, setCompletedCheckout] = useState(null);
@@ -423,8 +403,6 @@ export default function CheckoutPage() {
   const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
   const [addressesError, setAddressesError] = useState('');
   const [saveNewAddress] = useState(true);
-  const [discountCodes, setDiscountCodes] = useState([]);
-  const [isLoadingDiscountCodes, setIsLoadingDiscountCodes] = useState(false);
 
   const checkoutForm = useForm({
     defaultValues: defaultCheckoutValues,
@@ -517,26 +495,7 @@ export default function CheckoutPage() {
     };
   }, [user]);
 
-  useEffect(() => {
-    let isCancelled = false;
-    const loadDiscountCodes = async () => {
-      try {
-        setIsLoadingDiscountCodes(true);
-        const response = await fetch('/api/discount-codes', { method: 'GET', cache: 'no-store' });
-        const data = await parseJson(response);
-        if (!isCancelled) setDiscountCodes(Array.isArray(data.discountCodes) ? data.discountCodes : []);
-      } catch {
-        if (!isCancelled) setDiscountCodes([]);
-      } finally {
-        if (!isCancelled) setIsLoadingDiscountCodes(false);
-      }
-    };
-    loadDiscountCodes();
-    return () => {
-      isCancelled = true;
-    };
-  }, []);
-
+  // Giỏ hàng đổi số lượng có thể khiến mã đang áp dụng không còn thỏa điều kiện.
   useEffect(() => {
     if (!appliedCouponCode) {
       return;
@@ -547,9 +506,6 @@ export default function CheckoutPage() {
       couponCode: appliedCouponCode,
       discountCodes,
     });
-
-    setCouponMessage(nextTotals.coupon.message);
-    setCouponMessageType(nextTotals.coupon.isValid ? 'success' : 'error');
 
     if (!nextTotals.coupon.isValid) {
       setAppliedCouponCode('');
@@ -573,18 +529,6 @@ export default function CheckoutPage() {
 
   const hasSavedAddresses = addresses.length > 0;
   const useSavedAddresses = Boolean(user && hasSavedAddresses);
-
-  const handleApplyCoupon = () => {
-    const nextTotals = getCheckoutTotals({
-      subtotal,
-      couponCode,
-      discountCodes,
-    });
-
-    setAppliedCouponCode(nextTotals.coupon.isValid ? nextTotals.coupon.code : '');
-    setCouponMessage(nextTotals.coupon.message);
-    setCouponMessageType(nextTotals.coupon.isValid ? 'success' : 'error');
-  };
 
   const handleSubmitOrder = checkoutForm.handleSubmit(async (values) => {
     if (!items.length) {
@@ -1190,78 +1134,17 @@ export default function CheckoutPage() {
             </div>
 
             <div className="bg-white p-0">
-              <div className="hidden">
-                <TicketPercent className="h-4 w-4" />
-                Mã giảm giá
-              </div>
-
-              <div className="mt-4 flex gap-2 overflow-x-auto pb-3 sm:mt-5 sm:gap-3">
-                {isLoadingDiscountCodes ? (
-                  <div className="min-w-[230px] rounded-[8px] sm:min-w-[270px] bg-[#f5f5f5] px-4 py-6 text-[13px] text-[#777]">Đang tải voucher...</div>
-                ) : discountCodes.length ? (
-                  discountCodes.map((discountCode) => {
-                    const isEligible = isDiscountCodeEligible(discountCode, totals.subtotal);
-                    const isActive = appliedCouponCode === discountCode.code;
-                    return (
-                      <button
-                        key={discountCode.id ?? discountCode.code}
-                        type="button"
-                        onClick={() => {
-                          setCouponCode(discountCode.code);
-                          const nextTotals = getCheckoutTotals({ subtotal, couponCode: discountCode.code, discountCodes });
-                          setAppliedCouponCode(nextTotals.coupon.isValid ? nextTotals.coupon.code : '');
-                          setCouponMessage(nextTotals.coupon.message);
-                          setCouponMessageType(nextTotals.coupon.isValid ? 'success' : 'error');
-                        }}
-                        className={[
-                          'relative min-w-[230px] overflow-hidden rounded-[8px] border px-3 pb-7 pt-3 text-left transition sm:min-w-[270px] sm:px-4',
-                          isActive ? 'border-[#2540dd] bg-[#f8f9ff]' : 'border-transparent bg-[#f5f5f5] hover:border-[#cfd6ff]',
-                          isEligible ? 'text-[#747474]' : 'text-[#aaa]',
-                        ].join(' ')}
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <div className="text-[15px] font-bold text-[#666]">{discountCode.code}</div>
-                            <div className="mt-1 line-clamp-2 text-[12px] leading-4">{getDiscountCodeSummary(discountCode)}</div>
-                          </div>
-                          <span className={['mt-4 h-4 w-4 shrink-0 rounded-full border', isActive ? 'border-[#2540dd] bg-[#2540dd]' : 'border-[#ddd] bg-white'].join(' ')} />
-                        </div>
-                        <div className="mt-4 flex items-center justify-between text-[11px]"><span>{discountCode.endsAt ? 'HSD: ' + formatDiscountCodeDate(discountCode.endsAt) : 'Không giới hạn'}</span><span className="font-semibold text-[#2540dd]">Điều kiện</span></div>
-                        <div className={isEligible ? 'absolute inset-x-0 bottom-0 bg-[#eef3ff] px-3 py-1 text-[11px] font-semibold text-[#2540dd]' : 'absolute inset-x-0 bottom-0 bg-[#fff0e8] px-3 py-1 text-[11px] font-semibold text-[#ff6b22]'}>{isEligible ? 'Có thể áp dụng cho đơn hàng này' : 'Đơn hàng chưa thỏa mãn điều kiện áp dụng mã'}</div>
-                      </button>
-                    );
-                  })
-                ) : (
-                  <div className="min-w-[230px] rounded-[8px] sm:min-w-[270px] bg-[#f5f5f5] px-4 py-6 text-[13px] text-[#777]">Chưa có voucher khả dụng</div>
-                )}
-              </div>
-
-              <div className="mt-3 flex gap-2 sm:mt-4">
-                <input
-                  type="text"
-                  value={couponCode}
-                  onChange={(event) => setCouponCode(event.target.value)}
-                  placeholder="Ví dụ: SRX10"
-                  className="min-h-[42px] min-w-0 flex-1 rounded-full border border-[#d8d8d8] bg-white px-4 text-[13px] outline-none transition focus:border-[#15110d] sm:min-h-[44px] sm:px-5 sm:text-[14px]"
-                />
-                <button
-                  type="button"
-                  onClick={handleApplyCoupon}
-                  className="min-h-[42px] rounded-full bg-black px-5 text-[13px] font-bold uppercase text-white transition hover:bg-[#222] sm:min-h-[44px] sm:px-7 sm:text-[14px]"
-                >
-                  Áp dụng
-                </button>
-              </div>
-
-              {couponMessage ? (
-                <div
-                  className={`mt-3 text-[13px] ${
-                    couponMessageType === 'success' ? 'text-[#2c7a4b]' : 'text-[#ad4040]'
-                  }`}
-                >
-                  {couponMessage}
-                </div>
-              ) : null}
+              <VoucherField
+                subtotal={subtotal}
+                discountCodes={discountCodes}
+                isLoading={isLoadingDiscountCodes}
+                appliedCode={totals.coupon.isValid ? totals.coupon.code : ''}
+                discountTotal={totals.discountTotal}
+                onApply={setAppliedCouponCode}
+                onRemove={() => setAppliedCouponCode('')}
+                isLoggedIn={Boolean(user)}
+                loginHref="/login?next=/checkout"
+              />
 
               <div className="mt-6 border-t border-[#e5e5e5] pt-5 sm:mt-8 sm:pt-7"><h3 className="text-[20px] font-semibold tracking-[-0.02em] text-[#15110d] sm:text-[22px]">Chi tiết thanh toán</h3><div className="mt-4 space-y-3 text-[14px] text-[#666] sm:mt-5 sm:space-y-4 sm:text-[15px]">
                 <div className="flex items-center justify-between">
