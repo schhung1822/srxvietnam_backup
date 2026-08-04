@@ -1,13 +1,17 @@
 ﻿import Link from 'next/link';
-import { ArrowLeft, ArrowUpRight } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, ChevronRight, Clock3 } from 'lucide-react';
 import { formatNewsDate } from '../../lib/news/articles.js';
 import { getPostGalleryImages, getRelatedNewsArticles } from '../../lib/server/news.js';
 import AboutContactSection from '../../components/aboutus/AboutContactSection.jsx';
 import NewsShareCopyButton from '../../components/news/NewsShareCopyButton.jsx';
 import NewsArticleViewTracker from '../../components/news/NewsArticleViewTracker.jsx';
+import NewsArticleToc from '../../components/news/NewsArticleToc.jsx';
+import NewsReadingProgress from '../../components/news/NewsReadingProgress.jsx';
 import PostImageGallery from '../../components/news/PostImageGallery.jsx';
 import SRXLogo from '../../components/home/SrxLogo.jsx';
 import styles from './NewsDetailMinimalPage.module.css';
+
+const CONTENT_ELEMENT_ID = 'news-article-content';
 
 const ENTITY_MAP = {
   '&nbsp;': ' ',
@@ -144,6 +148,7 @@ function normalizeArticleContent(rawContent = '') {
     .replace(/<p>\s*(?:&nbsp;|\s|<br\s*\/?>)*<\/p>/gi, '')
     .replace(/<li>([\s\S]*?)<br\s*\/?>\s*&nbsp;\s*<\/li>/gi, '<li>$1</li>')
     .replace(/&nbsp;/gi, ' ')
+    .replace(/<table\b[\s\S]*?<\/table>/gi, (table) => `<div class="articleTableScroll">${table}</div>`)
     .trim();
 
   if (!headings.length && content) {
@@ -155,44 +160,29 @@ function normalizeArticleContent(rawContent = '') {
   return { html: content, headings };
 }
 
-function getTocIndent(level) {
-  if (level <= 2) {
-    return '';
-  }
-
-  if (level === 3) {
-    return 'pl-4';
-  }
-
-  return 'pl-8';
-}
-
 function RelatedNewsCard({ article }) {
   return (
-    <Link href={`/follow-srx/${article.slug}`} className="group block">
-      <article className="flex h-full flex-col">
-        <div className="relative overflow-hidden rounded-[16px] bg-[#eef2ff] shadow-[0_20px_50px_rgba(79,94,147,0.08)]">
-          <div className="aspect-[1.15/1] overflow-hidden">
-            <img
-              src={article.coverImage}
-              alt={article.coverAlt}
-              className="h-full w-full object-cover transition duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
-            />
-          </div>
-          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(12,16,28,0.12)_100%)]" />
-          <div className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/92 text-[#1f2737] opacity-0 shadow-[0_18px_40px_rgba(0,0,0,0.12)] transition-all duration-500 group-hover:opacity-100">
+    <Link href={`/follow-srx/${article.slug}`} className="group block h-full">
+      <article className="flex h-full flex-col overflow-hidden rounded-[22px] border border-[#e6eaf8] bg-white shadow-[0_18px_44px_-32px_rgba(43,54,110,0.55)] transition duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-1.5 group-hover:border-[#c8d2f7] group-hover:shadow-[0_34px_66px_-34px_rgba(43,54,110,0.5)]">
+        <div className="relative aspect-[16/10] overflow-hidden bg-[#eef2ff]">
+          <img
+            src={article.coverImage}
+            alt={article.coverAlt}
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.06]"
+          />
+          <div className="absolute right-4 top-4 flex h-10 w-10 translate-y-1 items-center justify-center rounded-full bg-white/92 text-[#1f2737] opacity-0 shadow-[0_18px_40px_rgba(0,0,0,0.12)] transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
             <ArrowUpRight className="h-5 w-5" strokeWidth={1.8} />
           </div>
         </div>
 
-        <div className="px-1 pb-1 pt-4">
-          <div className="font-['Inter',_sans-serif] text-[12px] font-medium tracking-[0.01em] text-[#7f8495]">
+        <div className="flex flex-1 flex-col gap-3 p-6">
+          <div className="font-['Inter',_sans-serif] text-[12px] font-medium tracking-[0.01em] text-[#858ba5]">
             {formatNewsDate(article.publishedAt)}
           </div>
-          <h3 className="mt-3 line-clamp-2 text-[22px] font-medium leading-[1.2] tracking-[-0.05em] text-[#2b3140]">
+          <h3 className="line-clamp-3 text-[18px] font-semibold leading-[1.24] tracking-[-0.035em] text-[#141822] transition duration-300 group-hover:text-[#4d5cd3]">
             {article.title}
           </h3>
-          <p className="mt-3 line-clamp-2 text-[14px] leading-7 text-[#616777]">{article.excerpt}</p>
+          <p className="line-clamp-2 text-[14px] leading-7 text-[#6b7288]">{article.excerpt}</p>
         </div>
       </article>
     </Link>
@@ -201,6 +191,7 @@ function RelatedNewsCard({ article }) {
 
 export default async function NewsDetailMinimalPage({ article }) {
   const { html, headings } = normalizeArticleContent(article.content);
+  const tocHeadings = headings.filter((heading) => heading.level === 2);
   const isMergedNewsEventCategory =
     article.categorySlug === 'tin-tuc' || article.categorySlug === 'su-kien';
   const listPath = isMergedNewsEventCategory ? '/tin-tuc' : '/follow-srx';
@@ -211,123 +202,132 @@ export default async function NewsDetailMinimalPage({ article }) {
   ]);
 
   return (
-    <section className="bg-[#fff] pb-20 pt-8 md:pb-24 md:pt-8">
+    <section className="bg-white pb-20 md:pb-24">
       <NewsArticleViewTracker slug={article.slug} />
+      <NewsReadingProgress contentId={CONTENT_ELEMENT_ID} />
+
       <div className="mx-auto max-w-[1280px] px-4 md:px-6 xl:px-0">
-        <div>
-          <div className="mt-14 grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start lg:gap-14">
-            <article className="min-w-0">
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-[14px] text-[#7e8498]">
-                <Link href="/" className="transition hover:text-[#252c3d]">
-                  Trang chủ
-                </Link>
-                <span>/</span>
-                <Link href={listPath} className="transition hover:text-[#252c3d]">
-                  {listLabel}
-                </Link>
-                <span>/</span>
-                <span className="line-clamp-1 text-[#252c3d]">{article.title}</span>
-              </div>
-              <h1
-                className="mt-6 text-[24px] font-medium leading-[1] tracking-[-0.06em] text-[#232836] sm:text-[30px] lg:text-[36px]"
-                style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
-              >
-                {article.title}
-              </h1>
+        <div className="pb-2 pt-8 md:pt-10">
+          <nav
+            className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-[#858ba5]"
+            aria-label="Breadcrumb"
+          >
+            <Link href="/" className="transition hover:text-[#232b4d]">
+              Trang chủ
+            </Link>
+            <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-60" />
+            <Link href={listPath} className="transition hover:text-[#232b4d]">
+              {listLabel}
+            </Link>
+            <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-60" />
+            <span className="line-clamp-1 text-[#3d4560]">{article.title}</span>
+          </nav>
 
-              <div className="mt-6 flex flex-wrap items-center gap-3 text-[14px] text-[#788196]">
-                <div className="inline-flex rounded-full border border-[#dfe4ff] bg-white px-4 py-2 text-[12px] font-semibold uppercase tracking-[0.18em] text-[#6f7890]">
-                  {article.category}
-                </div>
-                <span className="h-1 w-1 rounded-full bg-[#b3bad1]" />
-                <span className="font-['Inter',_sans-serif]">{formatNewsDate(article.publishedAt)}</span>
-                <span className="h-1 w-1 rounded-full bg-[#b3bad1]" />
-                <span>{article.readTime}</span>
-              </div>
-
-              <p className="mt-6 w-full text-[16px] leading-9 text-[#5f687c]">{article.excerpt}</p>
-
-              {(article.tags ?? []).length ? (
-                <div className="my-6 flex flex-wrap gap-2">
-                  {(article.tags ?? []).map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded-full border border-[#dfe4ff] bg-[#f8f9ff] px-3 py-2 text-[13px] font-medium text-[#50586b]"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              ) : null}
-
-              {article.coverImage ? (
-                <figure className="mb-10 overflow-hidden rounded-[12px] bg-[#eef2ff] shadow-[0_24px_70px_rgba(79,94,147,0.12)]">
-                  <img src={article.coverImage} alt={article.coverAlt} className="h-full w-full object-cover" />
-                </figure>
-              ) : null}
-
-              <div className={styles.articleRich} dangerouslySetInnerHTML={{ __html: html }} />
-
-              <NewsShareCopyButton title={article.title} />
-
-              <Link
-                href={listPath}
-                className="mt-14 inline-flex items-center gap-2 rounded-full border border-[#d8def7] bg-white px-5 py-3 text-[14px] font-medium text-[#252c3d] transition hover:border-[#bac4f5] hover:bg-[#f8f9ff]"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Quay lại danh sách bài viết
-              </Link>
-            </article>
-
-            <aside className="self-start lg:sticky lg:top-28">
-              <div className="rounded-[28px] border border-[#eceef7] bg-[#fff] p-6 shadow-[0_18px_50px_rgba(79,94,147,0.08)]">
-                <h2 className="text-[20px] font-semibold tracking-[-0.04em] text-[#1f2737]">Mục lục</h2>
-
-                <hr className='mt-4' />
-
-                {headings.length ? (
-                  <nav className="mt-4 space-y-2">
-                    {headings.map((heading, index) => (
-                      <a
-                        key={`${heading.id}-${index + 1}`}
-                        href={`#${heading.id}`}
-                        className={`block text-[15px] leading-7 text-[#4d566b] transition hover:text-[#6b71d5] ${getTocIndent(heading.level)}`}
-                      >
-                        {heading.text}
-                      </a>
-                    ))}
-                  </nav>
-                ) : (
-                  <p className="mt-5 text-[15px] leading-7 text-[#6f7890]">Bài viết này chưa có mục lục.</p>
-                )}
-              </div>
-
-              {galleryImages.length ? <PostImageGallery images={galleryImages} /> : null}
-            </aside>
+          <div className="mt-7 flex flex-wrap items-center gap-x-3 gap-y-2 text-[13px] text-[#6f7890]">
+            <span className="inline-flex rounded-full border border-[#dde3fb] bg-white px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#5566d6]">
+              {article.category}
+            </span>
+            <span className="font-['Inter',_sans-serif]">{formatNewsDate(article.publishedAt)}</span>
+            <span className="h-1 w-1 rounded-full bg-[#b8bed4]" />
+            <span className="inline-flex items-center gap-1.5">
+              <Clock3 className="h-3.5 w-3.5 shrink-0" />
+              {article.readTime}
+            </span>
           </div>
+
+          <h1
+            className="mt-5 max-w-[90%] text-[28px] font-semibold leading-[1.14] tracking-[-0.035em] text-[#141822] sm:text-[36px] lg:text-[46px]"
+            style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
+          >
+            {article.title}
+          </h1>
+
+          {article.excerpt ? (
+            <p className="mt-6 max-w-[100%] border-l-[3px] border-[#4f67e8] pl-5 text-[15px] leading-[22px] text-[#5a6178] md:text-[16px]">
+              {article.excerpt}
+            </p>
+          ) : null}
+
+          {(article.tags ?? []).length ? (
+            <div className="mt-6 flex flex-wrap gap-2">
+              {(article.tags ?? []).map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full border border-[#e2e6f8] bg-white px-3.5 py-1.5 text-[13px] font-medium text-[#5a6178]"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          ) : null}
+        </div>
+
+        <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start lg:gap-14">
+          <article className="min-w-0">
+            {article.coverImage ? (
+              <figure className="mb-10 overflow-hidden rounded-[20px] bg-[#eef2ff]">
+                <img
+                  src={article.coverImage}
+                  alt={article.coverAlt}
+                  className="aspect-[16/9] w-full object-cover"
+                />
+              </figure>
+            ) : null}
+
+            <NewsArticleToc headings={tocHeadings} variant="mobile" />
+
+            <div
+              id={CONTENT_ELEMENT_ID}
+              className={styles.articleRich}
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
+
+            <NewsShareCopyButton title={article.title} />
+
+            <Link
+              href={listPath}
+              className="group mt-12 inline-flex items-center gap-2.5 rounded-full border border-[#d8def7] bg-white px-6 py-3.5 text-[13px] font-semibold text-[#232b4d] transition duration-300 hover:border-[#4f67e8] hover:bg-[#4f67e8] hover:text-white"
+            >
+              <ArrowLeft className="h-4 w-4 shrink-0 transition-transform duration-300 group-hover:-translate-x-1" />
+              Quay lại danh sách bài viết
+            </Link>
+
+            {galleryImages.length ? (
+              <div className="lg:hidden">
+                <PostImageGallery images={galleryImages} />
+              </div>
+            ) : null}
+          </article>
+
+          <aside className="hidden self-start lg:sticky lg:top-28 lg:block">
+            <NewsArticleToc headings={tocHeadings} variant="desktop" />
+
+            {galleryImages.length ? <PostImageGallery images={galleryImages} /> : null}
+          </aside>
         </div>
 
         {relatedArticles.length ? (
-          <div className="mt-20 border-t border-[#e8ebf7] pt-12">
-            <div className="mb-8 flex items-end justify-between gap-4">
+          <div className="mt-20 border-t border-[#e8ebf7] pt-14">
+            <div className="mb-9 flex flex-wrap items-end justify-between gap-4">
               <div>
                 <div className="text-[12px] font-semibold uppercase tracking-[0.22em] text-[#8a90ab]">
                   Bài viết liên quan
                 </div>
-                <h2 className="mt-2 text-[28px] font-medium tracking-[-0.05em] text-[#252c3d] md:text-[34px]">
+                <h2 className="mt-3 text-[28px] font-semibold leading-[1.1] tracking-[-0.04em] text-[#141822] md:text-[36px]">
                   Đọc thêm từ SRX
                 </h2>
               </div>
 
               <Link
                 href={listPath}
-                className="text-[14px] font-semibold text-[#252c3d] transition hover:text-[#6b71d5]"
+                className="group inline-flex items-center gap-2 text-[13px] font-semibold uppercase tracking-[0.16em] text-[#4d5cd3]"
               >
                 Xem tất cả
+                <ArrowUpRight className="h-4 w-4 shrink-0 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </Link>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-7 sm:grid-cols-2 xl:grid-cols-3">
               {relatedArticles.map((relatedArticle) => (
                 <RelatedNewsCard key={relatedArticle.slug} article={relatedArticle} />
               ))}
@@ -335,8 +335,9 @@ export default async function NewsDetailMinimalPage({ article }) {
           </div>
         ) : null}
       </div>
+
       <AboutContactSection />
-      <SRXLogo/>
+      <SRXLogo />
     </section>
   );
 }

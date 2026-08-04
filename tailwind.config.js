@@ -17,8 +17,18 @@ export default {
         float2: "float2 22s ease-in-out infinite alternate",
         "lp-bubble": "lp-bubble 13s ease-in-out infinite",
         "lp-bubble-alt": "lp-bubble-alt 16s ease-in-out infinite",
+        "news-progress": "news-progress 6s linear forwards",
+        "news-rise": "news-rise 0.7s cubic-bezier(0.22,1,0.36,1) both",
       },
       keyframes: {
+        "news-progress": {
+          from: { width: "0%" },
+          to: { width: "100%" },
+        },
+        "news-rise": {
+          from: { opacity: "0", transform: "translate3d(0, 18px, 0)" },
+          to: { opacity: "1", transform: "translate3d(0, 0, 0)" },
+        },
         wave1: {
           "0%": { transform: "translate(0%,0%) scale(1)" },
           "100%": { transform: "translate(40%,-30%) scale(1.3)" },

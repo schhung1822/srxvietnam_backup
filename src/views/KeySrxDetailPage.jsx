@@ -139,6 +139,7 @@ function normalizeIngredientContent(rawContent = '') {
     .replace(/<p>\s*(<img\b[^>]*>)\s*<\/p>/gi, '<figure>$1</figure>')
     .replace(/<p>\s*(?:&nbsp;|\s|<br\s*\/?>)*<\/p>/gi, '')
     .replace(/&nbsp;/gi, ' ')
+    .replace(/<table\b[\s\S]*?<\/table>/gi, (table) => `<div class="articleTableScroll">${table}</div>`)
     .trim();
 
   if (!headings.length && content) {

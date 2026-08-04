@@ -1,238 +1,26 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { ArrowRight, CalendarDays, Clock3, MapPin } from 'lucide-react';
+import EventLandingField from './EventLandingField.jsx';
+import EventLandingModal from './EventLandingModal.jsx';
+import useEventLandingForm from './useEventLandingForm.js';
+import { joinClassNames, splitDateParts } from '../../lib/ladipage/eventLandingForm.js';
 
-const VN_PHONE = /^(?:\+?84|0)(3|5|7|8|9)\d{8}$/;
+const STARFIELD_CLASS =
+  'pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_24%,rgba(255,255,255,0.16)_0_1px,transparent_2px),radial-gradient(circle_at_82%_18%,var(--lp-accent)_0_1.5px,transparent_3px),radial-gradient(circle_at_74%_72%,rgba(255,255,255,0.12)_0_1px,transparent_2px)] bg-[length:86px_86px,122px_122px,68px_68px] opacity-60';
 
-function normalizeText(value) {
-  return String(value ?? '').trim();
-}
+const FIELD_LABEL_CLASS = 'mb-2 block text-[12px] font-bold uppercase tracking-[0.14em] text-white/80';
+const FIELD_CONTROL_CLASS =
+  'h-12 w-full rounded-xl border border-white/15 bg-white/[0.06] px-4 text-[14px] font-semibold text-white outline-none transition duration-200 placeholder:font-normal placeholder:text-white/35 focus:border-[color:var(--lp-accent)] focus:bg-white/10 focus:ring-4 focus:ring-white/10';
 
-function joinClassNames(...values) {
-  return values.filter(Boolean).join(' ');
-}
-
-function normalizePhone(phone) {
-  const sanitizedValue = String(phone ?? '').replace(/[^\d+]/g, '');
-
-  if (sanitizedValue.startsWith('0')) {
-    return `+84${sanitizedValue.slice(1)}`;
-  }
-
-  if (sanitizedValue.startsWith('84')) {
-    return `+${sanitizedValue}`;
-  }
-
-  return sanitizedValue;
-}
-
-function parseJson(response) {
-  return response
-    .json()
-    .catch(() => ({}))
-    .then((data) => data ?? {});
-}
-
-function getFieldValue(searchParams, key) {
-  return normalizeText(searchParams?.get?.(key));
-}
-
-function createInitialFormValues(event) {
-  const standardFieldValues = {
-    full_name: '',
-    phone: '',
-    email: '',
-  };
-  const customFieldValues = Object.fromEntries(
-    Object.keys(event?.config?.fields?.hidden ?? {}).map((key) => [key, '']),
-  );
-  const questionValues = Object.fromEntries(
-    (event?.config?.questions ?? []).map((question) => [question.id, '']),
-  );
-
-  return {
-    ...standardFieldValues,
-    ...customFieldValues,
-    ...questionValues,
-  };
-}
-
-function buildVisibleFields(event) {
-  const visibleFields = [];
-  const standardFields = [
-    ['full_name', event?.config?.fields?.full_name],
-    ['phone', event?.config?.fields?.phone],
-    ['email', event?.config?.fields?.email],
-  ];
-
-  standardFields.forEach(([key, config]) => {
-    if (config?.enabled) {
-      visibleFields.push({
-        key,
-        type: key === 'email' ? 'email' : key === 'phone' ? 'tel' : 'text',
-        label: config.label,
-        required: Boolean(config.required),
-        placeholder: config.placeholder,
-        options: [],
-      });
-    }
-  });
-
-  Object.entries(event?.config?.fields?.hidden ?? {}).forEach(([key, config]) => {
-    if (config?.enabled && config?.visible) {
-      visibleFields.push({
-        key,
-        type: config.type || 'text',
-        label: config.label,
-        required: Boolean(config.required),
-        placeholder: config.placeholder,
-        options: config.options ?? [],
-      });
-    }
-  });
-
-  (event?.config?.questions ?? []).forEach((question) => {
-    if (question?.enabled) {
-      visibleFields.push({
-        key: question.id,
-        type: question.type || 'text',
-        label: question.label,
-        required: Boolean(question.required),
-        placeholder: question.placeholder,
-        options: question.options ?? [],
-      });
-    }
-  });
-
-  return visibleFields;
-}
-
-function applySearchPrefills(event, visibleFields, currentValues) {
-  const searchParams = new URLSearchParams(window.location.search);
-  const nextValues = { ...currentValues };
-
-  const assignPrefillValue = (fieldKey, queryKey = fieldKey) => {
-    const fieldValue = getFieldValue(searchParams, queryKey);
-
-    if (fieldValue && !normalizeText(nextValues[fieldKey])) {
-      nextValues[fieldKey] = fieldValue;
-    }
-  };
-
-  visibleFields.forEach((field) => assignPrefillValue(field.key, field.key));
-  Object.keys(event?.config?.fields?.hidden ?? {}).forEach((fieldKey) => assignPrefillValue(fieldKey, fieldKey));
-  Object.entries(event?.config?.behavior?.prefillKeys ?? {}).forEach(([fieldKey, queryKey]) => {
-    assignPrefillValue(fieldKey, queryKey);
-  });
-
-  if (event?.config?.behavior?.readUserIdFromQueryKey) {
-    assignPrefillValue('user_id', event.config.behavior.readUserIdFromQueryKey);
-  }
-
-  if (Object.prototype.hasOwnProperty.call(nextValues, 'full_name_nv')) {
-    assignPrefillValue('full_name_nv', 'sale');
-    assignPrefillValue('full_name_nv', 'sale_name');
-  }
-
-  return nextValues;
-}
-
-function buildValidationMessage(fieldLabel) {
-  return `Vui lòng nhập ${normalizeText(fieldLabel).toLowerCase() || 'thông tin bắt buộc'}.`;
-}
-
-function validateForm(event, values) {
-  for (const field of buildVisibleFields(event)) {
-    const fieldValue = normalizeText(values[field.key]);
-
-    if (field.required && !fieldValue) {
-      return buildValidationMessage(field.label);
-    }
-
-    if (field.key === 'full_name' && field.required && fieldValue.length < 2) {
-      return 'Vui lòng nhập họ và tên hợp lệ.';
-    }
-
-    if (field.key === 'phone') {
-      const normalizedPhone = normalizePhone(fieldValue);
-
-      if (field.required && !normalizedPhone) {
-        return 'Vui lòng nhập số điện thoại.';
-      }
-
-      if (normalizedPhone && !VN_PHONE.test(normalizedPhone)) {
-        return 'Số điện thoại chưa đúng định dạng.';
-      }
-    }
-
-    if (field.key === 'email' && fieldValue && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fieldValue)) {
-      return 'Email chưa đúng định dạng.';
-    }
-  }
-
-  return '';
-}
-
-function renderInputField(field, value, onChange) {
-  const baseClassName = 'h-11 w-full rounded-xl border border-white/30 bg-white/95 px-3.5 text-[13px] font-bold text-[#260508] shadow-[inset_0_1px_0_rgba(255,255,255,0.8),0_10px_24px_rgba(0,0,0,0.16)] outline-none transition placeholder:text-[#9b8d90] focus:border-[var(--lp-red-3)] focus:ring-4 focus:ring-[rgba(236,74,81,0.18)]';
-
-  if (field.type === 'textarea') {
-    return (
-      <textarea
-        id={field.key}
-        name={field.key}
-        value={value}
-        onChange={onChange}
-        placeholder={field.placeholder}
-        required={field.required}
-        className={`${baseClassName} min-h-[5.8rem] resize-y py-3`}
-      />
-    );
-  }
-
-  if (field.type === 'select' || field.type === 'dropdown' || field.type === 'radio') {
-    return (
-      <select
-        id={field.key}
-        name={field.key}
-        value={value}
-        onChange={onChange}
-        required={field.required}
-        className={`${baseClassName} appearance-none`}
-      >
-        <option value="">Chọn {normalizeText(field.label).toLowerCase()}</option>
-        {(field.options ?? []).map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </select>
-    );
-  }
-
+function StatTile({ icon, label, value }) {
   return (
-    <input
-      id={field.key}
-      name={field.key}
-      type={field.type}
-      value={value}
-      onChange={onChange}
-      placeholder={field.placeholder}
-      required={field.required}
-      inputMode={field.key === 'phone' ? 'tel' : undefined}
-      className={baseClassName}
-    />
+    <div className="flex min-h-[86px] min-w-0 flex-col items-center justify-center gap-1.5 rounded-2xl border border-white/12 bg-white/[0.06] px-2 py-3 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]">
+      {icon}
+      <span className="text-[9px] font-bold uppercase tracking-[0.16em] text-white/45">{label}</span>
+      <strong className="line-clamp-2 text-[15px] font-black leading-tight">{value}</strong>
+    </div>
   );
-}
-
-function splitDateParts(footer) {
-  const day = normalizeText(footer.dateDay).padStart(2, '0');
-  const month = normalizeText(footer.dateMonth).padStart(2, '0');
-
-  return {
-    date: day && month ? `${day}.${month}` : day || month || '--',
-    year: normalizeText(footer.dateYear),
-  };
 }
 
 function getAgendaItems(event) {
@@ -242,258 +30,239 @@ function getAgendaItems(event) {
     event.config.infoEvent.motto,
     event.config.infoEvent.organizerText,
   ].filter(Boolean);
-  const items = enabledQuestions.length > 0 ? enabledQuestions.map((question) => question.label) : fallbackItems;
+  const items = enabledQuestions.length ? enabledQuestions.map((question) => question.label) : fallbackItems;
 
   return items.slice(0, 3);
 }
 
 export default function StarryEventLanding({ event }) {
-  const visibleFields = buildVisibleFields(event);
-  const [formValues, setFormValues] = useState(() => createInitialFormValues(event));
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [modalState, setModalState] = useState({ open: false, type: 'success', title: '', message: '' });
+  const {
+    visibleFields,
+    hiddenFieldKeys,
+    formValues,
+    isSubmitting,
+    modalState,
+    closeModal,
+    handleInputChange,
+    handleSubmit,
+  } = useEventLandingForm(event);
 
-  useEffect(() => {
-    const nextVisibleFields = buildVisibleFields(event);
-    setFormValues(applySearchPrefills(event, nextVisibleFields, createInitialFormValues(event)));
-  }, [event]);
-
-  const theme = event.config.theme;
-  const header = event.config.header;
-  const footer = event.config.footer;
-  const infoEvent = event.config.infoEvent;
+  const { theme, header, footer, infoEvent } = event.config;
   const title = event.eventName || header.titleText;
   const { date, year } = splitDateParts(footer);
   const agendaItems = getAgendaItems(event);
   const logoUrls = [infoEvent.logo1Url, infoEvent.logo2Url, infoEvent.logo3Url].filter(Boolean);
+  const badgeText = header.descText || infoEvent.topText;
+  const introText = [infoEvent.motto, infoEvent.organizerText, infoEvent.bottomText]
+    .filter(Boolean)
+    .join(' ');
+
   const pageStyle = {
     '--lp-bg': theme.bg || '#070405',
-    '--lp-red': theme.primary || '#c4212b',
-    '--lp-red-2': theme.primary2 || '#8d1119',
-    '--lp-red-3': theme.primary2 || '#ec4a51',
-    '--lp-gold': theme.muted || '#ffd7a2',
-    color: '#ffffff',
-    background:
-      'radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--lp-red) 18%, transparent), transparent 32%), linear-gradient(180deg, #050303, #170607 56%, #050303)',
+    '--lp-primary': theme.primary || '#c4212b',
+    '--lp-primary2': theme.primary2 || '#8d1119',
+    '--lp-accent': theme.muted || '#ffd7a2',
+    '--lp-footer-from': footer.gradientFrom || '#0a0304',
+    '--lp-footer-to': footer.gradientTo || '#180608',
+    '--lp-footer-text': footer.textColor || '#ffffff',
   };
-  const footerStyle = {
-    color: footer.textColor || '#ffffff',
-    background: `linear-gradient(180deg, ${footer.gradientFrom || '#090304'}, ${footer.gradientTo || '#180608'} 58%, #050303)`,
-  };
-  const footerLogoGridClassName = joinClassNames(
-    'relative z-[1] mb-4 grid w-full max-w-[360px] items-center gap-2.5',
-    logoUrls.length === 1 ? 'grid-cols-1 justify-items-center' : logoUrls.length === 2 ? 'grid-cols-2' : 'grid-cols-3',
-  );
-
-  function closeModal() {
-    setModalState((currentState) => ({ ...currentState, open: false }));
-  }
-
-  function handleInputChange(eventTarget) {
-    const { name, value } = eventTarget.target;
-    setFormValues((currentValues) => ({ ...currentValues, [name]: value }));
-  }
-
-  async function handleSubmit(submitEvent) {
-    submitEvent.preventDefault();
-
-    const validationMessage = validateForm(event, formValues);
-
-    if (validationMessage) {
-      setModalState({ open: true, type: 'error', title: 'Thiếu thông tin', message: validationMessage });
-      return;
-    }
-
-    try {
-      setIsSubmitting(true);
-      const response = await fetch(`/api/events/${event.slug}/submit`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          values: {
-            ...formValues,
-            phone: normalizePhone(formValues.phone),
-          },
-          pageUrl: window.location.href,
-        }),
-      });
-      const data = await parseJson(response);
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Không thể gửi đăng ký lúc này.');
-      }
-
-      setModalState({
-        open: true,
-        type: 'success',
-        title: 'Đăng ký thành công',
-        message: data.message || `SRX Việt Nam đã nhận thông tin tham dự ${event.eventName}.`,
-      });
-      setFormValues(applySearchPrefills(event, visibleFields, createInitialFormValues(event)));
-    } catch (error) {
-      setModalState({
-        open: true,
-        type: 'error',
-        title: 'Không thể đăng ký',
-        message: error.message || 'Vui lòng thử lại sau.',
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
 
   return (
-    <section className="min-h-screen overflow-x-hidden" style={pageStyle}>
-      <div className="relative mx-auto min-h-screen w-full max-w-[430px] overflow-hidden bg-[#070405] shadow-[0_0_80px_rgba(0,0,0,0.55)]">
-        <section className="relative bg-[#050303] after:pointer-events-none after:absolute after:inset-x-0 after:-bottom-px after:h-24 after:bg-[linear-gradient(180deg,rgba(5,3,3,0),#090304_70%,#120607)]">
+    <section
+      className="relative min-h-screen overflow-x-hidden bg-[#040203] py-0 text-white sm:py-10"
+      style={pageStyle}
+    >
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(60rem_36rem_at_50%_0%,var(--lp-primary),transparent_58%)] opacity-25"
+      />
+
+      <div className="relative mx-auto w-full max-w-[440px] overflow-hidden bg-[var(--lp-bg)] shadow-[0_0_100px_rgba(0,0,0,0.7)] sm:rounded-[32px] sm:ring-1 sm:ring-white/10">
+        <div className="relative bg-[#050303]">
           {header.headingImageUrl ? (
-            <img src={header.headingImageUrl} alt={header.headingAlt || title} className="block h-auto w-full" />
+            <img
+              src={header.headingImageUrl}
+              alt={header.headingAlt || title}
+              className="block aspect-[4/5] w-full object-cover"
+            />
           ) : (
-            <div className="px-5 py-16 text-center text-[2.1rem] font-black uppercase leading-[0.95] tracking-[-0.04em]">
+            <div className="px-6 py-20 text-center text-[2rem] font-black uppercase leading-[1.02] tracking-[-0.035em]">
               {title}
             </div>
           )}
-        </section>
 
-        <section className="relative bg-[radial-gradient(circle_at_50%_-10%,rgba(225,36,48,0.35),transparent_46%),linear-gradient(180deg,#120607,#070405)] px-4 pb-5 pt-[18px] before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_18%_24%,rgba(255,255,255,0.12)_0_1px,transparent_2px),radial-gradient(circle_at_82%_18%,rgba(236,74,81,0.22)_0_2px,transparent_3px),radial-gradient(circle_at_74%_72%,rgba(255,255,255,0.10)_0_1px,transparent_2px)] before:bg-[length:86px_86px,122px_122px,68px_68px] before:opacity-70">
-          {(header.descText || infoEvent.topText) && (
-            <div className="relative z-[1] mx-auto mb-3 w-max max-w-full rounded-full border border-white/20 bg-[linear-gradient(90deg,var(--lp-red-2),var(--lp-red))] px-[18px] py-[7px] text-center text-xs font-black uppercase tracking-[0.025em] shadow-[0_0_32px_rgba(226,28,42,0.42)]">
-              {header.descText || infoEvent.topText}
-            </div>
-          )}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-[linear-gradient(180deg,transparent,var(--lp-bg)_82%)]"
+          />
+        </div>
 
-          <h1 className="relative z-[1] mx-auto mb-3 max-w-[390px] text-center text-xl font-black uppercase leading-[1.18] tracking-[-0.025em]">
-            {title}
-          </h1>
+        <section className="relative -mt-6 bg-[linear-gradient(180deg,var(--lp-bg),#150607_58%,var(--lp-bg))] px-5 pb-7 pt-2">
+          <div aria-hidden="true" className={STARFIELD_CLASS} />
 
-          <div className="relative z-[1] mt-4 grid grid-cols-3 gap-2">
-            <div className="min-h-[72px] rounded-2xl border border-white/15 my-auto bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.04))] px-2 py-3 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]">
-              <strong className="block text-xl font-black leading-none">{date}</strong>
+          <div className="relative">
+            {badgeText ? (
+              <div className="mx-auto mb-4 w-max max-w-full rounded-full border border-white/20 bg-[linear-gradient(90deg,var(--lp-primary2),var(--lp-primary))] px-5 py-2 text-center text-[11px] font-black uppercase tracking-[0.1em] shadow-[0_0_36px_-8px_var(--lp-primary)]">
+                {badgeText}
+              </div>
+            ) : null}
+
+            <h1 className="mx-auto mb-6 max-w-[24rem] text-center text-[22px] font-black uppercase leading-[1.2] tracking-[-0.02em]">
+              {title}
+            </h1>
+
+            <div className="grid grid-cols-3 gap-2.5">
+              <StatTile
+                icon={<CalendarDays className="h-3.5 w-3.5 shrink-0 text-[color:var(--lp-accent)]" />}
+                label="Ngày"
+                value={date}
+              />
+              <StatTile
+                icon={<Clock3 className="h-3.5 w-3.5 shrink-0 text-[color:var(--lp-accent)]" />}
+                label="Giờ"
+                value={footer.timeText || '--'}
+              />
+              <StatTile
+                icon={<MapPin className="h-3.5 w-3.5 shrink-0 text-[color:var(--lp-accent)]" />}
+                label="Địa điểm"
+                value={footer.placeName || 'SRX'}
+              />
             </div>
-            <div className="min-h-[72px] rounded-2xl border border-white/15 my-auto bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.04))] px-2 py-3 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]">
-              <strong className="block text-xl font-black leading-none">{footer.timeText || '--'}</strong>
-            </div>
-            <div className="min-h-[72px] rounded-2xl border border-white/15 my-auto bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.04))] px-2 py-3 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]">
-              <strong className="block text-lg font-black leading-none">{footer.placeName || 'SRX'}</strong>
-            </div>
+
+            {agendaItems.length ? (
+              <ul className="mt-6 space-y-0">
+                {agendaItems.map((item, index) => (
+                  <li
+                    key={`${item}-${index + 1}`}
+                    className="grid grid-cols-[2.6rem_1fr] items-start gap-3 border-b border-white/10 py-3.5 last:border-b-0"
+                  >
+                    <b className="text-[26px] font-black leading-none tracking-[-0.05em] text-[color:var(--lp-accent)]">
+                      {String(index + 1).padStart(2, '0')}
+                    </b>
+                    <span className="text-[13px] leading-6 text-white/80">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
           </div>
-
-          {agendaItems.length > 0 && (
-            <ul className="relative z-[1] mt-4 list-none p-0">
-              {agendaItems.map((item, index) => (
-                <li key={`${item}-${index}`} className="grid grid-cols-[42px_1fr] items-start gap-2.5 border-b border-white/10 py-2.5 text-xs leading-[1.35] text-white/85 last:border-b-0">
-                  <b className="text-[25px] font-black leading-none tracking-[-0.04em] text-white shadow-[0_0_32px_rgba(226,28,42,0.42)]">{String(index + 1).padStart(2, '0')}</b>
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          )}
         </section>
 
-        <section className="relative bg-[linear-gradient(180deg,#070405_0%,#220609_42%,#080304_100%)] px-4 py-7 before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_18%_24%,rgba(255,255,255,0.12)_0_1px,transparent_2px),radial-gradient(circle_at_82%_18%,rgba(236,74,81,0.22)_0_2px,transparent_3px),radial-gradient(circle_at_74%_72%,rgba(255,255,255,0.10)_0_1px,transparent_2px)] before:bg-[length:86px_86px,122px_122px,68px_68px] before:opacity-70">
-          <main className="relative z-[1] overflow-hidden rounded-3xl border border-white/25 bg-[linear-gradient(180deg,rgba(255,255,255,0.10),rgba(255,255,255,0.035)),radial-gradient(circle_at_50%_0%,rgba(229,37,49,0.32),transparent_45%)] px-4 py-6 text-white shadow-[0_24px_70px_rgba(0,0,0,0.42),inset_0_1px_0_rgba(255,255,255,0.16)] before:pointer-events-none before:absolute before:inset-0 before:bg-[linear-gradient(135deg,rgba(255,255,255,0.22),transparent_30%,rgba(225,31,45,0.18))] before:opacity-70">
-            <h2 className="relative z-[1] mb-2.5 text-center text-[22px] font-black uppercase leading-[1.12] tracking-[0.0125em]">
-              {infoEvent.headline || 'Đăng ký tham dự'}
-              {header.subtitleText ? <small className="mt-1 block text-xs font-black uppercase tracking-[0.12em] text-[var(--lp-red-3)]">{header.subtitleText}</small> : null}
-            </h2>
-            {(infoEvent.motto || infoEvent.organizerText || infoEvent.bottomText) && (
-              <p className="relative z-[1] mb-[18px] text-center text-xs leading-[1.45] text-white/80">
-                {[infoEvent.motto, infoEvent.organizerText, infoEvent.bottomText].filter(Boolean).join(' ')}
-              </p>
-            )}
+        <section className="relative bg-[linear-gradient(180deg,var(--lp-bg),#210609_46%,var(--lp-bg))] px-5 py-8">
+          <div aria-hidden="true" className={STARFIELD_CLASS} />
 
-            <form className="relative z-[1]" onSubmit={handleSubmit} noValidate>
-              {visibleFields.map((field) => (
-                <div key={field.key} className="mb-[13px]">
-                  <label htmlFor={field.key} className="mb-2 ml-1 block text-[13px] font-extrabold leading-none text-white">
-                    {field.label} {field.required ? <span className="text-[var(--lp-red-3)]">*</span> : null}
-                  </label>
-                  {renderInputField(field, formValues[field.key] ?? '', handleInputChange)}
-                </div>
-              ))}
+          <main className="relative overflow-hidden rounded-3xl border border-white/15 bg-[linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.03))] px-5 py-7 shadow-[0_30px_70px_-30px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.14)]">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[radial-gradient(20rem_10rem_at_50%_0%,var(--lp-primary),transparent_70%)] opacity-40"
+            />
 
-              {Object.entries(event.config.fields.hidden)
-                .filter(([, config]) => config.enabled && !config.visible)
-                .map(([fieldKey]) => (
-                  <input key={fieldKey} type="hidden" name={fieldKey} value={formValues[fieldKey] ?? ''} readOnly />
+            <div className="relative">
+              <h2 className="text-center text-[21px] font-black uppercase leading-[1.16] tracking-[0.01em]">
+                {infoEvent.headline || 'Đăng ký tham dự'}
+              </h2>
+
+              {header.subtitleText ? (
+                <p className="mt-2 text-center text-[11px] font-black uppercase tracking-[0.16em] text-[color:var(--lp-accent)]">
+                  {header.subtitleText}
+                </p>
+              ) : null}
+
+              {introText ? (
+                <p className="mx-auto mt-4 max-w-[22rem] text-center text-[12.5px] leading-6 text-white/65">
+                  {introText}
+                </p>
+              ) : null}
+
+              <form className="mt-6 space-y-4" onSubmit={handleSubmit} noValidate>
+                {visibleFields.map((field) => (
+                  <EventLandingField
+                    key={field.key}
+                    field={field}
+                    value={formValues[field.key] ?? ''}
+                    onChange={handleInputChange}
+                    labelClassName={FIELD_LABEL_CLASS}
+                    requiredMarkClassName="text-[color:var(--lp-accent)]"
+                    controlClassName={FIELD_CONTROL_CLASS}
+                    chevronClassName="text-white/45"
+                  />
                 ))}
 
-              <div className="mt-5 flex items-center justify-center">
+                {hiddenFieldKeys.map((fieldKey) => (
+                  <input
+                    key={fieldKey}
+                    type="hidden"
+                    name={fieldKey}
+                    value={formValues[fieldKey] ?? ''}
+                    readOnly
+                  />
+                ))}
+
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="inline-flex h-12 w-full max-w-[250px] items-center justify-center gap-2.5 rounded-full border-0 bg-[linear-gradient(90deg,#851017,#e32735_50%,#a1131c)] text-[15px] font-black uppercase text-white shadow-[0_14px_30px_rgba(226,39,53,0.34),inset_0_1px_0_rgba(255,255,255,0.24)] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
+                  className="group mt-2 flex w-full items-center justify-center gap-3 rounded-full bg-[linear-gradient(90deg,var(--lp-primary2),var(--lp-primary)_52%,var(--lp-primary2))] py-4 text-[15px] font-black uppercase tracking-[0.06em] text-white shadow-[0_18px_36px_-16px_var(--lp-primary),inset_0_1px_0_rgba(255,255,255,0.25)] transition duration-300 hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                  <span className="grid h-7 w-7 place-items-center rounded-full border border-white/20 bg-white/20 text-base leading-none">→</span>
-                  <span>{isSubmitting ? 'Đang gửi...' : 'Đăng ký'}</span>
+                  {isSubmitting ? 'Đang gửi...' : 'Đăng ký ngay'}
+                  <ArrowRight className="h-4 w-4 shrink-0 transition-transform duration-300 group-hover:translate-x-1" />
                 </button>
-              </div>
-            </form>
+              </form>
+            </div>
           </main>
         </section>
 
-        <footer
-          className="relative flex min-h-[120px] flex-col items-center justify-center border-t border-white/10 px-4 pb-10 pt-8 text-white before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_18%_24%,rgba(255,255,255,0.12)_0_1px,transparent_2px),radial-gradient(circle_at_82%_18%,rgba(236,74,81,0.22)_0_2px,transparent_3px),radial-gradient(circle_at_74%_72%,rgba(255,255,255,0.10)_0_1px,transparent_2px)] before:bg-[length:86px_86px,122px_122px,68px_68px] before:opacity-70"
-          style={footerStyle}
-        >
-          {logoUrls.length > 0 && (
-            <div className={footerLogoGridClassName}>
+        <footer className="relative flex flex-col items-center border-t border-white/10 bg-[linear-gradient(180deg,var(--lp-footer-from),var(--lp-footer-to)_62%,#040203)] px-5 pb-10 pt-8 text-[color:var(--lp-footer-text)]">
+          <div aria-hidden="true" className={STARFIELD_CLASS} />
+
+          {logoUrls.length ? (
+            <div
+              className={joinClassNames(
+                'relative mb-6 grid w-full max-w-[22rem] items-center gap-4',
+                logoUrls.length === 1 ? 'grid-cols-1 justify-items-center' : '',
+                logoUrls.length === 2 ? 'grid-cols-2' : '',
+                logoUrls.length >= 3 ? 'grid-cols-3' : '',
+              )}
+            >
               {logoUrls.map((logoUrl, index) => (
-                <span
-                  key={`${logoUrl}-${index}`}
-                  className={joinClassNames(
-                    'flex h-[58px] min-w-0 items-center justify-center',
-                    logoUrls.length === 1 ? 'w-full max-w-[220px]' : '',
-                  )}
-                >
-                  <img src={logoUrl} alt={`Logo sự kiện ${index + 1}`} className="max-h-10 w-full object-contain" />
-                </span>
+                <img
+                  key={logoUrl}
+                  src={logoUrl}
+                  alt={`Logo sự kiện ${index + 1}`}
+                  className="mx-auto max-h-10 w-full object-contain"
+                />
               ))}
             </div>
-          )}
+          ) : null}
 
-          {(footer.placeName || footer.placeLine1 || footer.placeLine2 || footer.timeText) && (
-            <div className="relative z-[1] w-full max-w-[360px] rounded-2xl p-2 text-center text-xs font-bold leading-[18px] text-white/80">
-              {footer.placeName ? <h3 className="mb-1 text-base font-black text-white">{footer.placeName}</h3> : null}
-              {footer.placeLine1 ? <div>{footer.placeLine1}</div> : null}
-              {footer.placeLine2 ? <div>{footer.placeLine2}</div> : null}
-              {footer.timeText ? <div>Thời gian: {[date, year].filter(Boolean).join('/')} - {footer.timeText}</div> : null}
+          {footer.placeName || footer.placeLine1 || footer.placeLine2 || footer.timeText ? (
+            <div className="relative w-full max-w-[22rem] text-center">
+              {footer.placeName ? (
+                <h3 className="text-[16px] font-black leading-tight">{footer.placeName}</h3>
+              ) : null}
+
+              {footer.placeLine1 || footer.placeLine2 ? (
+                <p className="mt-2 text-[12.5px] font-semibold leading-6 opacity-70">
+                  {[footer.placeLine1, footer.placeLine2].filter(Boolean).join(' — ')}
+                </p>
+              ) : null}
+
+              {footer.timeText ? (
+                <p className="mt-3 inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.06] px-4 py-2 text-[12px] font-bold">
+                  <Clock3 className="h-3.5 w-3.5 shrink-0 text-[color:var(--lp-accent)]" />
+                  {[date, year].filter(Boolean).join('/')} · {footer.timeText}
+                </p>
+              ) : null}
             </div>
-          )}
+          ) : null}
 
           {footer.template2FooterText ? (
-            <p className="relative z-[1] mt-3 w-full max-w-[360px] whitespace-pre-line rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-center text-[11px] font-semibold leading-[17px] text-white/75 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+            <p className="relative mt-6 w-full max-w-[22rem] whitespace-pre-line rounded-2xl border border-white/10 bg-white/[0.05] px-5 py-4 text-center text-[11.5px] font-semibold leading-[1.7] opacity-75">
               {footer.template2FooterText}
             </p>
           ) : null}
         </footer>
       </div>
 
-      <section
-        className={joinClassNames(
-          'fixed inset-0 z-[100] place-items-center bg-black/70 px-5 backdrop-blur-md',
-          modalState.open ? 'grid' : 'hidden',
-        )}
-        role="dialog"
-        aria-modal="true"
-        aria-hidden={!modalState.open}
-        onClick={(eventTarget) => {
-          if (eventTarget.target === eventTarget.currentTarget) {
-            closeModal();
-          }
-        }}
-      >
-        <div className="w-full max-w-[340px] rounded-[22px] bg-white px-5 py-6 text-center text-[#2b0709] shadow-[0_24px_70px_rgba(0,0,0,0.42)]">
-          <div className={joinClassNames('mx-auto mb-3 grid h-[58px] w-[58px] place-items-center rounded-full text-3xl font-black text-white', modalState.type === 'success' ? 'bg-[linear-gradient(180deg,#e32735,#911018)]' : 'bg-[#333]')}>
-            {modalState.type === 'success' ? '✓' : '!'}
-          </div>
-          <h3 className="mb-2 text-xl font-black text-[#97121a]">{modalState.title}</h3>
-          <p className="mb-[18px] text-[13px] leading-[1.4] text-[#5a3639]">{modalState.message}</p>
-          <button type="button" className="h-10 min-w-28 rounded-full bg-[linear-gradient(90deg,#8d1119,#df2633)] px-[18px] font-black text-white" onClick={closeModal}>
-            Đã hiểu
-          </button>
-        </div>
-      </section>
+      <EventLandingModal state={modalState} onClose={closeModal} variant="starry" />
     </section>
   );
 }

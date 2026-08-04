@@ -2,22 +2,18 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { ArrowUpRight, CalendarDays, ChevronLeft, ChevronRight, Tag } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, ChevronLeft, ChevronRight, Clock3, Sparkles } from 'lucide-react';
 import AboutContactSection from '../../components/aboutus/AboutContactSection.jsx';
 import SRXLogo from '../../components/home/SrxLogo.jsx';
 
-const INITIAL_VISIBLE = 6;
-const HERO_SLIDE_BACKGROUNDS = [
-  'linear-gradient(135deg, #edf5ff 0%, #ffd4ea 100%)',
-  'linear-gradient(135deg, #fff2e8 0%, #edd9ff 100%)',
-  'linear-gradient(135deg, #e6f5ff 0%, #f3e2ff 100%)',
-  'linear-gradient(135deg, #eef9ea 0%, #fff3d1 100%)',
-];
+const PAGE_SIZE = 9;
+const HERO_INTERVAL = 6000;
 
-const CATEGORY_BADGE_STYLES = {
-  'tin-tuc': 'border-white/55 bg-white/18 text-white',
-  'su-kien': 'border-white/55 bg-black/20 text-white',
-};
+const SECTION_EYEBROW = 'Newsroom SRX';
+const SECTION_TITLE = 'Tin tức & sự kiện';
+const SECTION_DESCRIPTION =
+  'Toàn bộ cập nhật mới nhất từ SRX: câu chuyện thương hiệu, sản phẩm, hoạt động cộng đồng và các sự kiện nổi bật.';
+const SECTION_EMPTY_MESSAGE = 'Chưa có bài viết nào để hiển thị.';
 
 function getPublishedKey(article) {
   return article?.publishedAt || '0000-00-00';
@@ -27,47 +23,79 @@ function sortArticlesByDateDesc(articles = []) {
   return [...articles].sort((left, right) => getPublishedKey(right).localeCompare(getPublishedKey(left)));
 }
 
-function formatSectionDateLabel(value) {
-  if (!value) {
-    return 'Đang cập nhật';
-  }
-
-  const [year, month, day] = String(value).split('-');
+function splitDateParts(value) {
+  const [year, month, day] = String(value ?? '').split('-');
 
   if (!year || !month || !day) {
+    return null;
+  }
+
+  return { year, month: Number(month), day: Number(day) };
+}
+
+function formatSectionDateLabel(value) {
+  const parts = splitDateParts(value);
+
+  if (!parts) {
     return 'Đang cập nhật';
   }
 
-  return `${Number(day)} tháng ${Number(month)}, ${year}`;
+  return `${parts.day} tháng ${parts.month}, ${parts.year}`;
 }
 
 function formatHeroDateLabel(value) {
-  if (!value) {
+  const parts = splitDateParts(value);
+
+  if (!parts) {
     return 'Ngày đang cập nhật';
   }
 
-  const [year, month, day] = String(value).split('-');
-
-  if (!year || !month || !day) {
-    return 'Ngày đang cập nhật';
-  }
-
-  return `Ngày ${Number(day)} tháng ${Number(month)} năm ${year}`;
+  return `Ngày ${parts.day} tháng ${parts.month} năm ${parts.year}`;
 }
 
 function getCategoryLabel(article) {
   return article?.category?.trim() || (article?.categorySlug === 'su-kien' ? 'Sự kiện' : 'Tin tức');
 }
 
-function getBadgeStyle(article) {
-  return CATEGORY_BADGE_STYLES[article?.categorySlug] ?? 'border-white/55 bg-white/18 text-white';
+function CategoryChip({ article, tone = 'light' }) {
+  const toneClassName =
+    tone === 'dark'
+      ? 'border-white/30 bg-white/15 text-white backdrop-blur-md'
+      : 'border-[#dfe4f8] bg-white/90 text-[#4a5375] backdrop-blur-md';
+
+  return (
+    <span
+      className={`inline-flex items-center rounded-full border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] ${toneClassName}`}
+    >
+      {getCategoryLabel(article)}
+    </span>
+  );
+}
+
+function MetaLine({ article, tone = 'light' }) {
+  const baseClassName = tone === 'dark' ? 'text-white/70' : 'text-[#858ba5]';
+
+  return (
+    <div className={`flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] font-medium ${baseClassName}`}>
+      <span className="font-['Inter',_sans-serif]">{formatSectionDateLabel(article.publishedAt)}</span>
+      {article.readTime ? (
+        <>
+          <span className="h-1 w-1 rounded-full bg-current opacity-50" />
+          <span className="inline-flex items-center gap-1.5">
+            <Clock3 className="h-3.5 w-3.5 shrink-0" />
+            {article.readTime}
+          </span>
+        </>
+      ) : null}
+    </div>
+  );
 }
 
 function HeroNavButton({ className = '', children, ...props }) {
   return (
     <button
       type="button"
-      className={`flex h-9 w-9 items-center justify-center rounded-full border border-white/30 bg-black/24 text-white backdrop-blur-md transition hover:bg-black/40 sm:h-10 sm:w-10 ${className}`}
+      className={`flex h-11 w-11 items-center justify-center rounded-full border border-white/25 bg-white/10 text-white backdrop-blur-md transition duration-300 hover:border-white/60 hover:bg-white hover:text-[#171b25] ${className}`}
       {...props}
     >
       {children}
@@ -85,12 +113,12 @@ function HeroStoriesSlider({ articles = [] }) {
 
     const intervalId = window.setInterval(() => {
       setActiveIndex((current) => (current + 1) % articles.length);
-    }, 6000);
+    }, HERO_INTERVAL);
 
     return () => {
       window.clearInterval(intervalId);
     };
-  }, [articles.length]);
+  }, [articles.length, activeIndex]);
 
   useEffect(() => {
     if (activeIndex < articles.length) {
@@ -104,8 +132,7 @@ function HeroStoriesSlider({ articles = [] }) {
     return null;
   }
 
-  const activeArticle = articles[activeIndex];
-  const activeBackground = HERO_SLIDE_BACKGROUNDS[activeIndex % HERO_SLIDE_BACKGROUNDS.length];
+  const activeArticle = articles[Math.min(activeIndex, articles.length - 1)];
 
   const showPrevious = () => {
     setActiveIndex((current) => (current - 1 + articles.length) % articles.length);
@@ -116,138 +143,112 @@ function HeroStoriesSlider({ articles = [] }) {
   };
 
   return (
-    <section className="w-full overflow-hidden bg-white">
-      <div className="relative h-[520px] overflow-hidden lg:hidden">
+    <section className="relative isolate w-full overflow-hidden bg-[#080a13]">
+      <div className="relative h-[580px] sm:h-[640px] lg:h-[calc(100vh-85px)] lg:max-h-[760px] lg:min-h-[620px]">
         {articles.map((article, index) => {
           const isActive = index === activeIndex;
 
           return (
             <div
-              key={`hero-mobile-image-${article.slug}`}
-              className={`absolute inset-0 transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                isActive ? 'opacity-100 scale-100' : 'pointer-events-none opacity-0 scale-[1.03]'
+              key={`hero-slide-${article.slug}`}
+              className={`absolute inset-0 transition-opacity duration-1000 ease-out ${
+                isActive ? 'opacity-100' : 'pointer-events-none opacity-0'
               }`}
               aria-hidden={!isActive}
             >
-              <img src={article.coverImage} alt={article.coverAlt} className="h-full w-full object-cover" />
+              <img
+                src={article.coverImage}
+                alt={article.coverAlt}
+                className={`h-full w-full object-cover transition-transform duration-[7000ms] ease-out ${
+                  isActive ? 'scale-[1.08]' : 'scale-100'
+                }`}
+              />
             </div>
           );
         })}
 
-        <div className="absolute inset-0 z-[1] opacity-65" style={{ background: activeBackground }} />
-        <div className="absolute inset-0 z-[2] bg-[rgba(4,6,12,0.52)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(8,10,19,0.55)_0%,rgba(8,10,19,0.08)_30%,rgba(8,10,19,0.68)_72%,rgba(8,10,19,0.95)_100%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(96deg,rgba(8,10,19,0.72)_0%,rgba(8,10,19,0.2)_52%,rgba(8,10,19,0)_100%)]" />
 
-        <div className="absolute inset-x-0 bottom-0 z-20 px-5 pb-7 pt-24">
-          <div className="max-w-[92%]">
-            <div className={`inline-flex rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] backdrop-blur-md ${getBadgeStyle(activeArticle)}`}>
-              {getCategoryLabel(activeArticle)}
-            </div>
-            <div className="mt-4 font-['Inter',_sans-serif] text-[13px] font-medium text-white">
-              {formatHeroDateLabel(activeArticle.publishedAt)}
-            </div>
-            <h1 className="mt-4 text-[24px] font-semibold leading-[1.08] tracking-[-0.05em] text-white sm:text-[28px]">
-              {activeArticle.title}
-            </h1>
-            <p className="mt-5 line-clamp-3 max-w-[36ch] text-[15px] leading-8 text-white/90">
-              {activeArticle.excerpt}
-            </p>
-          </div>
+        <div className="absolute inset-0 flex items-end">
+          <div className="mx-auto w-full max-w-[1560px] px-5 pb-9 md:px-8 lg:pb-14 xl:px-10">
+            <div key={activeArticle.slug} className="max-w-[780px] animate-news-rise">
+              <div className="flex flex-wrap items-center gap-3">
+                <CategoryChip article={activeArticle} tone="dark" />
+                {activeArticle.featured ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-white backdrop-blur-md">
+                    <Sparkles className="h-3 w-3 shrink-0" />
+                    Nổi bật
+                  </span>
+                ) : null}
+                <span className="font-['Inter',_sans-serif] text-[12px] font-medium text-white/70">
+                  {formatHeroDateLabel(activeArticle.publishedAt)}
+                </span>
+              </div>
 
-          <div className="mt-8 flex items-end justify-between gap-4">
-            <Link
-              href={`/follow-srx/${activeArticle.slug}`}
-              className="inline-flex min-h-[48px] items-center justify-center rounded-full bg-black px-8 text-[13px] font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-[#1a1a1a]"
-            >
-              Xem bài viết
-            </Link>
+              <h1 className="mt-5 text-[27px] font-semibold leading-[1.1] tracking-[-0.045em] text-white sm:text-[34px] lg:text-[44px] xl:text-[52px]">
+                {activeArticle.title}
+              </h1>
+
+              <p className="mt-4 line-clamp-3 max-w-[62ch] text-[14px] leading-7 text-white/75 sm:text-[16px] sm:leading-8">
+                {activeArticle.excerpt}
+              </p>
+
+              <Link
+                href={`/follow-srx/${activeArticle.slug}`}
+                className="group mt-7 inline-flex min-h-[50px] items-center gap-3 rounded-full bg-white px-7 text-[12px] font-semibold uppercase tracking-[0.18em] text-[#171b25] transition duration-300 hover:bg-[#6f87ea] hover:text-white"
+              >
+                Xem bài viết
+                <ArrowRight className="h-4 w-4 shrink-0 transition-transform duration-300 group-hover:translate-x-1" />
+              </Link>
+            </div>
 
             {articles.length > 1 ? (
-              <div className="flex shrink-0 items-center gap-2">
-                <HeroNavButton
-                  onClick={showPrevious}
-                  className="border-white/45 bg-black/48 text-white hover:bg-black/62"
-                  aria-label="Bài viết trước"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </HeroNavButton>
+              <div className="mt-9 flex flex-col gap-5 border-t border-white/15 pt-5 sm:flex-row sm:items-end sm:justify-between sm:gap-8">
+                <div className="flex flex-1 items-start gap-3 sm:gap-4">
+                  {articles.map((article, index) => {
+                    const isActive = index === activeIndex;
 
-                <HeroNavButton
-                  onClick={showNext}
-                  className="border-white/45 bg-black/48 text-white hover:bg-black/62"
-                  aria-label="Bài viết tiếp theo"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </HeroNavButton>
+                    return (
+                      <button
+                        key={`hero-indicator-${article.slug}`}
+                        type="button"
+                        onClick={() => setActiveIndex(index)}
+                        className="group max-w-[150px] flex-1 text-left"
+                        aria-label={`Chuyển tới bài viết ${index + 1}`}
+                        aria-current={isActive}
+                      >
+                        <span className="block h-[3px] w-full overflow-hidden rounded-full bg-white/25">
+                          {isActive ? (
+                            <span
+                              key={`hero-progress-${activeIndex}`}
+                              className="block h-full rounded-full bg-white animate-news-progress"
+                            />
+                          ) : null}
+                        </span>
+                        <span
+                          className={`mt-2.5 block truncate font-['Inter',_sans-serif] text-[11px] font-semibold tracking-[0.16em] transition ${
+                            isActive ? 'text-white' : 'text-white/45 group-hover:text-white/75'
+                          }`}
+                        >
+                          {`0${index + 1}`.slice(-2)}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="flex shrink-0 items-center gap-2.5">
+                  <HeroNavButton onClick={showPrevious} aria-label="Bài viết trước">
+                    <ChevronLeft className="h-4 w-4" />
+                  </HeroNavButton>
+                  <HeroNavButton onClick={showNext} aria-label="Bài viết tiếp theo">
+                    <ChevronRight className="h-4 w-4" />
+                  </HeroNavButton>
+                </div>
               </div>
             ) : null}
           </div>
-        </div>
-      </div>
-
-      <div className="hidden lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)]">
-        <div className="relative h-[540px] overflow-hidden">
-          {articles.map((article, index) => {
-            const isActive = index === activeIndex;
-
-            return (
-              <div
-                key={`hero-image-${article.slug}`}
-                className={`absolute inset-0 transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                  isActive ? 'opacity-100 scale-100' : 'pointer-events-none opacity-0 scale-[1.03]'
-                }`}
-                aria-hidden={!isActive}
-              >
-                <img src={article.coverImage} alt={article.coverAlt} className="h-full w-full object-cover" />
-              </div>
-            );
-          })}
-
-          {articles.length > 1 ? (
-            <HeroNavButton
-              onClick={showPrevious}
-              className="absolute left-4 top-1/2 z-20 -translate-y-1/2"
-              aria-label="Bài viết trước"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </HeroNavButton>
-          ) : null}
-        </div>
-
-        <div
-          className="relative flex min-h-[540px] items-center px-14 xl:px-20"
-          style={{ background: activeBackground }}
-        >
-          <div className="relative z-10 max-w-full">
-            <div className={`inline-flex rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${activeArticle.categorySlug === 'su-kien' ? 'border-[#2c3350]/14 bg-white/55 text-[#3a4262]' : 'border-[#2c3350]/14 bg-white/55 text-[#3a4262]'}`}>
-              {getCategoryLabel(activeArticle)}
-            </div>
-            <div className="mt-4 font-['Inter',_sans-serif] text-[13px] font-medium text-[#7c7890]">
-              {formatHeroDateLabel(activeArticle.publishedAt)}
-            </div>
-            <h1 className="mt-4 max-w-full text-[24px] font-semibold leading-[1.12] tracking-[-0.05em] text-[#171b25] md:text-[30px] xl:text-[36px]">
-              {activeArticle.title}
-            </h1>
-            <p className="mt-6 max-w-[90%] text-[14px] leading-7 text-[#555d70] md:text-[16px]">
-              {activeArticle.excerpt}
-            </p>
-
-            <Link
-              href={`/follow-srx/${activeArticle.slug}`}
-              className="mt-8 inline-flex min-h-[48px] items-center justify-center rounded-full bg-black px-8 text-[13px] font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-[#1a1a1a]"
-            >
-              Xem bài viết
-            </Link>
-          </div>
-
-          {articles.length > 1 ? (
-            <HeroNavButton
-              onClick={showNext}
-              className="absolute right-5 top-1/2 z-20 -translate-y-1/2"
-              aria-label="Bài viết tiếp theo"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </HeroNavButton>
-          ) : null}
         </div>
       </div>
     </section>
@@ -256,45 +257,37 @@ function HeroStoriesSlider({ articles = [] }) {
 
 function StoryCard({ article }) {
   return (
-    <article className="flex h-full flex-col">
-      <Link
-        href={`/follow-srx/${article.slug}`}
-        className="group block overflow-hidden rounded-[12px] bg-[#edf0fb] shadow-[0_12px_32px_rgba(70,80,128,0.08)]"
-      >
-        <div className="aspect-[1.48/1] overflow-hidden">
-          <img
-            src={article.coverImage}
-            alt={article.coverAlt}
-            className="h-full w-full object-cover transition duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
-          />
-        </div>
+    <article className="group flex h-full flex-col overflow-hidden rounded-[22px] border border-[#e6eaf8] bg-white shadow-[0_18px_44px_-32px_rgba(43,54,110,0.55)] transition duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1.5 hover:border-[#c8d2f7] hover:shadow-[0_34px_66px_-34px_rgba(43,54,110,0.5)]">
+      <Link href={`/follow-srx/${article.slug}`} className="relative block aspect-[16/10] overflow-hidden">
+        <img
+          src={article.coverImage}
+          alt={article.coverAlt}
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.06]"
+        />
+        <span className="absolute left-4 top-4">
+          <CategoryChip article={article} />
+        </span>
       </Link>
 
-      <div className="flex flex-1 flex-col px-2 pb-1 pt-4">
-        <div className="flex flex-wrap items-center gap-3 text-[10px] uppercase tracking-[0.18em] text-[#74798a]">
-          <span className="font-['Inter',_sans-serif]">{formatSectionDateLabel(article.publishedAt)}</span>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#d9def6] bg-white px-2.5 py-1 text-[10px] text-[#525b76]">
-            <Tag className="h-3 w-3 shrink-0" />
-            {getCategoryLabel(article)}
-          </span>
-        </div>
+      <div className="flex flex-1 flex-col gap-4 p-6 sm:p-7">
+        <MetaLine article={article} />
 
         <Link
           href={`/follow-srx/${article.slug}`}
-          className="mt-4 line-clamp-3 text-[18px] font-medium uppercase leading-[1.16] tracking-[-0.04em] text-[#171b25] transition hover:text-[#4d5cd3]"
+          className="line-clamp-3 text-[18px] font-semibold leading-[1.24] tracking-[-0.035em] text-[#141822] transition duration-300 hover:text-[#4d5cd3]"
         >
           {article.title}
         </Link>
 
-        <p className="mt-4 line-clamp-3 text-[14px] leading-7 text-[#697186]">
-          {article.excerpt}
-        </p>
+        <p className="line-clamp-3 text-[14px] leading-7 text-[#6b7288]">{article.excerpt}</p>
 
-        <div className="mt-5 inline-flex items-center gap-2 text-[12px] font-medium text-[#4d5cd3]">
-          <CalendarDays className="h-3.5 w-3.5 shrink-0" />
-          <span>Đọc bài viết</span>
-          <ArrowUpRight className="h-3.5 w-3.5 shrink-0" />
-        </div>
+        <Link
+          href={`/follow-srx/${article.slug}`}
+          className="mt-auto inline-flex items-center gap-2 pt-1 text-[12px] font-semibold uppercase tracking-[0.16em] text-[#4d5cd3]"
+        >
+          Đọc bài viết
+          <ArrowUpRight className="h-4 w-4 shrink-0 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+        </Link>
       </div>
     </article>
   );
@@ -302,71 +295,18 @@ function StoryCard({ article }) {
 
 function SectionEmptyState({ message }) {
   return (
-    <div className="mt-8 rounded-[24px] border border-dashed border-[#d9def6] bg-white px-6 py-14 text-center text-[15px] text-[#697186]">
+    <div className="rounded-[26px] border border-dashed border-[#d7ddf5] bg-white px-6 py-20 text-center text-[15px] text-[#6b7288]">
       {message}
     </div>
   );
 }
 
-function SectionBlock({
-  eyebrow,
-  title,
-  description,
-  articles,
-  visibleArticles,
-  showAll,
-  onShowAll,
-  emptyMessage,
-}) {
-  return (
-    <section className="mx-auto max-w-[1560px] px-4 pt-8 md:px-6 xl:px-8">
-      <div className="max-w-[760px]">
-        <div className="text-[12px] font-semibold uppercase tracking-[0.24em] text-[#858aa2]">{eyebrow}</div>
-        <h2 className="mt-4 text-[34px] font-semibold uppercase tracking-[-0.05em] text-[#161b26] md:text-[42px]">
-          {title}
-        </h2>
-        <p className="mt-4 max-w-[640px] text-[15px] leading-8 text-[#697186]">
-          {description}
-        </p>
-      </div>
-
-      {visibleArticles.length ? (
-        <>
-          <div className="mt-8 grid gap-8 md:grid-cols-2 xl:grid-cols-3">
-            {visibleArticles.map((article, index) => (
-              <StoryCard key={`${article.slug}-${index + 1}`} article={article} />
-            ))}
-          </div>
-
-          {!showAll && articles.length > INITIAL_VISIBLE ? (
-            <div className="mt-14 flex justify-center">
-              <button
-                type="button"
-                onClick={onShowAll}
-                className="inline-flex min-h-[40px] items-center justify-center rounded-[6px] bg-[#6f87ea] px-8 text-[11px] font-semibold uppercase tracking-[0.22em] text-white transition hover:bg-[#5c77e2]"
-              >
-                Hiện tất cả
-              </button>
-            </div>
-          ) : null}
-        </>
-      ) : (
-        <SectionEmptyState message={emptyMessage} />
-      )}
-    </section>
-  );
-}
-
 function EmptyHubState() {
   return (
-    <div className="rounded-[28px] border border-dashed border-[#d9def6] bg-white px-6 py-16 text-center shadow-[0_18px_50px_rgba(79,94,147,0.05)]">
-      <div className="text-[12px] font-semibold uppercase tracking-[0.24em] text-[#858aa2]">
-        Tin tức & Sự kiện
-      </div>
-      <h1 className="mt-4 text-[30px] font-medium tracking-[-0.05em] text-[#252c3d]">
-        Chưa có bài viết để hiển thị.
-      </h1>
-      <p className="mx-auto mt-4 max-w-[520px] text-[15px] leading-7 text-[#697186]">
+    <div className="rounded-[28px] border border-dashed border-[#d7ddf5] bg-white px-6 py-16 text-center shadow-[0_18px_50px_rgba(79,94,147,0.05)]">
+      <div className="text-[12px] font-semibold uppercase tracking-[0.24em] text-[#858aa2]">Tin tức & Sự kiện</div>
+      <h1 className="mt-4 text-[30px] font-medium tracking-[-0.05em] text-[#252c3d]">Chưa có bài viết để hiển thị.</h1>
+      <p className="mx-auto mt-4 max-w-[520px] text-[15px] leading-7 text-[#6b7288]">
         Khi có bài viết thuộc nhóm tin tức hoặc sự kiện trong bảng posts, trang này sẽ tự động hiển thị.
       </p>
     </div>
@@ -374,67 +314,75 @@ function EmptyHubState() {
 }
 
 export default function NewsEventsHubPage({ initialArticles = [] }) {
-  const [showAllNews, setShowAllNews] = useState(false);
-  const [showAllEvents, setShowAllEvents] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   const sortedArticles = useMemo(() => sortArticlesByDateDesc(initialArticles), [initialArticles]);
-  const newsArticles = useMemo(
-    () => sortedArticles.filter((article) => article.categorySlug === 'tin-tuc'),
-    [sortedArticles],
-  );
-  const eventArticles = useMemo(
-    () => sortedArticles.filter((article) => article.categorySlug === 'su-kien'),
-    [sortedArticles],
-  );
+
   const heroArticles = useMemo(() => {
     const featuredArticles = sortedArticles.filter((article) => article.featured);
     const sourceArticles = featuredArticles.length >= 4 ? featuredArticles : sortedArticles;
     return sourceArticles.slice(0, 4);
   }, [sortedArticles]);
-  const visibleNewsArticles = showAllNews ? newsArticles : newsArticles.slice(0, INITIAL_VISIBLE);
-  const visibleEventArticles = showAllEvents
-    ? eventArticles
-    : eventArticles.slice(0, INITIAL_VISIBLE);
+
+  const visibleArticles = sortedArticles.slice(0, visibleCount);
+  const remainingCount = sortedArticles.length - visibleArticles.length;
 
   return (
     <section className="w-full bg-white">
       {sortedArticles.length ? <HeroStoriesSlider articles={heroArticles} /> : null}
 
-      <div className="w-full">
-        {sortedArticles.length ? (
-          <div className="space-y-14 md:space-y-20">
-            <div className="bg-[#F3F5FF] py-20">
-              <SectionBlock
-                eyebrow="Tin tức & Sự kiện"
-                title="Tin tức mới nhất"
-                description="Những cập nhật mới nhất từ SRX về thương hiệu, sản phẩm và các hoạt động nổi bật được tập hợp trên cùng một trang để theo dõi thuận tiện hơn."
-                articles={newsArticles}
-                visibleArticles={visibleNewsArticles}
-                showAll={showAllNews}
-                onShowAll={() => setShowAllNews(true)}
-                emptyMessage="Chưa có bài viết thuộc nhóm tin tức."
-              />
+      {sortedArticles.length ? (
+        <div className="bg-[#f6f7fd]">
+          <div className="mx-auto max-w-[1560px] px-4 py-16 md:px-8 md:py-20 xl:px-10">
+            <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+              <div className="max-w-[760px]">
+                <div className="text-[12px] font-semibold uppercase tracking-[0.24em] text-[#858aa2]">
+                  {SECTION_EYEBROW}
+                </div>
+                <h2 className="mt-4 text-[32px] font-semibold uppercase leading-[1.06] tracking-[-0.045em] text-[#141822] md:text-[44px]">
+                  {SECTION_TITLE}
+                </h2>
+                <p className="mt-5 max-w-[640px] text-[15px] leading-8 text-[#6b7288]">{SECTION_DESCRIPTION}</p>
+              </div>
+
+              <span className="shrink-0 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#9aa1bd] md:pb-2">
+                {sortedArticles.length} bài viết
+              </span>
             </div>
 
-            <div className="pb-2">
-              <SectionBlock
-                eyebrow="Sự kiện"
-                title="Sự kiện mới nhất"
-                description="Toàn bộ bài viết sự kiện được hiển thị trong cùng trải nghiệm với tin tức, nhưng vẫn giữ bố cục và nhịp trình bày của trang sự kiện làm giao diện chính."
-                articles={eventArticles}
-                visibleArticles={visibleEventArticles}
-                showAll={showAllEvents}
-                onShowAll={() => setShowAllEvents(true)}
-                emptyMessage="Chưa có bài viết thuộc nhóm sự kiện."
-              />
-            </div>
+            {visibleArticles.length ? (
+              <div className="mt-10 md:mt-12">
+                <div className="grid gap-7 sm:grid-cols-2 xl:grid-cols-3">
+                  {visibleArticles.map((article) => (
+                    <StoryCard key={article.slug} article={article} />
+                  ))}
+                </div>
+
+                {remainingCount > 0 ? (
+                  <div className="mt-14 flex justify-center">
+                    <button
+                      type="button"
+                      onClick={() => setVisibleCount((current) => current + PAGE_SIZE)}
+                      className="group inline-flex min-h-[52px] items-center gap-3 rounded-full border border-[#d5dcf7] bg-white px-9 text-[12px] font-semibold uppercase tracking-[0.18em] text-[#141822] transition duration-300 hover:border-[#6f87ea] hover:bg-[#6f87ea] hover:text-white"
+                    >
+                      {`Xem thêm (${remainingCount})`}
+                      <ArrowRight className="h-4 w-4 shrink-0 transition-transform duration-300 group-hover:translate-x-1" />
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+            ) : (
+              <div className="mt-10">
+                <SectionEmptyState message={SECTION_EMPTY_MESSAGE} />
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="mx-auto max-w-[1560px] px-4 py-16 md:px-6 xl:px-8">
-            <EmptyHubState />
-          </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="mx-auto max-w-[1560px] px-4 py-16 md:px-6 xl:px-8">
+          <EmptyHubState />
+        </div>
+      )}
 
       <AboutContactSection />
       <SRXLogo />
