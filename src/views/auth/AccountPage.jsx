@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import { createPortal } from 'react-dom';
 import {
   ChevronRight,
+  ImageOff,
   LockKeyhole,
   LogOut,
   PackageSearch,
@@ -395,14 +396,33 @@ function OrderDetailModal({ order, onClose }) {
                   order.items.map((item, index) => (
                     <div
                       key={`${order.id}-${index}`}
-                      className="flex items-start justify-between gap-4 rounded-[12px] border border-[#D9D9D9] bg-white px-4 py-3"
+                      className="flex items-center gap-3.5 rounded-[12px] border border-[#D9D9D9] bg-white px-4 py-3"
                     >
-                      <div className="min-w-0">
+                      <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-[10px] border border-[#EDEDED] bg-[#F6F6F6]">
+                        {item.imageUrl ? (
+                          <img
+                            src={item.imageUrl}
+                            alt={item.productName}
+                            loading="lazy"
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center text-[#B7B7B7]">
+                            <ImageOff className="h-5 w-5" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
                         <div className="text-[14.5px] font-semibold leading-6 text-[#15110d]">
                           {item.productName}
                         </div>
                         {item.variantName ? (
                           <div className="mt-0.5 text-[13px] text-[#5E6266]">{item.variantName}</div>
+                        ) : null}
+                        {item.isGift ? (
+                          <span className="mt-1 inline-flex rounded-full border border-[#D9D9D9] bg-[#F6F6F6] px-2 py-0.5 text-[11.5px] font-medium text-[#5E6266]">
+                            Quà tặng
+                          </span>
                         ) : null}
                       </div>
                       <div className="flex-shrink-0 text-[14px] font-medium text-[#5E6266]">x{item.quantity}</div>

@@ -4,6 +4,20 @@ import { query } from '../../../../src/lib/server/db.js';
 
 export const runtime = 'nodejs';
 
+function normalizeImagePath(value = '') {
+  const normalizedValue = String(value ?? '').trim();
+
+  if (!normalizedValue) {
+    return '';
+  }
+
+  if (/^https?:\/\//i.test(normalizedValue)) {
+    return normalizedValue;
+  }
+
+  return normalizedValue.startsWith('/') ? normalizedValue : `/${normalizedValue}`;
+}
+
 function formatOrder(order, items) {
   return {
     id: order.id,
@@ -97,14 +111,34 @@ export async function GET(request) {
     const itemRows = await query(
       `
         SELECT
-          order_id,
-          product_name,
-          variant_name,
-          quantity,
-          is_gift
-        FROM order_items
-        WHERE order_id IN (${placeholders})
-        ORDER BY order_id DESC, id ASC
+          oi.order_id,
+          oi.product_name,
+          oi.variant_name,
+          oi.quantity,
+          oi.is_gift,
+          COALESCE(
+            (
+              SELECT vi.image_url
+              FROM product_images vi
+              WHERE vi.variant_id = oi.variant_id
+              ORDER BY vi.is_primary DESC, vi.sort_order ASC, vi.id ASC
+              LIMIT 1
+            ),
+            (
+              SELECT pi.image_url
+              FROM product_images pi
+              WHERE pi.product_id = oi.product_id
+              ORDER BY pi.is_primary DESC, pi.sort_order ASC, pi.id ASC
+              LIMIT 1
+            ),
+            p.thumbnail_url,
+            gr.gift_img
+          ) AS image_url
+        FROM order_items oi
+        LEFT JOIN products p ON p.id = oi.product_id
+        LEFT JOIN gift_rules gr ON gr.id = oi.gift_rule_id
+        WHERE oi.order_id IN (${placeholders})
+        ORDER BY oi.order_id DESC, oi.id ASC
       `,
       orderIds,
     );
@@ -115,6 +149,7 @@ export async function GET(request) {
         variantName: item.variant_name,
         quantity: Number(item.quantity ?? 0),
         isGift: Boolean(Number(item.is_gift ?? 0)),
+        imageUrl: normalizeImagePath(item.image_url),
       };
 
       if (!accumulator[item.order_id]) {

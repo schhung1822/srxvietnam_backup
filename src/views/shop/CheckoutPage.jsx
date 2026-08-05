@@ -130,16 +130,45 @@ function formatCheckoutContactValue(value) {
 function getCheckoutOrderStatusClass(status) {
   switch (status) {
     case 'completed':
-      return 'border-[#d4ecdc] bg-[#edf9f1] text-[#237a3b]';
+      return 'border-[#cfe9d9] bg-[#eef8f2] text-[#1f7a44]';
     case 'shipping':
     case 'processing':
-      return 'border-[#dbe3ff] bg-[#eef2ff] text-[#2b4eff]';
+      return 'border-[#c7cfff] bg-[#eef1ff] text-[#2540dd]';
     case 'cancelled':
     case 'refunded':
       return 'border-[#f0d3d3] bg-[#fff0f0] text-[#b14040]';
     default:
-      return 'border-[#eadfce] bg-[#fcfaf8] text-[#7a6958]';
+      return 'border-[#e5e5e5] bg-[#f3f3f3] text-[#555]';
   }
+}
+
+function SuccessCard({ title, children }) {
+  return (
+    <div className="rounded-[14px] border border-[#e5e5e5] bg-white p-5 sm:p-6">
+      <h2 className="text-[16px] font-semibold tracking-[-0.02em] text-[#050505] sm:text-[17px]">{title}</h2>
+      <dl className="mt-4 divide-y divide-[#f0f0f0]">{children}</dl>
+    </div>
+  );
+}
+
+function SuccessRow({ label, value, hint, isEmphasized = false }) {
+  return (
+    <div className="flex flex-col gap-1 py-2.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
+      <dt className="shrink-0 text-[13px] text-[#777] sm:text-[13.5px]">{label}</dt>
+      <dd className="min-w-0 sm:text-right">
+        <div
+          className={
+            isEmphasized
+              ? "font-['Inter',_sans-serif] break-words text-[16px] font-bold leading-6 text-[#2540dd]"
+              : 'break-words text-[14px] font-semibold leading-6 text-[#15110d]'
+          }
+        >
+          {value}
+        </div>
+        {hint ? <div className="mt-0.5 text-[12.5px] leading-5 text-[#8a8a8a]">{hint}</div> : null}
+      </dd>
+    </div>
+  );
 }
 
 function AddressOption({ address, isSelected, onSelect }) {
@@ -165,7 +194,7 @@ function AddressOption({ address, isSelected, onSelect }) {
           <span
             className={`inline-flex rounded-full border px-3 py-1 text-[12px] font-semibold uppercase tracking-[0.16em] ${
               isSelected
-                ? 'border-white/16 bg-white/10 text-white'
+                ? 'border-white/16 bg-[#444] text-white'
                 : 'border-[#e8dfd3] bg-[#fcfaf8] text-[#8d7f72]'
             }`}
           >
@@ -403,6 +432,8 @@ export default function CheckoutPage() {
   const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
   const [addressesError, setAddressesError] = useState('');
   const [saveNewAddress] = useState(true);
+  // Khách đã đăng nhập vẫn có thể nhập tay một địa chỉ giao hàng khác cho đơn này.
+  const [isUsingNewAddress, setIsUsingNewAddress] = useState(false);
 
   const checkoutForm = useForm({
     defaultValues: defaultCheckoutValues,
@@ -528,7 +559,7 @@ export default function CheckoutPage() {
   );
 
   const hasSavedAddresses = addresses.length > 0;
-  const useSavedAddresses = Boolean(user && hasSavedAddresses);
+  const useSavedAddresses = Boolean(user && hasSavedAddresses && !isUsingNewAddress);
 
   const handleSubmitOrder = checkoutForm.handleSubmit(async (values) => {
     if (!items.length) {
@@ -617,7 +648,17 @@ export default function CheckoutPage() {
           }
         : normalizedValues;
 
+      // Giữ lại ảnh sản phẩm trước khi xóa giỏ để màn hình đặt hàng thành công còn hiển thị được.
+      const itemSnapshots = items.map((item) => ({
+        name: item.name,
+        variantLabel: item.variantLabel,
+        price: item.price,
+        quantity: item.quantity,
+        image: item.scene?.image ?? '',
+      }));
+
       clearCart();
+      setIsUsingNewAddress(false);
 
       if (data.order?.paymentMethod === 'bank_transfer' && data.order?.orderNumber) {
         router.push(`/checkout/payment/${encodeURIComponent(data.order.orderNumber)}`);
@@ -628,7 +669,7 @@ export default function CheckoutPage() {
         order: data.order,
         payment: data.payment,
         customer: contactSnapshot,
-        items: [...payloadItems, ...(data.order?.gifts ?? [])],
+        items: [...itemSnapshots, ...(data.order?.gifts ?? [])],
       });
     } catch (error) {
       setSubmitError(error.message);
@@ -656,26 +697,29 @@ export default function CheckoutPage() {
       completedCheckout.order.paymentMethod;
 
     return (
-      <section className="bg-[#fcfaf8] py-12 md:py-20">
-        <div className="mx-auto max-w-[1280px] px-4 md:px-6">
-          <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
-            <div className="bg-white p-0">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#15110d] text-white">
+      <section className="bg-white pb-16 pt-4 md:pb-20 md:pt-8">
+        <div className="mx-auto max-w-[1100px] px-3 sm:px-6">
+          <div className="overflow-hidden rounded-[14px] border border-[#e5e5e5]">
+            <div className="bg-[#eef1ff] px-5 py-8 text-center sm:px-10 sm:py-11">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#2540dd] text-white shadow-[0_12px_30px_rgba(37,64,221,0.28)]">
                 <CheckCircle2 className="h-8 w-8" />
               </div>
-              <div className="mt-6 inline-flex rounded-full border border-[#e8dfd3] bg-[#fcfaf8] px-4 py-2 text-[12px] font-semibold uppercase tracking-[0.2em] text-[#8d7f72]">
-                Đơn hàng thành công
+
+              <div className="mt-5 inline-flex rounded-full bg-white px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-[#2540dd]">
+                Đặt hàng thành công
               </div>
-              <h1 className="mt-5 text-[32px] font-semibold leading-tight tracking-[-0.04em] text-[#15110d] md:text-[38px]">
-                #{completedCheckout.order.orderNumber} đã được tạo
+
+              <h1 className="mt-4 text-[26px] font-semibold leading-tight tracking-[-0.03em] text-[#050505] sm:text-[34px]">
+                Cảm ơn bạn đã đặt hàng!
               </h1>
-              <p className="mt-4 max-w-[620px] text-[16px] leading-8 text-[#665a4e]">
+
+              <p className="mx-auto mt-3 max-w-[560px] text-[14px] leading-7 text-[#555] sm:text-[15px]">
                 {isBankTransfer
-                  ? 'Đơn hàng đang chờ thanh toán. Quét QR hoặc chuyển khoản đúng số tiền và nội dung bên dưới để hệ thống dễ đối soát.'
+                  ? 'Đơn hàng đang chờ thanh toán. Quét QR hoặc chuyển khoản đúng số tiền và nội dung để hệ thống dễ đối soát.'
                   : 'Đơn hàng của bạn đã được ghi nhận. SRX sẽ liên hệ xác nhận trước khi giao và bạn thanh toán khi nhận hàng.'}
               </p>
 
-              <div className="mt-6 flex flex-wrap gap-2">
+              <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
                 <span
                   className={`inline-flex rounded-full border px-3 py-1.5 text-[13px] font-medium ${getCheckoutOrderStatusClass(
                     completedCheckout.order.orderStatus,
@@ -683,186 +727,161 @@ export default function CheckoutPage() {
                 >
                   {orderStatusLabels[completedCheckout.order.orderStatus] ?? completedCheckout.order.orderStatus}
                 </span>
-                <span className="inline-flex rounded-full border border-[#eadfce] bg-white px-3 py-1.5 text-[13px] font-medium text-[#665a4e]">
+                <span className="inline-flex rounded-full border border-[#e5e5e5] bg-white px-3 py-1.5 text-[13px] font-medium text-[#555]">
                   {paymentStatusLabels[completedCheckout.order.paymentStatus] ?? completedCheckout.order.paymentStatus}
                 </span>
               </div>
-
-              <div className="mt-8 grid gap-4 md:grid-cols-2">
-                <div className="rounded-[22px] border border-[#ece4da] bg-[#fcfaf8] p-5">
-                  <div className="text-[12px] uppercase tracking-[0.18em] text-[#8d7f72]">Tổng thanh toán</div>
-                  <div className="font-['Inter',_sans-serif] mt-2 text-[24px] font-semibold text-[#15110d]">
-                    {currencyFormatter.format(completedCheckout.order.grandTotal)}
-                  </div>
-                </div>
-                <div className="rounded-[22px] border border-[#ece4da] bg-[#fcfaf8] p-5">
-                  <div className="text-[12px] uppercase tracking-[0.18em] text-[#8d7f72]">Phương thức</div>
-                  <div className="mt-2 text-[18px] font-semibold text-[#15110d]">
-                    {paymentMethodLabel}
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                {user ? (
-                  <Link
-                    href="/account"
-                    className="inline-flex items-center justify-center rounded-full bg-[#15110d] px-6 py-3.5 text-[15px] font-semibold text-white transition hover:bg-[#2b2520]"
-                  >
-                    Xem tài khoản
-                  </Link>
-                ) : null}
-                <Link
-                  href="/products"
-                  className="inline-flex items-center justify-center rounded-full border border-[#15110d] px-6 py-3.5 text-[15px] font-semibold text-[#15110d] transition hover:bg-[#15110d] hover:text-white"
-                >
-                  Tiếp tục mua sắm
-                </Link>
-              </div>
             </div>
 
-            <div className="space-y-6">
+            <div className="grid gap-px bg-[#e5e5e5] sm:grid-cols-3">
+              <div className="bg-white px-5 py-5 text-center">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#8a8a8a]">Mã đơn hàng</div>
+                <div className="mt-1.5 break-all text-[17px] font-bold tracking-[-0.02em] text-[#050505]">
+                  #{completedCheckout.order.orderNumber}
+                </div>
+              </div>
+              <div className="bg-white px-5 py-5 text-center">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#8a8a8a]">Tổng thanh toán</div>
+                <div className="font-['Inter',_sans-serif] mt-1.5 text-[19px] font-bold text-[#2540dd]">
+                  {currencyFormatter.format(completedCheckout.order.grandTotal)}
+                </div>
+              </div>
+              <div className="bg-white px-5 py-5 text-center">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#8a8a8a]">Phương thức</div>
+                <div className="mt-1.5 text-[17px] font-bold tracking-[-0.02em] text-[#050505]">{paymentMethodLabel}</div>
+              </div>
+            </div>
+          </div>
 
-              <div className="rounded-[32px] border border-[#ece4da] bg-white p-4">
-                <div className="grid gap-6 xl:grid-cols-2">
-                  <div className="p-5">
-                    <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#8d7f72]">
-                      Thông tin đơn hàng
-                    </div>
-                    <div className="mt-4 space-y-3">
-                      <div className="px-4 py-1">
-                        <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Mã đơn hàng</div>
-                        <div className="mt-1 text-[15px] font-semibold text-[#15110d]">
-                          #{completedCheckout.order.orderNumber}
-                        </div>
-                      </div>
-                      <div className="px-4 py-1">
-                        <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Ngày đặt</div>
-                        <div className="mt-1 text-[15px] font-semibold text-[#15110d]">
-                          {formatCheckoutOrderDate(completedCheckout.order.placedAt)}
-                        </div>
-                      </div>
-                      <div className="px-4 py-1">
-                        <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Trạng thái đơn</div>
-                        <div className="mt-1 text-[15px] font-semibold text-[#15110d]">
-                          {orderStatusLabels[completedCheckout.order.orderStatus] ?? completedCheckout.order.orderStatus}
-                        </div>
-                      </div>
-                      <div className="px-4 py-1">
-                        <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Tổng tiền</div>
-                        <div className="mt-1 text-[15px] font-semibold text-[#15110d]">
-                          {currencyFormatter.format(completedCheckout.order.grandTotal)}
-                        </div>
-                      </div>
-                      <div className="px-4 py-1">
-                        <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Tạm tính</div>
-                        <div className="mt-1 text-[15px] font-semibold text-[#15110d]">
-                          {currencyFormatter.format(completedCheckout.order.subtotal)}
-                        </div>
-                      </div>
-                      <div className="px-4 py-1">
-                        <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Giảm giá</div>
-                        <div className="mt-1 text-[15px] font-semibold text-[#15110d]">
-                          {completedCheckout.order.discountTotal > 0
-                            ? `- ${currencyFormatter.format(completedCheckout.order.discountTotal)}`
-                            : currencyFormatter.format(0)}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+          <div className="mt-5 flex flex-col gap-2.5 sm:flex-row sm:justify-center">
+            {user ? (
+              <Link
+                href="/account?view=orders"
+                className="inline-flex min-h-[50px] items-center justify-center gap-2 rounded-full bg-black px-7 text-[13px] font-bold uppercase text-white transition hover:bg-[#222] sm:text-[14px]"
+              >
+                Xem đơn hàng của tôi
+              </Link>
+            ) : null}
+            <Link
+              href="/products"
+              className="inline-flex min-h-[50px] items-center justify-center gap-2 rounded-full border border-[#d8d8d8] bg-white px-7 text-[13px] font-bold uppercase text-[#050505] transition hover:border-[#2540dd] hover:text-[#2540dd] sm:text-[14px]"
+            >
+              Tiếp tục mua sắm
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
 
-                  <div className="p-4">
-                    <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#8d7f72]">
-                      Thông tin thanh toán
+          <div className="mt-6 grid gap-4 lg:grid-cols-2">
+            <SuccessCard title="Thông tin đơn hàng">
+              <SuccessRow label="Mã đơn hàng" value={`#${completedCheckout.order.orderNumber}`} />
+              <SuccessRow label="Ngày đặt" value={formatCheckoutOrderDate(completedCheckout.order.placedAt)} />
+              <SuccessRow
+                label="Trạng thái đơn"
+                value={orderStatusLabels[completedCheckout.order.orderStatus] ?? completedCheckout.order.orderStatus}
+              />
+              <SuccessRow
+                label="Trạng thái thanh toán"
+                value={
+                  paymentStatusLabels[completedCheckout.order.paymentStatus] ?? completedCheckout.order.paymentStatus
+                }
+              />
+              <SuccessRow label="Phương thức thanh toán" value={paymentMethodLabel} />
+            </SuccessCard>
+
+            <SuccessCard title="Thông tin nhận hàng">
+              <SuccessRow label="Tên khách hàng" value={formatCheckoutContactValue(completedCheckout.customer.fullName)} />
+              <SuccessRow label="Số điện thoại" value={formatCheckoutContactValue(completedCheckout.customer.phone)} />
+              {/* Email là tùy chọn nên chỉ hiện khi khách có điền. */}
+              {completedCheckout.customer.email ? (
+                <SuccessRow
+                  label="Email"
+                  value={completedCheckout.customer.email}
+                  hint="Thư xác nhận đơn hàng đã được gửi tới địa chỉ này."
+                />
+              ) : null}
+              <SuccessRow
+                label="Địa chỉ giao hàng"
+                value={formatCheckoutContactValue(formatCheckoutContact(completedCheckout.customer))}
+              />
+              <SuccessRow label="Phí vận chuyển" value="Miễn phí" />
+            </SuccessCard>
+          </div>
+
+          <div className="mt-4 rounded-[14px] border border-[#e5e5e5] bg-white p-5 sm:p-6">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-[16px] font-semibold tracking-[-0.02em] text-[#050505] sm:text-[17px]">
+                Sản phẩm đã đặt
+              </h2>
+              <span className="text-[13px] text-[#777]">
+                {completedCheckout.items.reduce((total, item) => total + Number(item.quantity ?? 0), 0)} sản phẩm
+              </span>
+            </div>
+
+            <div className="mt-4 grid gap-2.5">
+              {completedCheckout.items.map((item, index) => {
+                const itemImage = item.image || item.giftImg || '';
+                const isGiftLine = Number(item.price ?? 0) === 0;
+
+                return (
+                  <div
+                    key={`${item.name}-${index}`}
+                    className="flex items-center gap-3.5 rounded-[12px] border border-[#ededed] bg-[#fafafa] px-3.5 py-3"
+                  >
+                    <div className="h-16 w-14 flex-shrink-0 overflow-hidden rounded-[8px] border border-[#ececec] bg-white">
+                      {itemImage ? (
+                        <img src={itemImage} alt={item.name} loading="lazy" className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-[#c4c4c4]">
+                          <ShoppingBag className="h-5 w-5" />
+                        </div>
+                      )}
                     </div>
-                    <div className="mt-4 space-y-3">
-                      <div className="px-4 py-1">
-                        <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Tên khách hàng</div>
-                        <div className="mt-1 text-[15px] font-semibold text-[#15110d]">
-                          {formatCheckoutContactValue(completedCheckout.customer.fullName)}
-                        </div>
+
+                    <div className="min-w-0 flex-1">
+                      <div className="line-clamp-2 text-[14px] font-semibold leading-5 text-[#15110d] sm:text-[15px]">
+                        {item.name}
                       </div>
-                      <div className="px-4 py-1">
-                        <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Số điện thoại</div>
-                        <div className="mt-1 text-[15px] font-semibold text-[#15110d]">
-                          {formatCheckoutContactValue(completedCheckout.customer.phone)}
-                        </div>
-                      </div>
-                      {/* Email là tùy chọn nên chỉ hiện khi khách có điền. */}
-                      {completedCheckout.customer.email ? (
-                        <div className="px-4 py-1">
-                          <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Email</div>
-                          <div className="mt-1 break-all text-[15px] font-semibold text-[#15110d]">
-                            {completedCheckout.customer.email}
-                          </div>
-                          <div className="mt-1 text-[12.5px] leading-5 text-[#8d7f72]">
-                            Thư xác nhận đơn hàng đã được gửi tới địa chỉ này.
-                          </div>
-                        </div>
+                      {item.variantLabel ? (
+                        <div className="mt-1 text-[13px] text-[#777]">{item.variantLabel}</div>
                       ) : null}
-                      <div className="px-4 py-1">
-                        <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Địa chỉ giao hàng</div>
-                        <div className="mt-1 text-[15px] font-semibold leading-6 text-[#15110d]">
-                          {formatCheckoutContactValue(formatCheckoutContact(completedCheckout.customer))}
-                        </div>
+                      <div className="mt-1 text-[12.5px] text-[#8a8a8a]">
+                        {isGiftLine ? 'Quà tặng kèm' : `Đơn giá ${currencyFormatter.format(item.price)}`}
                       </div>
-                      <div className="px-4 py-1">
-                        <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Phương thức thanh toán</div>
-                        <div className="mt-1 text-[15px] font-semibold text-[#15110d]">{paymentMethodLabel}</div>
-                      </div>
-                      <div className="px-4 py-1">
-                        <div className="text-[11px] uppercase tracking-[0.16em] text-[#8d7f72]">Trạng thái thanh toán</div>
-                        <div className="mt-1 text-[15px] font-semibold text-[#15110d]">
-                          {paymentStatusLabels[completedCheckout.order.paymentStatus] ?? completedCheckout.order.paymentStatus}
-                        </div>
+                    </div>
+
+                    <div className="flex-shrink-0 text-right">
+                      <div className="text-[13px] text-[#777]">x{item.quantity}</div>
+                      <div className="font-['Inter',_sans-serif] mt-1.5 text-[14px] font-semibold text-[#15110d] sm:text-[15px]">
+                        {currencyFormatter.format(item.price * item.quantity)}
                       </div>
                     </div>
                   </div>
-                </div>
+                );
+              })}
+            </div>
 
-                <div className="mt-6 text-[12px] font-semibold uppercase tracking-[0.2em] text-[#8d7f72]">
-                  Thông tin nhận hàng
-                </div>
-                <div className="mt-4 rounded-[24px] border border-[#ece4da] bg-[#fcfaf8] p-5">
-                  <div className="text-[17px] font-semibold text-[#15110d]">
-                    {completedCheckout.customer.fullName}
-                  </div>
-                  <div className="mt-2 text-[14px] text-[#665a4e]">
-                    {completedCheckout.customer.phone}
-                    {completedCheckout.customer.email ? ` • ${completedCheckout.customer.email}` : ''}
-                  </div>
-                  <div className="mt-2 text-[14px] leading-6 text-[#665a4e]">
-                    {formatCheckoutContact(completedCheckout.customer)}
-                  </div>
-                </div>
-
-                <div className="mt-5 text-[12px] font-semibold uppercase tracking-[0.2em] text-[#8d7f72]">
-                  Sản phẩm
-                </div>
-                <div className="mt-4 space-y-3">
-                  {completedCheckout.items.map((item, index) => (
-                    <div
-                      key={`${item.name}-${index}`}
-                      className="flex items-start justify-between gap-4 rounded-[18px] border border-[#f0e7dc] bg-[#fcfaf8] px-4 py-3"
-                    >
-                      <div className="min-w-0">
-                        <div className="text-[15px] font-semibold leading-6 text-[#15110d]">{item.name}</div>
-                        {item.variantLabel ? (
-                          <div className="mt-1 text-[13px] text-[#665a4e]">{item.variantLabel}</div>
-                        ) : null}
-                        <div className="mt-2 text-[13px] text-[#665a4e]">
-                          Đơn giá {currencyFormatter.format(item.price)}
-                        </div>
-                      </div>
-                      <div className="flex-shrink-0 text-right">
-                        <div className="text-[14px] text-[#665a4e]">x{item.quantity}</div>
-                        <div className="mt-2 text-[15px] font-semibold text-[#15110d]">
-                          {currencyFormatter.format(item.price * item.quantity)}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+            <div className="mt-5 space-y-3 border-t border-[#e5e5e5] pt-4 text-[14px] text-[#666] sm:text-[15px]">
+              <div className="flex items-center justify-between">
+                <span>Tạm tính</span>
+                <span className="font-['Inter',_sans-serif] font-medium text-[#15110d]">
+                  {currencyFormatter.format(completedCheckout.order.subtotal)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Giảm giá</span>
+                <span className="font-['Inter',_sans-serif] font-medium text-[#15110d]">
+                  -{currencyFormatter.format(completedCheckout.order.discountTotal)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Phí vận chuyển</span>
+                <span className="font-medium text-[#15110d]">Miễn phí</span>
+              </div>
+              <div className="flex items-center justify-between border-t border-[#e5e5e5] pt-4 text-[16px] font-bold text-[#15110d]">
+                <span>Tổng cộng</span>
+                <span className="font-['Inter',_sans-serif] text-[18px] text-[#2540dd]">
+                  {currencyFormatter.format(completedCheckout.order.grandTotal)}
+                </span>
               </div>
             </div>
           </div>
@@ -903,14 +922,17 @@ export default function CheckoutPage() {
       <div className="mx-auto max-w-[1920px] px-3 sm:px-6 lg:px-10 xl:px-[58px]">
         <div className="grid gap-6 xl:grid-cols-[minmax(0,0.98fr)_minmax(620px,0.95fr)] xl:gap-8">
           <div className="min-w-0">
-            <div className="flex min-h-[52px] flex-col items-start gap-3 rounded-[7px] bg-[#f3f3f3] px-4 py-4 text-[13px] font-semibold leading-5 text-[#050505] sm:min-h-[58px] sm:flex-row sm:items-center sm:gap-8 sm:px-5 sm:py-0 sm:text-[14px]">
-              <Link href="/register" className="rounded-full bg-[#2540dd] px-5 py-2 text-[12px] font-bold uppercase text-white text-nowrap transition hover:bg-[#1f34ba] sm:px-7 sm:text-[13px]">ĐĂNG KÝ NGAY</Link>
-              <div>
-                Đăng ký tài khoản để nhận Voucher - 10% cho đơn hàng đầu tiên và ghi nhận hoàn tiền trên từng đơn hàng. <a className="text-[#2540dd] underline" href="#">Tìm hiểu thêm</a>
+            {/* Banner mời đăng ký chỉ có ý nghĩa với khách chưa có tài khoản. */}
+            {user ? null : (
+              <div className="flex min-h-[52px] flex-col items-start gap-3 rounded-[7px] bg-[#f3f3f3] px-4 py-4 text-[13px] font-semibold leading-5 text-[#050505] sm:min-h-[58px] sm:flex-row sm:items-center sm:gap-8 sm:px-5 sm:py-0 sm:text-[14px]">
+                <Link href="/register" className="rounded-full bg-[#2540dd] px-5 py-2 text-[12px] font-bold uppercase text-white text-nowrap transition hover:bg-[#1f34ba] sm:px-7 sm:text-[13px]">ĐĂNG KÝ NGAY</Link>
+                <div>
+                  Đăng ký tài khoản để nhận Voucher - 10% cho đơn hàng đầu tiên và ghi nhận hoàn tiền trên từng đơn hàng. <a className="text-[#2540dd] underline" href="#">Tìm hiểu thêm</a>
+                </div>
               </div>
-            </div>
+            )}
 
-            <h1 className="mt-7 text-[22px] font-semibold tracking-[-0.03em] text-[#050505] sm:mt-12 sm:text-[24px]">Thông tin vận chuyển</h1>
+            <h1 className={`text-[22px] font-semibold tracking-[-0.03em] text-[#050505] sm:text-[24px] ${user ? 'mt-1 sm:mt-2' : 'mt-7 sm:mt-12'}`}>Thông tin vận chuyển</h1>
 
             {useSavedAddresses ? (
               <div className="bg-white p-0">
@@ -939,7 +961,7 @@ export default function CheckoutPage() {
                   </div>
                 ) : hasSavedAddresses ? (
                   <>
-                    <div className="mt-7 space-y-2">
+                    <div className="mt-7 grid gap-2">
                       {addresses.map((address) => (
                         <AddressOption
                           key={address.id}
@@ -949,6 +971,15 @@ export default function CheckoutPage() {
                         />
                       ))}
                     </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsUsingNewAddress(true)}
+                      className="mt-3 flex min-h-[52px] w-full items-center justify-center gap-2 rounded-[24px] border border-dashed border-[#c7cfff] bg-[#f7f8ff] px-5 text-[14px] font-semibold text-[#2540dd] transition hover:border-[#2540dd] hover:bg-[#eef1ff]"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Giao đến địa chỉ khác
+                    </button>
                   </>
                 ) : (
                   <div className="mt-6 rounded-[24px] border border-dashed border-[#d8c8b6] bg-[#fcfaf8] px-6 py-10 text-center">
@@ -968,6 +999,21 @@ export default function CheckoutPage() {
               </div>
             ) : (
               <div className="bg-white p-0">
+                {user && hasSavedAddresses ? (
+                  <div className="mt-5 flex flex-col gap-3 rounded-[16px] bg-[#f3f3f3] px-4 py-3.5 sm:mt-6 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="text-[13px] font-semibold leading-5 text-[#050505] sm:text-[14px]">
+                      Bạn đang nhập địa chỉ giao hàng mới cho đơn này.
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsUsingNewAddress(false)}
+                      className="inline-flex min-h-[38px] items-center justify-center gap-2 rounded-full border border-[#c7cfff] bg-white px-4 text-[13px] font-semibold text-[#2540dd] transition hover:border-[#2540dd] hover:bg-[#eef1ff]"
+                    >
+                      <MapPin className="h-4 w-4" />
+                      Dùng địa chỉ đã lưu
+                    </button>
+                  </div>
+                ) : null}
                 <div className="mt-5 space-y-3 sm:mt-9">
                 <label className="flex items-start gap-2 text-[12px] font-semibold leading-5 text-[#777] sm:items-center sm:text-[13px]"><input type="checkbox" defaultChecked className="h-5 w-5 rounded border-[#2540dd] accent-[#2540dd]" />
                   Tôi đã đọc và đồng ý với các thông tin trong Chính sách bảo vệ dữ liệu người dùng <a href='/chinh-sach-bao-mat' className='text-[#2540dd] underline' target='_blank'>Tại đây</a>
