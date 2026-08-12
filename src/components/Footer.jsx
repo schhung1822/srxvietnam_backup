@@ -135,7 +135,7 @@ const Footer = () => {
                   className="h-10 w-10 object-contain"
                 />
               </a>
-              <a href="https://zalo.me/4112137101220932811" className="transition-opacity hover:opacity-80">
+              <a href="https://zalo.me/3726662326010428300" className="transition-opacity hover:opacity-80">
                 <img
                   src="/assets/images/footer/zalo.webp"
                   alt="Zalo OA"

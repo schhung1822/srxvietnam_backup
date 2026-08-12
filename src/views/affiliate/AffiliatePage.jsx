@@ -1312,7 +1312,9 @@ export default function AffiliatePage() {
               Khu vực cộng tác viên
             </h1>
           </div>
-          {user ? <StatusPill statusMeta={statusMeta} className="self-start lg:self-auto" /> : null}
+          <Link href="/chinh-sach-affiliate" className={`px-2 py-1 text-[15px] text-[#231f20] hover:text-[#5b5ec8]`}>
+              Chính sách Affiliate
+          </Link>
         </div>
 
         <div className="mt-7">

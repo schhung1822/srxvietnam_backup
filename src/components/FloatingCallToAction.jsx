@@ -12,7 +12,7 @@ const DRAG_THRESHOLD = 6;
 const STORAGE_KEY = 'srx-floating-contact-corner';
 const DEFAULT_CORNER = 'bottom-right';
 const FACEBOOK_URL = 'https://www.facebook.com/srxvnofficial';
-const ZALO_URL = 'https://zalo.me/4112137101220932811';
+const ZALO_URL = 'https://zalo.me/3726662326010428300';
 const PHONE_NUMBER = '+84903010692';
 
 const CONTACT_ITEMS = [
@@ -34,7 +34,7 @@ const CONTACT_ITEMS = [
     id: 'zalo',
     label: 'Zalo OA',
     meta: 'Nhắn tin trực tiếp với SRX',
-    href: "https://zalo.me/4112137101220932811",
+    href: "https://zalo.me/3726662326010428300",
     icon: 'zalo',
   },
 ];

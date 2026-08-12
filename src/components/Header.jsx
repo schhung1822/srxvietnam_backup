@@ -47,14 +47,7 @@ const navigationItems = [
       },
     ],
   },
-  {
-    name: 'Affiliate',
-    path: '/affiliate',
-    dropdown: [
-      { name: 'Tổng quan', path: '/affiliate', icon: BarChart3 },
-      { name: 'Chính sách', path: '/chinh-sach-affiliate', icon: CheckCircle },
-    ],
-  },
+  { name: 'Affiliate', path: '/affiliate' },
 ];
 
 export default function Header() {
