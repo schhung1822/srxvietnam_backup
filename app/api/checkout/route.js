@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { NextResponse } from 'next/server';
+import { after, NextResponse } from 'next/server';
 import {
   getCheckoutTotals,
   getSepayPaymentDetails,
@@ -30,6 +30,9 @@ ensureServerEnvLoaded();
 const ORDERS_WEB_API_URL =
   process.env.SRX_ORDERS_WEB_API_URL?.trim() || 'https://crm.srx.vn/api/srx/orders_web';
 const ORDERS_WEB_API_TOKEN = process.env.SRX_ORDERS_WEB_API_TOKEN?.trim() || '';
+const NEW_ORDER_WEBHOOK_URL =
+  process.env.SRX_NEW_ORDER_WEBHOOK_URL?.trim() ||
+  'https://nextg.nextgency.vn/webhook/srx/new-order';
 
 function normalizeString(value) {
   return String(value ?? '').trim();
@@ -162,6 +165,41 @@ async function queueOrdersWebNotifications(payload) {
     }
   } catch (error) {
     console.error(`Orders_web notification dispatch error:\n${formatErrorDetails(error)}`);
+  }
+}
+
+async function sendNewOrderWebhook(payload) {
+  if (!NEW_ORDER_WEBHOOK_URL) {
+    return;
+  }
+
+  try {
+    const { signal, cleanup } = createRequestTimeoutSignal(5000);
+
+    try {
+      const response = await fetch(NEW_ORDER_WEBHOOK_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+        cache: 'no-store',
+        signal,
+      });
+
+      if (!response.ok) {
+        const responseBody = (await response.text().catch(() => '')).trim();
+        throw new Error(
+          `new-order webhook returned ${response.status}${responseBody ? `: ${responseBody.slice(0, 300)}` : ''}`,
+        );
+      }
+    } finally {
+      cleanup();
+    }
+  } catch (error) {
+    console.error(
+      `New-order webhook dispatch error for ${payload.orderNumber}:\n${formatErrorDetails(error)}`,
+    );
   }
 }
 
@@ -707,6 +745,7 @@ export async function POST(request) {
             orderNumber,
           })
         : null;
+    const placedAt = new Date().toISOString();
     const orderSummary = {
       id: orderId,
       orderNumber,
@@ -719,7 +758,7 @@ export async function POST(request) {
       totalItems: items.length,
       totalQuantity: items.reduce((total, item) => total + item.quantity, 0),
       gifts: giftItems,
-      placedAt: new Date().toISOString(),
+      placedAt,
     };
 
     // Khách có để lại email thì gửi thêm thư xác nhận đơn. Không có email thì bỏ qua,
@@ -743,7 +782,7 @@ export async function POST(request) {
       });
     }
 
-    void queueOrdersWebNotifications({
+    const orderNotificationPayload = {
       orderNumber,
       customer,
       items: [...lineItems, ...giftItems],
@@ -762,7 +801,7 @@ export async function POST(request) {
         methodLabel: paymentMethodLabel,
         status: orderSummary.paymentStatus,
       },
-      placedAt: new Date().toISOString(),
+      placedAt,
       siteOrigin: resolveRequestOrigin(request),
       source: 'Website SRX Việt Nam',
       totals: {
@@ -770,7 +809,15 @@ export async function POST(request) {
         grandTotal: totals.grandTotal,
         subtotal: totals.subtotal,
       },
-    });
+    };
+    const newOrderWebhookPayload = {
+      event: 'new_order',
+      orderId,
+      ...orderNotificationPayload,
+    };
+
+    void queueOrdersWebNotifications(orderNotificationPayload);
+    after(() => sendNewOrderWebhook(newOrderWebhookPayload));
 
     return NextResponse.json(
       {
