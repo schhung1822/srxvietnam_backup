@@ -24,12 +24,12 @@ function VoucherStub({ voucher, isLocked }) {
   return (
     <div
       className={[
-        'flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-center text-[13px] font-bold leading-tight text-white',
-        isLocked ? 'bg-[#a89e90]' : 'bg-[#15110d]',
+        'flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] text-center text-[12px] font-bold leading-tight text-white',
+        isLocked ? 'bg-[#9ca3af]' : 'bg-[#171717]',
       ].join(' ')}
     >
       {isFreeShippingVoucher(voucher) || !stubLabel ? (
-        <Truck className="h-6 w-6" strokeWidth={1.8} />
+        <Truck className="h-5 w-5" strokeWidth={1.8} />
       ) : (
         stubLabel
       )}
@@ -46,13 +46,13 @@ function VoucherCard({ voucher, isApplied, isLoggedIn, subtotal, onUse, loginHre
   return (
     <div
       className={[
-        'relative flex items-center gap-3.5 overflow-hidden rounded-[20px] border p-4 transition',
-        isApplied ? 'border-[#3f6b39] bg-[#f6faf5]' : 'border-[#e3ddd3] bg-white',
-        isLocked ? 'border-[#e3ddd3] bg-[#f5f2ed]' : '',
+        'relative flex items-center gap-3 overflow-hidden rounded-[16px] border p-3 transition',
+        isApplied ? 'border-[#7ba474] bg-[#f5faf4]' : 'border-[#e1e3e6] bg-white',
+        isLocked ? 'border-[#e1e3e6] bg-[#f1f2f4]' : '',
       ].join(' ')}
     >
       {isLocked ? (
-        <span className="absolute right-0 top-0 inline-flex items-center gap-1 rounded-bl-[14px] bg-[#a89e90] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-white">
+        <span className="absolute right-0 top-0 inline-flex items-center gap-1 rounded-bl-[12px] bg-[#9ca3af] px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.08em] text-white">
           <Lock className="h-3 w-3 shrink-0" />
           Thành viên
         </span>
@@ -61,31 +61,31 @@ function VoucherCard({ voucher, isApplied, isLoggedIn, subtotal, onUse, loginHre
       <VoucherStub voucher={voucher} isLocked={isLocked} />
 
       <div className="min-w-0 flex-1">
-        <div className={['text-[15px] font-bold leading-tight', isLocked ? 'text-[#8d8578]' : 'text-[#15110d]'].join(' ')}>
+        <div className={['text-[14px] font-bold leading-tight', isLocked ? 'text-[#6b7280]' : 'text-[#171717]'].join(' ')}>
           {getVoucherTitle(voucher)}
         </div>
 
-        <p className="mt-1 line-clamp-2 text-[13px] leading-5 text-[#a89e90]">
+        <p className="mt-0.5 line-clamp-2 text-[12px] leading-[17px] text-[#737780]">
           {isLocked ? 'Đăng nhập để nhận mã đặc quyền này' : getVoucherDescription(voucher)}
         </p>
 
-        <div className="mt-2 flex flex-wrap items-center gap-2">
+        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
           <span
             className={[
-              'inline-block rounded-lg border border-dashed border-[#c8c0b4] px-2 py-0.5 text-[12px] font-bold tracking-[0.1em]',
-              isLocked ? 'text-[#8d8578]' : 'text-[#15110d]',
+              'inline-block rounded-md border border-dashed border-[#bfc3c9] px-1.5 py-0.5 text-[11px] font-bold tracking-[0.08em]',
+              isLocked ? 'text-[#6b7280]' : 'text-[#171717]',
             ].join(' ')}
           >
             {isLocked ? maskVoucherCode(voucher.code) : voucher.code}
           </span>
 
           {!isLocked && endsAtLabel ? (
-            <span className="text-[11px] text-[#a89e90]">HSD {endsAtLabel}</span>
+            <span className="text-[10px] text-[#737780]">HSD {endsAtLabel}</span>
           ) : null}
         </div>
 
         {!isLocked && !isEligible ? (
-          <p className="mt-2 text-[12px] font-semibold leading-5 text-[#b0703a]">
+          <p className="mt-1.5 text-[11px] font-semibold leading-4 text-[#a15c32]">
             Đơn tối thiểu {formatVoucherMoney(voucher.minOrderAmount)}
           </p>
         ) : null}
@@ -95,7 +95,7 @@ function VoucherCard({ voucher, isApplied, isLoggedIn, subtotal, onUse, loginHre
         <Link
           href={loginHref}
           onClick={onNavigate}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-full border-[1.5px] border-[#15110d] px-4 py-2.5 text-[13px] font-bold text-[#15110d] transition hover:bg-[#15110d] hover:text-white"
+          className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-[#171717] px-3 py-2 text-[12px] font-bold text-[#171717] transition hover:bg-[#171717] hover:text-white"
         >
           Đăng nhập
         </Link>
@@ -105,10 +105,10 @@ function VoucherCard({ voucher, isApplied, isLoggedIn, subtotal, onUse, loginHre
           onClick={() => onUse(voucher.code)}
           disabled={!isEligible && !isApplied}
           className={[
-            'inline-flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2.5 text-[13px] font-bold transition',
+            'inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-2 text-[12px] font-bold transition',
             isApplied
               ? 'bg-[#3f6b39] text-white'
-              : 'bg-[#15110d] text-white hover:bg-[#332b23] disabled:cursor-not-allowed disabled:bg-[#c8c0b4]',
+              : 'bg-[#171717] text-white hover:bg-black disabled:cursor-not-allowed disabled:bg-[#b9bdc4]',
           ].join(' ')}
         >
           {isApplied ? (
@@ -135,6 +135,8 @@ export default function VoucherField({
   onRemove,
   isLoggedIn = false,
   loginHref = '/login',
+  compact = false,
+  onNavigate,
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -210,42 +212,57 @@ export default function VoucherField({
     setFeedback({ type: '', text: '' });
   };
 
+  const handleNavigate = () => {
+    setIsOpen(false);
+    onNavigate?.();
+  };
+
   const sheet = (
-    <div className={isOpen ? 'block' : 'hidden'}>
+    <div
+      className={`fixed inset-0 z-[100] ${isOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
+      aria-hidden={!isOpen}
+      inert={!isOpen}
+    >
       <div
-        className="fixed inset-0 z-[100] bg-[rgba(28,26,23,0.45)] backdrop-blur-[2px]"
+        className={`absolute inset-0 bg-black/35 backdrop-blur-[2px] transition-opacity duration-300 motion-reduce:transition-none ${
+          isOpen ? 'opacity-100' : 'opacity-0'
+        }`}
         onClick={() => setIsOpen(false)}
         aria-hidden="true"
       />
 
       <div
         role="dialog"
-        aria-modal="true"
+        aria-modal={isOpen ? 'true' : undefined}
         aria-label="Chọn mã giảm giá"
-        className="fixed inset-x-0 bottom-0 z-[110] mx-auto flex max-h-[86vh] w-full max-w-[520px] flex-col rounded-t-[28px] bg-[#faf9f7] shadow-[0_-20px_60px_rgba(28,26,23,0.25)] sm:inset-0 sm:my-auto sm:h-fit sm:max-h-[84vh] sm:rounded-[24px] sm:shadow-[0_40px_90px_rgba(28,26,23,0.35)]"
+        className={`fixed inset-x-0 bottom-0 z-[110] mx-auto flex max-h-[82dvh] w-full max-w-[440px] flex-col rounded-t-[24px] bg-[#f5f6f7] pb-[env(safe-area-inset-bottom)] shadow-[0_-18px_50px_rgba(0,0,0,0.2)] transition-[transform,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none sm:inset-0 sm:my-auto sm:h-fit sm:max-h-[80dvh] sm:rounded-[20px] sm:pb-0 sm:shadow-[0_30px_80px_rgba(0,0,0,0.22)] ${
+          isOpen
+            ? 'translate-y-0 opacity-100 sm:scale-100'
+            : 'translate-y-full opacity-0 sm:translate-y-4 sm:scale-[0.98]'
+        }`}
       >
-        <div className="relative shrink-0 px-5 pb-4 pt-3.5 sm:px-7 sm:pt-6">
-          <span className="mx-auto mb-4 block h-[5px] w-11 rounded-full bg-[#c8c0b4] sm:hidden" />
+        <div className="relative shrink-0 px-4 pb-3 pt-2.5 sm:px-5 sm:pt-5">
+          <span className="mx-auto mb-3 block h-1 w-9 rounded-full bg-[#b9bdc4] sm:hidden" />
 
           <button
             type="button"
             onClick={() => setIsOpen(false)}
             aria-label="Đóng"
-            className="absolute right-4 top-3 hidden h-9 w-9 items-center justify-center rounded-full border border-[#e3ddd3] text-[#a89e90] transition hover:border-[#15110d] hover:text-[#15110d] sm:flex sm:right-6 sm:top-6"
+            className="absolute right-3.5 top-2.5 flex h-8 w-8 items-center justify-center rounded-full border border-[#dfe1e4] bg-white text-[#737780] transition hover:border-[#171717] hover:text-[#171717] sm:right-5 sm:top-5"
           >
             <X className="h-4 w-4" />
           </button>
 
-          <h3 className="text-[21px] font-bold tracking-[-0.01em] text-[#15110d] sm:text-[23px]">
+          <h3 className="pr-10 text-[18px] font-bold tracking-[-0.01em] text-[#171717] sm:text-[20px]">
             Mã giảm giá
           </h3>
-          <p className="mt-1 text-[14px] text-[#a89e90]">
+          <p className="mt-0.5 pr-8 text-[12px] leading-[18px] text-[#737780] sm:text-[13px]">
             {isLoggedIn
               ? 'Chọn một mã có sẵn hoặc nhập mã của bạn'
               : 'Đăng nhập để mở khoá các mã giảm giá dành cho thành viên'}
           </p>
 
-          <div className="mt-5 flex gap-2.5">
+          <div className="mt-3 flex gap-2">
             <input
               type="text"
               value={manualCode}
@@ -258,12 +275,12 @@ export default function VoucherField({
               }}
               placeholder="Nhập mã giảm giá"
               autoComplete="off"
-              className="min-w-0 flex-1 rounded-full border-[1.5px] border-[#c8c0b4] bg-white px-5 py-3 text-[15px] font-semibold uppercase tracking-[0.06em] text-[#15110d] outline-none transition placeholder:font-medium placeholder:normal-case placeholder:tracking-normal placeholder:text-[#a89e90] focus:border-[#15110d]"
+              className="min-w-0 flex-1 rounded-full border border-[#cfd2d6] bg-white px-4 py-2.5 text-[13px] font-semibold uppercase tracking-[0.05em] text-[#171717] outline-none transition placeholder:font-medium placeholder:normal-case placeholder:tracking-normal placeholder:text-[#8a8f98] focus:border-[#171717]"
             />
             <button
               type="button"
               onClick={() => applyCode(manualCode)}
-              className="shrink-0 rounded-full bg-[#15110d] px-6 text-[14px] font-bold text-white transition hover:bg-[#332b23]"
+              className="shrink-0 rounded-full bg-[#171717] px-4 text-[12px] font-bold text-white transition hover:bg-black"
             >
               Áp dụng
             </button>
@@ -272,7 +289,7 @@ export default function VoucherField({
           {feedback.text ? (
             <p
               className={[
-                'mt-2.5 px-1 text-[13px] font-semibold',
+                'mt-2 px-1 text-[12px] font-semibold',
                 feedback.type === 'error' ? 'text-[#ad4040]' : 'text-[#3f6b39]',
               ].join(' ')}
             >
@@ -281,9 +298,9 @@ export default function VoucherField({
           ) : null}
         </div>
 
-        <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-5 pb-8 pt-1 sm:px-7">
+        <div className="min-h-0 flex-1 space-y-2 overflow-y-auto px-4 pb-5 pt-1 sm:px-5">
           {isLoading ? (
-            <div className="rounded-[20px] border border-[#e3ddd3] bg-white px-5 py-10 text-center text-[14px] text-[#a89e90]">
+            <div className="rounded-[16px] border border-[#e1e3e6] bg-white px-4 py-8 text-center text-[13px] text-[#737780]">
               Đang tải mã giảm giá...
             </div>
           ) : sortedVouchers.length ? (
@@ -296,11 +313,11 @@ export default function VoucherField({
                 isApplied={appliedCode === voucher.code}
                 onUse={applyCode}
                 loginHref={loginHref}
-                onNavigate={() => setIsOpen(false)}
+                onNavigate={handleNavigate}
               />
             ))
           ) : (
-            <div className="rounded-[20px] border border-[#e3ddd3] bg-white px-5 py-10 text-center text-[14px] text-[#a89e90]">
+            <div className="rounded-[16px] border border-[#e1e3e6] bg-white px-4 py-8 text-center text-[13px] text-[#737780]">
               Chưa có mã giảm giá khả dụng
             </div>
           )}
@@ -314,15 +331,15 @@ export default function VoucherField({
       <button
         type="button"
         onClick={openSheet}
-        className="flex w-full items-center gap-2.5 py-1.5 text-left transition active:opacity-60"
+        className={`flex w-full items-center text-left transition active:opacity-60 ${compact ? 'gap-2 py-1' : 'gap-2.5 py-1.5'}`}
       >
-        <TicketPercent className="h-[22px] w-[22px] shrink-0 text-[#15110d]" strokeWidth={1.8} />
-        <span className="text-[14px] font-bold uppercase tracking-[0.18em] text-[#15110d]">
+        <TicketPercent className={`${compact ? 'h-[18px] w-[18px]' : 'h-[22px] w-[22px]'} shrink-0 text-[#15110d]`} strokeWidth={1.8} />
+        <span className={`${compact ? 'text-[11px] tracking-[0.13em]' : 'text-[14px] tracking-[0.18em]'} font-bold uppercase text-[#15110d]`}>
           Mã giảm giá
         </span>
         <span
           className={[
-            'ml-auto flex items-center gap-1.5 whitespace-nowrap text-[13px] font-semibold',
+            `ml-auto flex items-center whitespace-nowrap font-semibold ${compact ? 'gap-1 text-[11px]' : 'gap-1.5 text-[13px]'}`,
             appliedCode ? 'text-[#3f6b39]' : 'text-[#6B7280]',
           ].join(' ')}
         >

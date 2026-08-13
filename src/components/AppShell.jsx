@@ -23,7 +23,7 @@ function AppShellContent({ children }) {
   const isVerificationPage = pathname === '/tiktok-verification';
   const isEventLandingPage = pathname.startsWith('/events/');
   const hideSiteChrome = isVerificationPage || isEventLandingPage;
-  const { items } = useCart();
+  const { items, isCartOpen } = useCart();
   const hideFooter = hideSiteChrome || (pathname === '/checkout' && items.length > 0);
 
   return (
@@ -50,7 +50,7 @@ function AppShellContent({ children }) {
 
           {!hideFooter && <Footer />}
           {!hideSiteChrome && <CartDrawer />}
-          {!hideSiteChrome && <FloatingCallToAction />}
+          {!hideSiteChrome && !isCartOpen && <FloatingCallToAction />}
 
           {!hideSiteChrome ? (
             <PageTransition
