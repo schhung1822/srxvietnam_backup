@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import { formatNewsDate } from '../../lib/news/articles.js';
+import { toMobileImageUrl } from '../../lib/products/image.js';
 import ScrollRevealHeading from './ScrollRevealHeading.jsx';
 
 function resolveProductImage(product) {
@@ -17,17 +18,23 @@ function resolveProductImage(product) {
 
 function ScientificSuggestedProductCard({ product }) {
   const productImage = resolveProductImage(product);
+  const mobileProductImage = toMobileImageUrl(productImage);
 
   return (
     <Link href={`/products/${product.slug}`} className="group block">
       <article className="relative overflow-hidden rounded-[16px] sm:rounded-[26px] bg-[#eef3ff] shadow-[0_20px_60px_rgba(42,62,140,0.12)]">
         <div className="aspect-[0.92] overflow-hidden">
-          <img
-            src={productImage}
-            alt={product.name}
-            className="h-full w-full object-cover transition duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
-            loading="lazy"
-          />
+          <picture className="block h-full w-full">
+            {mobileProductImage !== productImage ? (
+              <source media="(max-width: 639px)" srcSet={mobileProductImage} />
+            ) : null}
+            <img
+              src={productImage}
+              alt={product.name}
+              className="h-full w-full object-cover transition duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
+              loading="lazy"
+            />
+          </picture>
         </div>
 
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(4,10,30,0)_18%,rgba(4,10,30,0.16)_54%,rgba(4,10,30,0.82)_100%)]" />
@@ -58,6 +65,7 @@ export default function HomeScientificTopicsSection({ topic = null }) {
   const suggestedProducts = Array.isArray(topic?.suggestedProducts)
     ? topic.suggestedProducts.slice(0, 2)
     : [];
+  const mobileTopicImage = toMobileImageUrl(topic?.coverImage);
 
   useEffect(() => {
     if (!sectionRef.current) {
@@ -136,12 +144,17 @@ export default function HomeScientificTopicsSection({ topic = null }) {
               className="group relative block overflow-hidden rounded-[30px] bg-[#edf4ff] shadow-[0_28px_80px_rgba(73,98,170,0.14)]"
             >
               <div className="aspect-[0.85] min-h-[360px] sm:min-h-[460px] lg:min-h-[760px]">
-                <img
-                  src={topic.coverImage}
-                  alt={topic.coverAlt}
-                  className="h-full w-full object-cover transition duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
-                  loading="lazy"
-                />
+                <picture className="block h-full w-full">
+                  {mobileTopicImage !== topic.coverImage ? (
+                    <source media="(max-width: 639px)" srcSet={mobileTopicImage} />
+                  ) : null}
+                  <img
+                    src={topic.coverImage}
+                    alt={topic.coverAlt}
+                    className="h-full w-full object-cover transition duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
+                    loading="lazy"
+                  />
+                </picture>
               </div>
 
               <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_16%,rgba(0,19,64,0.08)_48%,rgba(0,14,38,0.34)_100%)]" />

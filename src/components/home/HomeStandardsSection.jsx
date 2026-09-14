@@ -4,24 +4,28 @@ const defaultBadges = [
   {
     id: 'tag-1',
     src: '/assets/images/home/icon_1.webp',
+    mobileSrc: '/assets/images/home/icon_1_mobile.webp',
     alt: 'Chứng minh lâm sàng bởi chuyên gia',
     title: 'Chứng minh lâm sàng bởi chuyên gia',
   },
   {
     id: 'tag-2',
     src: '/assets/images/home/icon_2.webp',
+    mobileSrc: '/assets/images/home/icon_2_mobile.webp',
     alt: 'Tiêu chuẩn quốc tế cao nhất',
     title: 'Tiêu chuẩn quốc tế cao nhất',
   },
   {
     id: 'tag-3',
     src: '/assets/images/home/icon_3.webp',
+    mobileSrc: '/assets/images/home/icon_3_mobile.webp',
     alt: 'Công nghệ dẫn truyền đột phá',
     title: 'Công nghệ dẫn truyền đột phá',
   },
   {
     id: 'tag-4',
     src: '/assets/images/home/icon_4.webp',
+    mobileSrc: '/assets/images/home/icon_4_mobile.webp',
     alt: 'An toàn và lành tính',
     title: 'An toàn và lành tính',
   },
@@ -56,13 +60,20 @@ export default function HomeStandardsSection({
               <div className="w-full max-w-[180px] sm:max-w-[240px] lg:max-w-[280px]">
                 <div className="rounded-full transition-transform duration-300 group-hover:-translate-y-1">
                   <div className="aspect-square overflow-hidden rounded-full">
-                    <img
-                      src={badge.src}
-                      alt={badge.alt}
-                      className="h-full w-full rounded-full object-cover"
-                      loading="lazy"
-                      decoding="async"
-                    />
+                    <picture className="block h-full w-full">
+                      {badge.mobileSrc ? (
+                        <source media="(max-width: 639px)" srcSet={badge.mobileSrc} />
+                      ) : null}
+                      <img
+                        src={badge.src}
+                        alt={badge.alt}
+                        width="600"
+                        height="600"
+                        className="h-full w-full rounded-full object-cover"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </picture>
                   </div>
                 </div>
                 <p className="text-[15px] sm:text-[16px] font-semibold max-w-[180px] mx-auto text-[#616161]">{badge.title}</p>

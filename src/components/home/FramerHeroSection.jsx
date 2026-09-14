@@ -1,26 +1,33 @@
-﻿import { useEffect, useRef } from 'react';
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { Manrope } from 'next/font/google';
 import gsap from 'gsap';
 import {
-  homeButtonHighlightClass,
-  homeButtonSheenClass,
   homePrimaryButtonClass,
   homeSecondaryButtonClass,
 } from './homeCtaStyles.js';
+import styles from './FramerHeroSection.module.css';
+
+const Topography = dynamic(() => import('./Topography.jsx'), {
+  ssr: false,
+});
 
 const heroLegacyHeadingFont = Manrope({
   subsets: ['latin', 'vietnamese'],
-  weight: ['400', '500', '600', '700', '800'],
+  weight: ['500'],
   display: 'swap',
 });
 
 const HERO_ASSETS = {
   backgroundVideo: '/assets/images/home/video_bh_hero.mp4',
+  mobileBackgroundImage: '/assets/images/home/background_hero_mobile.webp',
   infinityArtwork: '/assets/images/home/SRX_3D.webp',
+  mobileInfinityArtwork: '/assets/images/home/SRX_3D_mobile.webp',
   titlePillFrame: '/assets/images/home/khoahoctrilieu_bg.webp',
-  badgeIcon:
-    'https://framerusercontent.com/images/8l5o7RMsH7c7Xe3dBJBR4Fpc3A.svg?width=16&height=16',
+  mobileTitlePillFrame: '/assets/images/home/khoahoctrilieu_bg_mobile.webp',
 };
 
 const heroCards = [
@@ -39,6 +46,17 @@ const heroCards = [
 
 const FramerHeroSection = () => {
   const sectionRef = useRef(null);
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 767px)');
+    const updateViewport = () => setIsMobileViewport(mediaQuery.matches);
+
+    updateViewport();
+    mediaQuery.addEventListener('change', updateViewport);
+
+    return () => mediaQuery.removeEventListener('change', updateViewport);
+  }, []);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -176,26 +194,57 @@ const FramerHeroSection = () => {
   return (
     <section
       ref={sectionRef}
-      className="relative overflow-hidden bg-[#f1f2f9]"
+      className="relative overflow-hidden bg-[#f8f9fa] md:bg-[#f1f2f9]"
     >
       <div className="absolute inset-0" data-hero-bg>
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          controls={false}
-          disablePictureInPicture
-          controlsList="nodownload nofullscreen noremoteplayback"
-          tabIndex={-1}
-          aria-hidden="true"
-          onContextMenu={(event) => event.preventDefault()}
-          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-[0.81] [filter:saturate(0.88)]"
-        >
-          <source src={HERO_ASSETS.backgroundVideo} type="video/mp4" />
-        </video>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0),rgba(255,255,255,0))]" />
+        {isMobileViewport ? (
+          <Topography
+            lowColor="#AEB0FE"
+            midColor="#e3cbfa"
+            highColor="#F5F2FD"
+            speed={0.2}
+            morphAmount={2}
+            morphSpeed={0.19}
+            bands={1.5}
+            thickness={0.25}
+            scale={4}
+            pixelSize={1}
+            glow={1.05}
+            colorMode="elevation"
+            contrast={0.2}
+            brightness={0.95}
+            fillBands
+            opacity={1}
+            grain={false}
+            grainIntensity={0}
+            mouseInteraction={false}
+            mouseRadius={0.52}
+            mouseStrength={1.4}
+            className="pointer-events-none absolute inset-0 bg-[#f8f9fa]"
+          />
+        ) : (
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            poster={HERO_ASSETS.mobileBackgroundImage}
+            controls={false}
+            disablePictureInPicture
+            controlsList="nodownload nofullscreen noremoteplayback"
+            tabIndex={-1}
+            aria-hidden="true"
+            onContextMenu={(event) => event.preventDefault()}
+            className="pointer-events-none absolute inset-0 hidden h-full w-full object-cover opacity-[0.81] [filter:saturate(0.88)] md:block"
+          >
+            <source
+              src={HERO_ASSETS.backgroundVideo}
+              type="video/mp4"
+              media="(min-width: 768px)"
+            />
+          </video>
+        )}
       </div>
 
       <div className="relative mx-auto min-h-[620px] max-w-[1920px] px-4 pb-14 pt-6 sm:min-h-[760px] sm:px-6 sm:pb-16 sm:pt-8 lg:min-h-[1334px] lg:px-0 lg:pb-20">
@@ -205,8 +254,15 @@ const FramerHeroSection = () => {
         >
           <img
             src={HERO_ASSETS.infinityArtwork}
+            srcSet={`${HERO_ASSETS.mobileInfinityArtwork} 800w, ${HERO_ASSETS.infinityArtwork} 2000w`}
+            sizes="(max-width: 767px) 165vw, (max-width: 1023px) 145vw, 2000px"
             alt=""
-            className="h-full w-full object-contain scale-[1.025]"
+            aria-hidden="true"
+            width="2000"
+            height="1428"
+            loading="eager"
+            decoding="async"
+            className="h-full w-full scale-[1.025] object-contain"
           />
         </div>
 
@@ -222,9 +278,12 @@ const FramerHeroSection = () => {
                     >
                       <span className="flex items-center gap-2 rounded-full bg-[#7584d6] px-[12px] py-[6px] text-[13px] font-normal tracking-[-0.01em] text-[#f9fafb] shadow-[0_0.42px_0.25px_-1px_rgba(136,138,227,0.47),0_1.6px_0.96px_-2px_rgba(136,138,227,0.44),0_7px_4.2px_-3px_rgba(136,138,227,0.32),inset_0_0_2px_rgba(30,33,115,0.3)] sm:text-[14px]">
                         <img
-                          src={HERO_ASSETS.badgeIcon}
+                          src="/assets/images/home/badge-rocket.svg"
                           alt=""
-                          className="h-4 w-4 rounded-full object-cover"
+                          width="16"
+                          height="16"
+                          decoding="async"
+                          className="h-4 w-4 shrink-0"
                         />
                         <span>12K+</span>
                       </span>
@@ -247,16 +306,20 @@ const FramerHeroSection = () => {
 
                   <div
                     data-hero-title-pill
-                    className="relative z-[4] inline-flex min-h-[58px] items-center justify-center px-7 py-3 sm:min-h-[94px] sm:px-10 sm:py-4 lg:min-h-[122px] lg:px-[46px] lg:py-[18px]"
+                    className={`${styles.titlePill} relative z-[4] inline-flex min-h-[58px] items-center justify-center px-7 py-3 sm:min-h-[94px] sm:px-10 sm:py-4 lg:min-h-[122px] lg:px-[46px] lg:py-[18px]`}
                   >
                     <img
                       src={HERO_ASSETS.titlePillFrame}
+                      srcSet={`${HERO_ASSETS.mobileTitlePillFrame} 420w, ${HERO_ASSETS.titlePillFrame} 840w`}
+                      sizes="(max-width: 767px) 280px, (max-width: 1023px) 480px, 620px"
                       alt=""
                       aria-hidden="true"
+                      width="840"
+                      height="165"
+                      loading="eager"
+                      decoding="async"
                       className="pointer-events-none absolute inset-0 h-full w-full object-fill drop-shadow-[0_18px_34px_rgba(114,113,221,0.26)] sm:drop-shadow-[0_22px_42px_rgba(114,113,221,0.3)]"
                     />
-
-                    <div className="pointer-events-none absolute inset-[10px] rounded-full bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0)_28%,rgba(73,82,196,0.06)_100%)] sm:inset-[12px] lg:inset-[15px]" />
 
                     <h1
                       data-hero-title-pill-text
@@ -279,22 +342,18 @@ const FramerHeroSection = () => {
                     <Link
                       data-hero-cta
                       href="/about"
-                      className={`${homePrimaryButtonClass} w-full justify-center shrink-0 min-w-[116px] sm:w-auto sm:min-w-[118px]`}
+                      className={`${homePrimaryButtonClass} ${styles.cta} w-full justify-center shrink-0 min-w-[116px] sm:w-auto sm:min-w-[118px]`}
                       style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
                     >
-                      <span className={homeButtonHighlightClass} />
-                      <span className={homeButtonSheenClass} />
                       <span className="relative z-[1]">Khám phá ngay</span>
                     </Link>
 
                     <Link
                       data-hero-cta
                       href="/products"
-                      className={`${homeSecondaryButtonClass} w-full justify-center shrink-0 min-w-[206px] px-6 sm:w-auto sm:min-w-[210px] sm:px-7`}
+                      className={`${homeSecondaryButtonClass} ${styles.cta} w-full justify-center shrink-0 min-w-[206px] px-6 sm:w-auto sm:min-w-[210px] sm:px-7`}
                       style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
                     >
-                      <span className={homeButtonHighlightClass} />
-                      <span className={homeButtonSheenClass} />
                       <span className="relative z-[1]">
                         Nâng cấp làn da của bạn
                       </span>
@@ -309,24 +368,8 @@ const FramerHeroSection = () => {
                 <div
                   key={card.text}
                   data-hero-card
-                  className={`relative isolate overflow-hidden rounded-[32px] border border-white/45 bg-[linear-gradient(180deg,rgba(255,255,255,0.52),rgba(255,255,255,0.34)_42%,rgba(244,247,255,0.28)_100%)] px-6 py-7 shadow-[0_14px_34px_rgba(134,147,219,0.12),0_28px_52px_rgba(166,179,233,0.08),inset_0_1px_0_rgba(255,255,255,0.72)] backdrop-blur-[10px] sm:rounded-[56px] sm:px-5 sm:py-8 lg:rounded-[146px] ${card.desktopClass}`}
+                  className={`${styles.card} ${index % 2 === 0 ? styles.cardGlowLeft : styles.cardGlowRight} relative isolate overflow-hidden rounded-[32px] border border-white/45 bg-[linear-gradient(180deg,rgba(255,255,255,0.52),rgba(255,255,255,0.34)_42%,rgba(244,247,255,0.28)_100%)] px-6 py-7 shadow-[0_14px_34px_rgba(134,147,219,0.12),0_28px_52px_rgba(166,179,233,0.08),inset_0_1px_0_rgba(255,255,255,0.72)] backdrop-blur-[10px] sm:rounded-[56px] sm:px-5 sm:py-8 lg:rounded-[146px] ${card.desktopClass}`}
                 >
-                  <div className="pointer-events-none absolute inset-0 rounded-[inherit] bg-[linear-gradient(180deg,rgba(255,255,255,0.44),rgba(255,255,255,0.16)_30%,rgba(255,255,255,0.08)_100%)]" />
-
-                  <div className="pointer-events-none absolute inset-[1px] rounded-[31px] border border-white/35 sm:rounded-[55px] lg:rounded-[145px]" />
-
-                  <div
-                    className={`pointer-events-none absolute top-[3%] h-[38%] w-[56%] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.92),rgba(255,255,255,0.48)_42%,rgba(255,255,255,0)_75%)] blur-[12px] ${
-                      index % 2 === 0 ? 'left-[6%]' : 'right-[6%]'
-                    }`}
-                  />
-
-                  <div className="pointer-events-none absolute left-[8%] right-[8%] top-[4px] h-[16%] rounded-full bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(255,255,255,0.26)_55%,rgba(255,255,255,0)_100%)] opacity-95 blur-[3px]" />
-
-                  <div className="pointer-events-none absolute bottom-[10%] left-[14%] right-[14%] h-[24%] rounded-full bg-[linear-gradient(180deg,rgba(109,129,231,0),rgba(121,135,224,0.18)_62%,rgba(160,160,238,0.08)_100%)] blur-[18px]" />
-
-                  <div className="pointer-events-none absolute inset-0 rounded-[inherit] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.18),inset_0_-18px_24px_rgba(144,155,214,0.08)]" />
-
                   <p
                     className="relative z-[1] mx-auto w-full max-w-[488px] break-words text-center text-[14px] leading-[1.5] tracking-[-0.01em] text-[#465478] sm:text-[17px] lg:text-[20px]"
                     style={{ fontFamily: '"Inter", "Hubot Sans", sans-serif' }}
@@ -349,22 +392,18 @@ const FramerHeroSection = () => {
                 <Link
                   data-hero-cta
                   href="/products"
-                  className={`${homePrimaryButtonClass} justify-center shrink-0 min-w-[116px] sm:w-auto sm:min-w-[118px]`}
+                  className={`${homePrimaryButtonClass} ${styles.cta} justify-center shrink-0 min-w-[116px] sm:w-auto sm:min-w-[118px]`}
                   style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
                 >
-                  <span className={homeButtonHighlightClass} />
-                  <span className={homeButtonSheenClass} />
                   <span className="relative z-[1]">Khám phá ngay</span>
                 </Link>
 
                 <Link
                   data-hero-cta
                   href="/contact"
-                  className={`${homeSecondaryButtonClass} justify-center shrink-0 min-w-[206px] px-6 sm:w-auto sm:min-w-[210px] sm:px-7`}
+                  className={`${homeSecondaryButtonClass} ${styles.cta} justify-center shrink-0 min-w-[206px] px-6 sm:w-auto sm:min-w-[210px] sm:px-7`}
                   style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
                 >
-                  <span className={homeButtonHighlightClass} />
-                  <span className={homeButtonSheenClass} />
                   <span className="relative z-[1]">
                     Nâng cấp làn da của bạn
                   </span>

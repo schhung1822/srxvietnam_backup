@@ -8,6 +8,7 @@ import VoucherField from './VoucherField';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
 import { getCheckoutTotals } from '../../lib/commerce/checkout';
+import { toProductThumbnailUrl } from '../../lib/products/image.js';
 import { useDiscountCodes } from '../../hooks/useDiscountCodes';
 import { useEligibleGifts } from '../../hooks/useEligibleGifts';
 
@@ -174,7 +175,7 @@ export default function CartDrawer() {
                         <div className="flex min-w-0 items-center gap-3">
                           {gift.giftImg ? (
                             <img
-                              src={gift.giftImg}
+                              src={toProductThumbnailUrl(gift.giftImg)}
                               alt={gift.name}
                               className="h-12 w-12 flex-shrink-0 rounded-[4px] border border-[#dedede] object-cover"
                             />

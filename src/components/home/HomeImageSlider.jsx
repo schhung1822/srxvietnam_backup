@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { toMobileImageUrl } from "../../lib/products/image.js";
 
 const fallbackSlides = [
   {
@@ -23,6 +24,25 @@ const fallbackSlides = [
 
 function isExternalUrl(value = "") {
   return /^(https?:)?\/\//i.test(String(value).trim());
+}
+
+function SliderImage({ slide, index }) {
+  const mobileSrc = toMobileImageUrl(slide.src);
+
+  return (
+    <picture className="block h-full w-full">
+      {mobileSrc !== slide.src ? (
+        <source media="(max-width: 639px)" srcSet={mobileSrc} />
+      ) : null}
+      <img
+        src={slide.src}
+        alt={slide.alt}
+        className="h-full w-full object-cover object-center"
+        loading={index === 0 ? "eager" : "lazy"}
+        fetchPriority={index === 0 ? "high" : "auto"}
+      />
+    </picture>
+  );
 }
 
 export default function HomeImageSlider({ banners = [] }) {
@@ -127,22 +147,10 @@ export default function HomeImageSlider({ banners = [] }) {
                       target={isExternalUrl(slide.href) ? "_blank" : undefined}
                       rel={isExternalUrl(slide.href) ? "noreferrer noopener" : undefined}
                     >
-                      <img
-                        src={slide.src}
-                        alt={slide.alt}
-                        className="h-full w-full object-cover object-center"
-                        loading={index === 0 ? "eager" : "lazy"}
-                        fetchPriority={index === 0 ? "high" : "auto"}
-                      />
+                      <SliderImage slide={slide} index={index} />
                     </a>
                   ) : (
-                    <img
-                      src={slide.src}
-                      alt={slide.alt}
-                      className="h-full w-full object-cover object-center"
-                      loading={index === 0 ? "eager" : "lazy"}
-                      fetchPriority={index === 0 ? "high" : "auto"}
-                    />
+                    <SliderImage slide={slide} index={index} />
                   )}
                 </div>
               );

@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useCart } from '../contexts/CartContext.jsx';
 import useBrowserSearchParams from '../hooks/useBrowserSearchParams.js';
+import { toProductThumbnailUrl } from '../lib/products/image.js';
 import HeaderSearchOverlay from './search/HeaderSearchOverlay.jsx';
 
 const navigationItems = [
@@ -318,7 +319,7 @@ export default function Header() {
               <div className="overflow-hidden rounded-[22px] bg-[#f4f5f8] shadow-[0_14px_36px_rgba(0,0,0,0.08)] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/product:-translate-y-1 group-hover/product:shadow-[0_22px_50px_rgba(0,0,0,0.14)]">
                 <div className="aspect-[1.12/1] overflow-hidden">
                   <img
-                    src={product.image}
+                    src={toProductThumbnailUrl(product.image)}
                     alt={product.name}
                     className="h-full w-full object-cover transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/product:scale-[1.035]"
                   />

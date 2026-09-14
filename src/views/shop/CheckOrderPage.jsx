@@ -16,6 +16,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import useBrowserSearchParams from '../../hooks/useBrowserSearchParams.js';
+import { toProductThumbnailUrl } from '../../lib/products/image.js';
 
 const currencyFormatter = new Intl.NumberFormat('vi-VN', {
   style: 'currency',
@@ -186,7 +187,7 @@ function OrderItemRow({ item }) {
     <div className="flex items-center gap-3.5 rounded-[12px] border border-[#ededed] bg-[#fafafa] px-3.5 py-3">
       <div className="h-16 w-14 flex-shrink-0 overflow-hidden rounded-[8px] border border-[#ececec] bg-white">
         {item.imageUrl ? (
-          <img src={item.imageUrl} alt={item.productName} loading="lazy" className="h-full w-full object-cover" />
+          <img src={toProductThumbnailUrl(item.imageUrl)} alt={item.productName} loading="lazy" className="h-full w-full object-cover" />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-[#c4c4c4]">
             <ShoppingBag className="h-5 w-5" />

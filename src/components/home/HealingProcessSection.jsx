@@ -24,6 +24,7 @@ const defaultSlides = [
     media: {
       type: "image",
       src: "/assets/images/home/GD1.webp",
+      mobileSrc: "/assets/images/home/GD1_mobile.webp",
       poster: "/assets/images/home/GD1.webp",
     },
   },
@@ -36,6 +37,7 @@ const defaultSlides = [
     media: {
       type: "image",
       src: "/assets/images/home/GD2.webp",
+      mobileSrc: "/assets/images/home/GD2_mobile.webp",
       poster: "/assets/images/home/GD2.webp",
     },
   },
@@ -48,6 +50,7 @@ const defaultSlides = [
     media: {
       type: "image",
       src: "/assets/images/home/GD3.webp",
+      mobileSrc: "/assets/images/home/GD3_mobile.webp",
       poster: "/assets/images/home/GD3.webp",
     },
   },
@@ -60,6 +63,7 @@ const defaultSlides = [
     media: {
       type: "image",
       src: "/assets/images/home/GD4.webp",
+      mobileSrc: "/assets/images/home/GD4_mobile.webp",
       poster: "/assets/images/home/GD4.webp",
     },
   },
@@ -92,12 +96,20 @@ function SlideMedia({ slide, index, videoRefs }) {
   }
 
   return (
-    <img
-      src={slide.media.src}
-      alt={slide.media.alt ?? slide.title}
-      className="h-full w-full object-cover"
-      loading={index === 0 ? "eager" : "lazy"}
-    />
+    <picture className="block h-full w-full">
+      {slide.media.mobileSrc ? (
+        <source media="(max-width: 767px)" srcSet={slide.media.mobileSrc} />
+      ) : null}
+      <img
+        src={slide.media.src}
+        alt={slide.media.alt ?? slide.title}
+        width="1402"
+        height="1122"
+        className="h-full w-full object-cover"
+        loading={index === 0 ? "eager" : "lazy"}
+        decoding="async"
+      />
+    </picture>
   );
 }
 

@@ -23,6 +23,7 @@ import { AuthAlert, AuthDivider, AuthSubmitButton, AuthTabs } from '../../compon
 import GoogleAuthButton from '../../components/auth/GoogleAuthButton.jsx';
 import ZaloQrLoginButton from '../../components/auth/ZaloQrLoginButton.jsx';
 import { getAuthErrorMessage } from '../../components/auth/authErrors.js';
+import { toProductThumbnailUrl } from '../../lib/products/image.js';
 
 const dashboardTabIds = ['profile', 'password', 'orders', 'logout'];
 
@@ -401,7 +402,7 @@ function OrderDetailModal({ order, onClose }) {
                       <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-[10px] border border-[#EDEDED] bg-[#F6F6F6]">
                         {item.imageUrl ? (
                           <img
-                            src={item.imageUrl}
+                            src={toProductThumbnailUrl(item.imageUrl)}
                             alt={item.productName}
                             loading="lazy"
                             className="h-full w-full object-cover"

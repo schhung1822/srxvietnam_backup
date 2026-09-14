@@ -25,6 +25,7 @@ import { useCart } from '../../contexts/CartContext';
 import { getCheckoutTotals, paymentMethodOptions } from '../../lib/commerce/checkout';
 import { useDiscountCodes } from '../../hooks/useDiscountCodes';
 import { EMAIL_PATTERN, toContactEmail } from '../../lib/email-address.js';
+import { toProductThumbnailUrl } from '../../lib/products/image.js';
 import ProductArtwork from '../../components/shop/ProductArtwork';
 import VoucherField from '../../components/cart/VoucherField';
 import provinceData from '../../../province.json';
@@ -249,7 +250,7 @@ function CheckoutCartLine({ item, onQuantityChange, onVariantChange, onRemove })
   const selectedVariant = variantOptions.find((variant) => String(variant.id) === String(item.variantId)) ?? variantOptions[0];
   const hasVariantOptions = variantOptions.length > 1;
   const productPath = item.slug ? '/products/' + item.slug : '/products';
-  const imageUrl = item.scene?.image ?? '';
+  const imageUrl = toProductThumbnailUrl(item.scene?.image);
 
   return (
     <div className="border-b border-[#e5e5e5] py-4 last:border-b-0 sm:py-5">
@@ -819,7 +820,7 @@ export default function CheckoutPage() {
 
             <div className="mt-4 grid gap-2.5">
               {completedCheckout.items.map((item, index) => {
-                const itemImage = item.image || item.giftImg || '';
+                const itemImage = toProductThumbnailUrl(item.image || item.giftImg);
                 const isGiftLine = Number(item.price ?? 0) === 0;
 
                 return (

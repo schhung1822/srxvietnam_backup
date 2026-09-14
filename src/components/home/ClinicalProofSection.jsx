@@ -14,18 +14,22 @@ const defaultSlides = [
   {
     id: "ls-01",
     image: "/assets/images/home/chungminhlamsang_3sp.webp",
+    mobileImage: "/assets/images/home/chungminhlamsang_3sp_mobile.webp",
   },
   {
     id: "ls-02",
     image: "/assets/images/home/chungminhlamsang_kcn_fix.webp",
+    mobileImage: "/assets/images/home/chungminhlamsang_kcn_fix_mobile.webp",
   },
   {
     id: "ls-03",
     image: "/assets/images/home/chungminhlamsang_sga.webp",
+    mobileImage: "/assets/images/home/chungminhlamsang_sga_mobile.webp",
   },
   {
     id: "ls-04",
     image: "/assets/images/home/chungminhlamsang_mask.webp",
+    mobileImage: "/assets/images/home/chungminhlamsang_mask_mobile.webp",
   },
 ];
 
@@ -190,21 +194,31 @@ export default function ClinicalProofSection({
             }
           }}
         >
-          <div className="relative aspect-[4/5] sm:aspect-[1.02/1] lg:aspect-[1.08/1]">
+          <div className="relative aspect-[10/9] sm:aspect-[1.02/1] lg:aspect-[1.08/1]">
             {safeSlides.map((slide, index) => {
               const isActive = index === currentIndex;
 
               return (
-                <img
+                <picture
                   key={`${slide.id}-${index}`}
-                  src={slide.image}
-                  alt={slide.title}
-                  className={`absolute inset-0 h-full w-full object-cover transition-[opacity,transform] duration-700 ease-out ${
+                  className={`absolute inset-0 block h-full w-full transition-[opacity,transform] duration-700 ease-out ${
                     isActive ? "scale-100 opacity-100" : "scale-[1.02] opacity-0"
                   }`}
-                  loading={index === 0 ? "eager" : "lazy"}
                   aria-hidden={!isActive}
-                />
+                >
+                  {slide.mobileImage ? (
+                    <source media="(max-width: 639px)" srcSet={slide.mobileImage} />
+                  ) : null}
+                  <img
+                    src={slide.image}
+                    alt={slide.title ?? "Kết quả chứng minh lâm sàng SRX"}
+                    width="1080"
+                    height="1080"
+                    className="h-full w-full object-cover"
+                    loading={index === 0 ? "eager" : "lazy"}
+                    decoding="async"
+                  />
+                </picture>
               );
             })}
 

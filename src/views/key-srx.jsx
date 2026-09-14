@@ -5,6 +5,7 @@ import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowUpRight, ChevronDown, Search, SlidersHorizontal, Star, X } from 'lucide-react';
 import SRXLogo from '../components/home/SrxLogo.jsx';
 import AboutContactSection from '../components/aboutus/AboutContactSection.jsx';
+import { toMobileImageUrl } from '../lib/products/image.js';
 
 const UI_TEXT = {
   pageTitle: 'Từ điển thành phần',
@@ -493,6 +494,8 @@ function ActiveFilterPills({
 }
 
 function IngredientListItem({ entry }) {
+  const mobileImage = toMobileImageUrl(entry.image);
+
   return (
     <article className="group border-b border-[#ece6de] py-8 first:pt-0 last:border-b-0">
       <div className="grid grid-cols-[108px_minmax(0,1fr)] gap-4 sm:grid-cols-[126px_minmax(0,1fr)] sm:gap-5 lg:grid-cols-[208px_minmax(0,1fr)] lg:items-start lg:gap-8">
@@ -501,7 +504,7 @@ function IngredientListItem({ entry }) {
             <div className="absolute inset-0" />
             {entry.image ? (
               <img
-                src={entry.image}
+                src={mobileImage}
                 alt={entry.name}
                 className="relative z-[1] h-full w-full object-cover transition duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.05]"
                 loading="lazy"

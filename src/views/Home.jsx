@@ -1,5 +1,3 @@
-'use client';
-
 import HeroSection from '../components/home/FramerHeroSection.jsx';
 import HomeImageSlider from '../components/home/HomeImageSlider.jsx';
 import HomeStandardsSection from '../components/home/HomeStandardsSection.jsx';

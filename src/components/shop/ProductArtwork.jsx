@@ -1,4 +1,6 @@
-﻿function getShapeClass(mode) {
+﻿import { toProductThumbnailUrl } from '../../lib/products/image.js';
+
+function getShapeClass(mode) {
   if (mode === 'detail') {
     return 'aspect-square rounded-[28px]';
   }
@@ -27,6 +29,12 @@ export default function ProductArtwork({
   const isThumbnail = mode === 'thumbnail';
   const isCartThumbnail = mode === 'cart-thumbnail';
   const isCompactThumbnail = isThumbnail || isCartThumbnail;
+  const primaryImage = isDetail
+    ? scene?.image
+    : toProductThumbnailUrl(scene?.image);
+  const hoverImage = isDetail
+    ? hoverScene?.image
+    : toProductThumbnailUrl(hoverScene?.image);
   const shapeClass = getShapeClass(mode);
   const borderClass = isCard
     ? 'border-0'
@@ -69,7 +77,7 @@ export default function ProductArtwork({
         ) : null}
 
         <img
-          src={scene.image}
+          src={primaryImage}
           alt={scene.alt ?? scene.title ?? 'Product image'}
           className={imageClass}
           loading={isCard ? 'eager' : 'lazy'}
@@ -77,7 +85,7 @@ export default function ProductArtwork({
 
         {canSwapImages ? (
           <img
-            src={hoverScene.image}
+            src={hoverImage}
             alt={hoverScene.alt ?? hoverScene.title ?? 'Product image hover'}
             className={hoverImageClass}
             loading="lazy"

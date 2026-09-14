@@ -38,10 +38,6 @@ const feedbackFileNames = [
   "feedback-mask-5.webp",
   "HẾT SẦN MỤN & THÂM SAU 8 TUẦN.webp",
   "Hiệu-quả-trẻ-hóa-sáng-da,-sạch-mụn-từ-Retinol-A-Crem-+-Repair-Ampoule-đã-được-kiểm-chứng.webp",
-  "KẾ HOẠCH ĐIỀU TRỊ NÁM & TÀN NHANG BẰNG BÔI THOA TẠI NH.webp",
-  "RETINOL-A-CREAM-và-NHỮNG-HÌNH-ẢNH-BIẾT-NÓI-3.webp",
-  "THÍCH KHOE DA SAU PEEL VÀ CÁI KẾT.webp",
-  "web_fb 2.webp",
 ];
 
 const feedbackImages = feedbackFileNames.map((fileName, index) => {
@@ -54,6 +50,7 @@ const feedbackImages = feedbackFileNames.map((fileName, index) => {
   return {
     id: `feedback-${index + 1}`,
     src: `/assets/images/feedback/${encodeURIComponent(fileName)}`,
+    mobileSrc: `/assets/images/feedback/mobile/${encodeURIComponent(fileName)}`,
     alt: `Feedback SRX ${label}`,
     label,
   };
@@ -216,18 +213,20 @@ export default function HomeFeedbackGallerySection() {
                       type="button"
                       tabIndex={copyIndex === 0 ? 0 : -1}
                       onClick={() => openAt(index)}
-                      className={`${feedbackCardSizeClass} group relative aspect-square shrink-0 overflow-hidden rounded-[28px] shadow-[0_0px_6px_rgba(0,0,0,0.2)] transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:shadow-[0_0px_12px_rgba(0,0,0,0.3)]`}
+                      className={`${feedbackCardSizeClass} group relative aspect-square shrink-0 overflow-hidden rounded-[28px] bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.92),rgba(242,245,255,0.82)_58%,rgba(233,238,255,0.98))] shadow-[0_0px_6px_rgba(0,0,0,0.2)] transition-[transform,box-shadow,border-color] duration-300 after:pointer-events-none after:absolute after:inset-x-4 after:bottom-4 after:z-[2] after:h-16 after:rounded-[18px] after:bg-gradient-to-t after:from-white/50 after:to-transparent hover:-translate-y-1 hover:shadow-[0_0px_12px_rgba(0,0,0,0.3)]`}
                       aria-label={`Mo anh lon: ${image.label}`}
                     >
-                      <span className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.92),rgba(242,245,255,0.82)_58%,rgba(233,238,255,0.98))]" />
                       <img
                         src={image.src}
+                        srcSet={`${image.mobileSrc} 400w, ${image.src} 1080w`}
+                        sizes="(max-width: 639px) 180px, (max-width: 1023px) 300px, 340px"
                         alt={image.alt}
                         className="relative z-[1] aspect-square w-full rounded-[20px] object-cover transition-transform duration-500 group-hover:scale-[1.02]"
                         loading="lazy"
                         decoding="async"
+                        width="1080"
+                        height="1080"
                       />
-                      <span className="pointer-events-none absolute inset-x-4 bottom-4 z-[2] h-16 rounded-[18px] bg-gradient-to-t from-white/50 to-transparent" />
                     </button>
                   )),
                 )}

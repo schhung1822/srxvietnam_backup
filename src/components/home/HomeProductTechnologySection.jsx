@@ -25,6 +25,7 @@ const technologyItems = [
     detailDescription:
       'Lipoderm Mask sử dụng hoạt chất chuyên biệt Methyl Diisopropyl Propionamide, công nghệ này mang lại giải pháp hạ nhiệt tức thì cho làn da đang trong trạng thái nóng rát. Khác với tính dầu bọc hạ để gây kích ứng, Refreshing - Cooling tạo cảm giác mát lạnh sâu và bền vững, đặc biệt an toàn cho nền da sau xâm lấn (Laser, lăn kim, peel) mà không làm ảnh hưởng đến hàng rào bảo vệ da tự nhiên.',
     image: homeTechnologyImage('REFRESHING_COOLING.webp'),
+    mobileImage: homeTechnologyImage('REFRESHING_COOLING_mobile.webp'),
     articleLink: '/follow-srx/cong-nghe-refreshing-cooling',
   },
   {
@@ -34,6 +35,7 @@ const technologyItems = [
     detailDescription:
       'Để khắc phục nhược điểm khó hòa tan của chiết xuất rau má TECA truyền thống, SRX ứng dụng công nghệ dẫn truyền Liposome siêu nhỏ. Với cấu trúc tương thích sinh học cao, lớp vỏ Liposome đóng vai trò như một “phương tiện vận chuyển” thông minh, bảo vệ hoạt chất xuyên qua màng tế bào và tác động chính xác vào đích đến. Công nghệ này giúp làm dịu tức thì và tái tạo mạnh mẽ các tế bào đang tổn thương.',
     image: homeTechnologyImage('LIPOSOME.webp'),
+    mobileImage: homeTechnologyImage('LIPOSOME_mobile.webp'),
     articleLink: '/follow-srx/cong-nghe-liposome',
   },
   {
@@ -43,6 +45,7 @@ const technologyItems = [
     detailDescription:
       'Enhance Peel Vasome Retinol là hệ thống vận chuyển hoạt chất tiên tiến, sử dụng màng lipid kép để bao bọc các phân tử Retinoids. Công nghệ này thiết lập hàng rào bảo vệ vững chắc, ngăn chặn sự phân huỷ hoạt chất trước các tác nhân môi trường (nhiệt độ, ánh sáng, oxy hóa). Đặc biệt, Vasome Retinol cho phép giải phóng hoạt chất có kiểm soát (slow-release), giúp giảm thiểu tối đa tình trạng đỏ rát và kích ứng, đồng thời tối ưu hóa khả năng thẩm thấu vào các tầng da sâu hơn',
     image: homeTechnologyImage('VASOME_RETINOL.webp'),
+    mobileImage: homeTechnologyImage('VASOME_RETINOL_mobile.webp'),
     articleLink: '/follow-srx/cong-nghe-vasome-retinol',
   },
   {
@@ -52,6 +55,7 @@ const technologyItems = [
     detailDescription:
       'Đóng vai trò là “hệ thống vi kênh dẫn truyền”, SRX sử dụng các vi kim chiết xuất từ bọt biển nước ngọt với kích thước siêu vi. Khi tiếp xúc với da, các vi kim này tạo ra hàng triệu điểm tiếp nhận hoạt chất, giúp dưỡng chất đi thẳng xuống lớp đáy thượng bì. Cơ chế này đồng thời kích hoạt phản ứng tự chữa lành, thúc đẩy tăng sinh tế bào và loại bỏ lớp sừng già cỗi, mang lại hiệu quả tái tạo tương đương lăn kim truyền thống nhưng đảm bảo an toàn và không gây tổn thương hở.',
     image: homeTechnologyImage('HYDROLYZED_SPONGE.webp'),
+    mobileImage: homeTechnologyImage('HYDROLYZED_SPONGE_mobile.webp'),
     articleLink: '/follow-srx/cong-nghe-hydrolyzed-sponge',
   },
   {
@@ -61,6 +65,7 @@ const technologyItems = [
     detailDescription:
       'Đây là giải pháp chuyên biệt cho da mụn nhạy cảm, kết hợp giữa các Acid phân tử nhỏ (Glycolic, Lactic, Succinic Acid) và phức hợp Enzyme sinh học (đu đủ, đu đủ). Cơ chế tác động kép giúp phá vỡ và liên kết giữa các tế bào sừng thừa, gom cồi mụn và kháng viêm một cách êm dịu. Công nghệ này đảm bảo hiệu quả làm sạch sâu và điều trị mụn mà không gây hiện tượng bong tróc hay kích ứng mạnh.',
     image: homeTechnologyImage('DUAL_ACTION_PEEL.webp'),
+    mobileImage: homeTechnologyImage('DUAL_ACTION_PEEL_mobile.webp'),
     articleLink: '/follow-srx/cong-nghe-dual-action-peel',
   },
   {
@@ -70,6 +75,7 @@ const technologyItems = [
     detailDescription:
       'Công nghệ Hydrogel tạo ra một màng giữ ẩm thông minh, giúp cố định hoạt chất trên bề mặt da lâu hơn và tăng cường khả năng ngậm nước. Điều này giúp cân bằng độ ẩm tức thì, làm dịu các ổ viêm và hỗ trợ quá trình phục hồi diễn ra nhanh chóng dưới tác động diễn ra nhanh chóng dưới tác động.',
     image: homeTechnologyImage('HYDROGEL.webp'),
+    mobileImage: homeTechnologyImage('HYDROGEL_mobile.webp'),
     articleLink: '/follow-srx/cong-nghe-hydrogel',
   },
 ];
@@ -242,16 +248,22 @@ function TechnologySlideCard({ item, itemIndex, relativeOffset, onSelect, isMobi
                 isActive ? 'opacity-95 blur-[20px]' : 'opacity-50 blur-[16px]'
               }`}
             />
-            <img
-              src={item.image}
-              alt={item.name}
-              className={`relative z-[1] h-full w-full object-contain transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                isActive
-                  ? 'scale-[1.03] drop-shadow-[0_28px_56px_rgba(133,151,255,0.28)]'
-                  : 'scale-[0.94] opacity-80 drop-shadow-[0_12px_28px_rgba(133,151,255,0.12)]'
-              }`}
-              loading="lazy"
-            />
+            <picture className="relative z-[1] block h-full w-full">
+              <source media="(max-width: 639px)" srcSet={item.mobileImage} />
+              <img
+                src={item.image}
+                alt={item.name}
+                width="600"
+                height="600"
+                className={`h-full w-full object-contain transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                  isActive
+                    ? 'scale-[1.03] drop-shadow-[0_28px_56px_rgba(133,151,255,0.28)]'
+                    : 'scale-[0.94] opacity-80 drop-shadow-[0_12px_28px_rgba(133,151,255,0.12)]'
+                }`}
+                loading="lazy"
+                decoding="async"
+              />
+            </picture>
             <div
               className={`absolute bottom-[10%] left-[8%] h-[16%] w-[16%] rounded-full border border-white/18 bg-white/12 ${
                 isActive ? 'opacity-100 blur-[1px]' : 'opacity-70 blur-[0.5px]'
