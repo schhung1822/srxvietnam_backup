@@ -227,6 +227,10 @@ function normalizeEventConfig(row) {
       logo1Url: normalizeText(infoEvent.logo1Url),
       logo2Url: normalizeText(infoEvent.logo2Url),
       logo3Url: normalizeText(infoEvent.logo3Url),
+      // null = config cũ chưa cấu hình danh sách đánh số; [] = CRM đã chủ động để trống.
+      agendaItems: Array.isArray(infoEvent.agendaItems)
+        ? infoEvent.agendaItems.map((item) => normalizeText(item)).filter(Boolean)
+        : null,
     },
     behavior: {
       source: normalizeText(behavior.source, 'event-landing-page'),

@@ -23,7 +23,17 @@ function StatTile({ icon, label, value }) {
   );
 }
 
+// Giữ khớp với MAX_AGENDA_ITEMS / LEGACY_AGENDA_ITEMS_LIMIT trong crm-eac admin/templates/[slug]/ui.tsx.
+const MAX_AGENDA_ITEMS = 6;
+const LEGACY_AGENDA_ITEMS_LIMIT = 3;
+
 function getAgendaItems(event) {
+  const { agendaItems } = event.config.infoEvent;
+
+  if (agendaItems) {
+    return agendaItems.slice(0, MAX_AGENDA_ITEMS);
+  }
+
   const enabledQuestions = (event.config.questions ?? []).filter((question) => question?.enabled);
   const fallbackItems = [
     event.config.infoEvent.headline,
@@ -32,7 +42,7 @@ function getAgendaItems(event) {
   ].filter(Boolean);
   const items = enabledQuestions.length ? enabledQuestions.map((question) => question.label) : fallbackItems;
 
-  return items.slice(0, 3);
+  return items.slice(0, LEGACY_AGENDA_ITEMS_LIMIT);
 }
 
 export default function StarryEventLanding({ event }) {
