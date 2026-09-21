@@ -1,8 +1,10 @@
 import http from 'node:http';
 import https from 'node:https';
+import { randomUUID } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { getPublishedLadipageEventBySlug } from '../../../../../src/lib/server/ladipage-events.js';
 import { query } from '../../../../../src/lib/server/db.js';
+import { sendCompleteRegistrationToMeta } from '../../../../../src/lib/server/meta-conversions.js';
 
 export const runtime = 'nodejs';
 
@@ -290,10 +292,12 @@ async function insertCheckinSubmission(event, values, request, pageUrl) {
   };
   const columns = Object.keys(row);
 
-  await query(
+  const result = await query(
     `INSERT INTO checkin (${columns.map((column) => `\`${column}\``).join(', ')}) VALUES (${columns.map(() => '?').join(', ')})`,
     columns.map((column) => row[column]),
   );
+
+  return { registrationId: result.insertId || randomUUID(), row };
 }
 
 export async function POST(request, { params }) {
@@ -309,7 +313,24 @@ export async function POST(request, { params }) {
     const values = normalizeFormValues(body?.values);
 
     validateSubmission(event, values);
-    await insertCheckinSubmission(event, values, request, body?.pageUrl);
+    const { registrationId, row } = await insertCheckinSubmission(event, values, request, body?.pageUrl);
+
+    const metaDelivery = (async () => {
+      try {
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin;
+        await sendCompleteRegistrationToMeta({
+          registrationId,
+          eventName: row.event_name,
+          eventUrl: new URL(event.path, siteUrl).toString(),
+          request,
+          email: row.email,
+          phone: row.phone,
+          ip: row.user_ip,
+        });
+      } catch (metaError) {
+        console.warn('Meta CompleteRegistration delivery failed after DB insert:', metaError.message);
+      }
+    })();
 
     if (event.config.webhookUrl) {
       try {
@@ -325,6 +346,8 @@ export async function POST(request, { params }) {
         console.warn('Event landing webhook failed after DB insert:', webhookError);
       }
     }
+
+    await metaDelivery;
 
     return NextResponse.json({ message: `SRX Việt Nam đã nhận đăng ký cho ${event.eventName}.` }, { status: 201 });
   } catch (error) {

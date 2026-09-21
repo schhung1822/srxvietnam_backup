@@ -8,6 +8,7 @@ import PageTransition from './PageTransition';
 import CartDrawer from './cart/CartDrawer';
 import AffiliateReferralTracker from './affiliate/AffiliateReferralTracker';
 import MetaTrackingCookieTracker from './tracking/MetaTrackingCookieTracker';
+import MetaPixel from './tracking/MetaPixel';
 import FloatingCallToAction from './FloatingCallToAction';
 import { AuthProvider } from '../contexts/AuthContext';
 import { CartProvider, useCart } from '../contexts/CartContext';
@@ -28,6 +29,7 @@ function AppShellContent({ children }) {
 
   return (
         <div className="App min-h-screen flex flex-col">
+          <MetaPixel />
           {!isEventLandingPage ? (
             <Suspense fallback={null}>
               <AffiliateReferralTracker />
