@@ -1,0 +1,40 @@
+.sheet {
+  max-height: 82vh;
+}
+
+.list {
+  flex: 0 1 auto;
+  max-height: calc(82vh - 168px);
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 640px) {
+  .sheet {
+    max-height: min(680px, calc(100vh - 32px));
+  }
+
+  .list {
+    max-height: min(520px, calc(100vh - 210px));
+  }
+}
+
+@supports (height: 100dvh) {
+  .sheet {
+    max-height: 82dvh;
+  }
+
+  .list {
+    max-height: calc(82dvh - 168px);
+  }
+
+  @media (min-width: 640px) {
+    .sheet {
+      max-height: min(680px, calc(100dvh - 32px));
+    }
+
+    .list {
+      max-height: min(520px, calc(100dvh - 210px));
+    }
+  }
+}

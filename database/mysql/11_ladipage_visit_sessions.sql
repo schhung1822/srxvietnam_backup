@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS ladipage_visit_sessions (
   device_type ENUM('desktop', 'mobile', 'tablet', 'unknown') NOT NULL DEFAULT 'unknown',
   os_family VARCHAR(32) NOT NULL DEFAULT 'unknown',
   browser_family VARCHAR(32) NOT NULL DEFAULT 'unknown',
+  page_views INT UNSIGNED NOT NULL DEFAULT 1,
   first_seen_at DATETIME(3) NOT NULL,
   last_seen_at DATETIME(3) NOT NULL,
   PRIMARY KEY (id),

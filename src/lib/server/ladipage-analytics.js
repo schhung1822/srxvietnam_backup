@@ -9,6 +9,7 @@ const CREATE_VISITS_TABLE = `
     device_type ENUM('desktop', 'mobile', 'tablet', 'unknown') NOT NULL DEFAULT 'unknown',
     os_family VARCHAR(32) NOT NULL DEFAULT 'unknown',
     browser_family VARCHAR(32) NOT NULL DEFAULT 'unknown',
+    page_views INT UNSIGNED NOT NULL DEFAULT 1,
     first_seen_at DATETIME(3) NOT NULL,
     last_seen_at DATETIME(3) NOT NULL,
     PRIMARY KEY (id),
@@ -68,7 +69,17 @@ export function classifyVisitorDevice(userAgent) {
 
 async function ensureVisitsTable() {
   if (!ensureVisitsTablePromise) {
-    ensureVisitsTablePromise = query(CREATE_VISITS_TABLE).catch((error) => {
+    ensureVisitsTablePromise = (async () => {
+      await query(CREATE_VISITS_TABLE);
+      const columns = await query("SHOW COLUMNS FROM ladipage_visit_sessions LIKE 'page_views'");
+      if (!columns.length) {
+        try {
+          await query('ALTER TABLE ladipage_visit_sessions ADD COLUMN page_views INT UNSIGNED NOT NULL DEFAULT 1');
+        } catch (error) {
+          if (error.code !== 'ER_DUP_FIELDNAME') throw error;
+        }
+      }
+    })().catch((error) => {
       ensureVisitsTablePromise = undefined;
       throw error;
     });
@@ -93,7 +104,7 @@ export async function recordLadipageVisit({ event, sessionId, userAgent }) {
     `INSERT INTO ladipage_visit_sessions
       (event_id, event_slug, session_id, device_type, os_family, browser_family, first_seen_at, last_seen_at)
      VALUES (?, ?, ?, ?, ?, ?, UTC_TIMESTAMP(3), UTC_TIMESTAMP(3))
-     ON DUPLICATE KEY UPDATE last_seen_at = UTC_TIMESTAMP(3), event_slug = VALUES(event_slug)`,
+     ON DUPLICATE KEY UPDATE last_seen_at = UTC_TIMESTAMP(3), event_slug = VALUES(event_slug), page_views = page_views + 1`,
     [event.id, event.slug, sessionId, device.deviceType, device.osFamily, device.browserFamily],
   );
 
@@ -116,10 +127,11 @@ export function getUtcDateBoundary(localDate, nextDay = false) {
 }
 
 export function summarizeLadipageVisitRows({ eventId, fromDate, toDate, rows }) {
-  const report = { eventId, fromDate, toDate, totalSessions: 0, byDevice: {}, byOs: {}, byBrowser: {}, daily: {} };
+  const report = { eventId, fromDate, toDate, totalViews: 0, totalSessions: 0, byDevice: {}, byOs: {}, byBrowser: {}, daily: {} };
 
   for (const row of rows) {
     const count = Number(row.sessions);
+    report.totalViews += Number(row.views);
     report.totalSessions += count;
     report.byDevice[row.device_type] = (report.byDevice[row.device_type] || 0) + count;
     report.byOs[row.os_family] = (report.byOs[row.os_family] || 0) + count;
@@ -141,7 +153,7 @@ export async function getLadipageVisitReport({ eventId, fromDate, toDate }) {
   await ensureVisitsTable();
   const rows = await query(
     `SELECT DATE_FORMAT(DATE_ADD(first_seen_at, INTERVAL 7 HOUR), '%Y-%m-%d') AS visit_date,
-            device_type, os_family, browser_family, COUNT(*) AS sessions
+            device_type, os_family, browser_family, COUNT(*) AS sessions, SUM(page_views) AS views
      FROM ladipage_visit_sessions
      WHERE event_id = ? AND first_seen_at >= ? AND first_seen_at < ?
      GROUP BY visit_date, device_type, os_family, browser_family

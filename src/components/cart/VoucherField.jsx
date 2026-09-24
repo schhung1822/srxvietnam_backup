@@ -17,6 +17,7 @@ import {
   maskVoucherCode,
   sortVouchers,
 } from '../../lib/commerce/vouchers';
+import styles from './VoucherField.module.css';
 
 function VoucherStub({ voucher, isLocked }) {
   const stubLabel = getVoucherStubLabel(voucher);
@@ -235,7 +236,7 @@ export default function VoucherField({
         role="dialog"
         aria-modal={isOpen ? 'true' : undefined}
         aria-label="Chọn mã giảm giá"
-        className={`fixed inset-x-0 bottom-0 z-[110] mx-auto flex max-h-[82dvh] w-full max-w-[440px] flex-col rounded-t-[24px] bg-[#f5f6f7] pb-[env(safe-area-inset-bottom)] shadow-[0_-18px_50px_rgba(0,0,0,0.2)] transition-[transform,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none sm:inset-0 sm:my-auto sm:h-fit sm:max-h-[80dvh] sm:rounded-[20px] sm:pb-0 sm:shadow-[0_30px_80px_rgba(0,0,0,0.22)] ${
+        className={`${styles.sheet} fixed inset-x-0 bottom-0 z-[110] mx-auto flex w-full max-w-[440px] flex-col overflow-hidden rounded-t-[24px] bg-[#f5f6f7] pb-[env(safe-area-inset-bottom)] shadow-[0_-18px_50px_rgba(0,0,0,0.2)] transition-[transform,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none sm:inset-0 sm:my-auto sm:rounded-[20px] sm:pb-0 sm:shadow-[0_30px_80px_rgba(0,0,0,0.22)] ${
           isOpen
             ? 'translate-y-0 opacity-100 sm:scale-100'
             : 'translate-y-full opacity-0 sm:translate-y-4 sm:scale-[0.98]'
@@ -298,7 +299,7 @@ export default function VoucherField({
           ) : null}
         </div>
 
-        <div className="min-h-0 flex-1 space-y-2 overflow-y-auto px-4 pb-5 pt-1 sm:px-5">
+        <div className={`${styles.list} min-h-0 space-y-2 overflow-y-auto px-4 pb-5 pt-1 sm:px-5`}>
           {isLoading ? (
             <div className="rounded-[16px] border border-[#e1e3e6] bg-white px-4 py-8 text-center text-[13px] text-[#737780]">
               Đang tải mã giảm giá...

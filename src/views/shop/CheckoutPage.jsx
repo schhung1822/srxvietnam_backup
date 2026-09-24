@@ -72,8 +72,13 @@ const defaultCheckoutValues = {
   province: '',
   ward: '',
   addressLine: '',
+  addressLabel: '',
   note: '',
 };
+
+const DEFAULT_ADDRESS_LIMIT = 5;
+const ADDRESS_LABEL_MAX_LENGTH = 60;
+const addressLabelSuggestions = ['Nhà riêng', 'Công ty', 'Nhà bố mẹ'];
 
 async function parseJson(response) {
   try {
@@ -432,7 +437,8 @@ export default function CheckoutPage() {
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
   const [addressesError, setAddressesError] = useState('');
-  const [saveNewAddress] = useState(true);
+  const [addressLimit, setAddressLimit] = useState(DEFAULT_ADDRESS_LIMIT);
+  const [saveNewAddress, setSaveNewAddress] = useState(true);
   // Khách đã đăng nhập vẫn có thể nhập tay một địa chỉ giao hàng khác cho đơn này.
   const [isUsingNewAddress, setIsUsingNewAddress] = useState(false);
 
@@ -467,6 +473,7 @@ export default function CheckoutPage() {
       province: currentValues.province || '',
       ward: currentValues.ward || '',
       addressLine: currentValues.addressLine || '',
+      addressLabel: currentValues.addressLabel || '',
       note: currentValues.note || '',
     });
   }, [checkoutForm, user]);
@@ -499,6 +506,7 @@ export default function CheckoutPage() {
         if (!isCancelled) {
           const nextAddresses = Array.isArray(data.addresses) ? data.addresses : [];
           setAddresses(nextAddresses);
+          setAddressLimit(Number(data.limit) || DEFAULT_ADDRESS_LIMIT);
 
           if (nextAddresses.length) {
             const defaultAddress = nextAddresses.find((address) => address.isDefault) ?? nextAddresses[0];
@@ -561,6 +569,9 @@ export default function CheckoutPage() {
 
   const hasSavedAddresses = addresses.length > 0;
   const useSavedAddresses = Boolean(user && hasSavedAddresses && !isUsingNewAddress);
+  // Sổ địa chỉ đã đầy thì API sẽ từ chối lưu, nên không cho chọn để tránh chặn luôn việc đặt hàng.
+  const isAddressBookFull = addresses.length >= addressLimit;
+  const shouldSaveNewAddress = Boolean(user && saveNewAddress && !isAddressBookFull);
 
   const handleSubmitOrder = checkoutForm.handleSubmit(async (values) => {
     if (!items.length) {
@@ -577,8 +588,9 @@ export default function CheckoutPage() {
       setIsSubmitting(true);
       setSubmitError('');
 
+      const { addressLabel, ...contactValues } = values;
       const normalizedValues = {
-        ...values,
+        ...contactValues,
         province: getLocationNameByCode(provinceOptions, values.province) || values.province,
         ward: getLocationNameByCode(allWardOptions, values.ward) || values.ward,
       };
@@ -597,12 +609,12 @@ export default function CheckoutPage() {
       let checkoutAddressId = shouldUseSelectedAddress ? selectedAddressId : null;
       let checkoutAddress = shouldUseSelectedAddress ? selectedAddress : null;
 
-      if (user && !shouldUseSelectedAddress && saveNewAddress) {
+      if (!shouldUseSelectedAddress && shouldSaveNewAddress) {
         const addressResponse = await fetch('/api/account/addresses', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            label: normalizedValues.fullName || 'Địa chỉ giao hàng',
+            label: String(addressLabel ?? '').trim() || normalizedValues.fullName || 'Địa chỉ giao hàng',
             recipientName: normalizedValues.fullName,
             recipientPhone: normalizedValues.phone,
             province: normalizedValues.province,
@@ -612,7 +624,9 @@ export default function CheckoutPage() {
           }),
         });
         const addressData = await parseJson(addressResponse);
-        if (!addressResponse.ok) throw new Error(addressData.message ?? 'Kh?ng th? l?u nhanh Địa chỉ giao hàng.');
+        if (!addressResponse.ok) {
+          throw new Error(addressData.message ?? 'Không thể lưu nhanh địa chỉ giao hàng.');
+        }
         checkoutAddressId = addressData.address?.id ?? null;
         checkoutAddress = addressData.address ?? null;
         setAddresses(Array.isArray(addressData.addresses) ? addressData.addresses : addresses);
@@ -918,10 +932,12 @@ export default function CheckoutPage() {
     );
   }
 
+  const addressLabelValue = checkoutForm.watch('addressLabel');
+
   return (
-    <section className="checkout-page bg-white pb-[92px] pt-4 md:pb-[104px] md:pt-8">
-      <div className="mx-auto max-w-[1920px] px-3 sm:px-6 lg:px-10 xl:px-[58px]">
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,0.98fr)_minmax(620px,0.95fr)] xl:gap-8">
+    <section className="checkout-page bg-white pb-[calc(92px+env(safe-area-inset-bottom))] pt-4 md:pb-[calc(104px+env(safe-area-inset-bottom))] md:pt-8">
+      <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
+        <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(520px,0.95fr)] xl:gap-10 2xl:grid-cols-[minmax(0,0.95fr)_minmax(600px,0.9fr)] 2xl:gap-12">
           <div className="min-w-0">
             {/* Banner mời đăng ký chỉ có ý nghĩa với khách chưa có tài khoản. */}
             {user ? null : (
@@ -935,7 +951,12 @@ export default function CheckoutPage() {
 
             <h1 className={`text-[22px] font-semibold tracking-[-0.03em] text-[#050505] sm:text-[24px] ${user ? 'mt-1 sm:mt-2' : 'mt-7 sm:mt-12'}`}>Thông tin vận chuyển</h1>
 
-            {useSavedAddresses ? (
+            {user && isLoadingAddresses && !isUsingNewAddress ? (
+              <div className="mt-5 flex min-h-[96px] items-center gap-3 rounded-[18px] border border-[#e5e5e5] bg-[#f8f8f8] px-5 text-[14px] text-[#665a4e] sm:mt-6">
+                <LoaderCircle className="h-4 w-4 shrink-0 animate-spin" />
+                Đang tải địa chỉ đã lưu...
+              </div>
+            ) : useSavedAddresses ? (
               <div className="bg-white p-0">
                 <div className="flex items-center gap-3">
                   <div className="hidden">
@@ -1000,6 +1021,11 @@ export default function CheckoutPage() {
               </div>
             ) : (
               <div className="bg-white p-0">
+                {user && addressesError ? (
+                  <div className="mt-5 rounded-[16px] border border-[#efd3d3] bg-[#fff8f8] px-4 py-3 text-[13px] leading-5 text-[#ad4040] sm:mt-6">
+                    Không tải được sổ địa chỉ. Bạn vẫn có thể nhập địa chỉ mới để tiếp tục đặt hàng.
+                  </div>
+                ) : null}
                 {user && hasSavedAddresses ? (
                   <div className="mt-5 flex flex-col gap-3 rounded-[16px] bg-[#f3f3f3] px-4 py-3.5 sm:mt-6 sm:flex-row sm:items-center sm:justify-between">
                     <div className="text-[13px] font-semibold leading-5 text-[#050505] sm:text-[14px]">
@@ -1073,18 +1099,18 @@ export default function CheckoutPage() {
                     <FieldError error={checkoutForm.formState.errors.email} />
                     {!checkoutForm.formState.errors.email ? (
                       <p className="mt-1.5 pl-3 text-[12.5px] leading-5 text-[#8a8a8a]">
-                        Điền email nếu bạn muốn nhận thêm thư xác nhận đơn hàng. Để trống vẫn đặt hàng bình thường.
+                        Điền email nếu bạn muốn nhận thêm thông tin chi tiết về đơn hàng về email.
                       </p>
                     ) : null}
                   </div>
 
                   <LocationSelect
-                    label={'T\u1ec9nh/TP'}
+                    label={'Tỉnh/TP'}
                     value={selectedProvinceCode}
                     options={provinceOptions}
-                    placeholder={'Ch\u1ecdn t\u1ec9nh/th\u00e0nh ph\u1ed1'}
+                    placeholder={'Chọn tỉnh/thành phố'}
                     inputProps={checkoutForm.register('province', {
-                      required: 'Vui l\u00f2ng ch\u1ecdn t\u1ec9nh/th\u00e0nh ph\u1ed1.',
+                      required: 'Vui lòng chọn tỉnh/thành phố.',
                     })}
                     error={checkoutForm.formState.errors.province}
                     onChange={(nextValue) => {
@@ -1094,13 +1120,13 @@ export default function CheckoutPage() {
                   />
 
                   <LocationSelect
-                    label={'Ph\u01b0\u1eddng/X\u00e3'}
+                    label={'Phường/Xã'}
                     value={checkoutForm.watch('ward')}
                     options={wardOptions}
-                    placeholder={selectedProvinceCode ? 'Ch\u1ecdn ph\u01b0\u1eddng/x\u00e3' : 'Ch\u1ecdn t\u1ec9nh/th\u00e0nh ph\u1ed1 tr\u01b0\u1edbc'}
+                    placeholder={selectedProvinceCode ? 'Chọn phường/xã' : 'Chọn tỉnh/thành phố trước'}
                     disabled={!selectedProvinceCode}
                     inputProps={checkoutForm.register('ward', {
-                      required: 'Vui l\u00f2ng ch\u1ecdn ph\u01b0\u1eddng/x\u00e3.',
+                      required: 'Vui lòng chọn phường/xã.',
                     })}
                     error={checkoutForm.formState.errors.ward}
                     onChange={(nextValue) => {
@@ -1126,6 +1152,94 @@ export default function CheckoutPage() {
                     />
                     <FieldError error={checkoutForm.formState.errors.addressLine} />
                   </div>
+                  {user ? (
+                    <div
+                      className={`md:col-span-2 overflow-hidden rounded-[14px] border transition ${
+                        shouldSaveNewAddress ? 'border-[#d9def8] bg-[#f7f8ff]' : 'border-[#e5e5e5] bg-[#fafafa]'
+                      }`}
+                    >
+                      <label
+                        className={`flex items-start gap-3 px-4 py-3.5 sm:px-5 ${
+                          isAddressBookFull ? 'cursor-not-allowed' : 'cursor-pointer'
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={shouldSaveNewAddress}
+                          disabled={isAddressBookFull}
+                          onChange={(event) => setSaveNewAddress(event.target.checked)}
+                          className="mt-0.5 h-5 w-5 shrink-0 rounded border-[#9ba8ea] accent-[#2540dd] disabled:opacity-50"
+                        />
+                        <span className="min-w-0">
+                          <span
+                            className={`block text-[14px] font-semibold ${
+                              isAddressBookFull ? 'text-[#8a8a8a]' : 'text-[#15110d]'
+                            }`}
+                          >
+                            Lưu địa chỉ này vào tài khoản
+                          </span>
+                          <span className="mt-0.5 block text-[12px] leading-5 text-[#6b7280] sm:text-[13px]">
+                            {isAddressBookFull
+                              ? `Sổ địa chỉ đã đủ ${addressLimit} địa chỉ. Xóa bớt trong trang tài khoản nếu muốn lưu thêm.`
+                              : 'Lần mua sau bạn chỉ cần chọn lại địa chỉ, không phải nhập từ đầu.'}
+                          </span>
+                        </span>
+                      </label>
+
+                      {shouldSaveNewAddress ? (
+                        <div className="border-t border-[#d9def8] px-4 pb-4 pt-3.5 sm:px-5">
+                          <label
+                            htmlFor="checkout-address-label"
+                            className="mb-1.5 block pl-3 text-[13px] font-medium text-[#555]"
+                          >
+                            Tên gợi nhớ <span className="text-[#8a8a8a]">(không bắt buộc)</span>
+                          </label>
+                          <input
+                            id="checkout-address-label"
+                            type="text"
+                            maxLength={ADDRESS_LABEL_MAX_LENGTH}
+                            {...checkoutForm.register('addressLabel', {
+                              maxLength: {
+                                value: ADDRESS_LABEL_MAX_LENGTH,
+                                message: `Tên gợi nhớ tối đa ${ADDRESS_LABEL_MAX_LENGTH} ký tự.`,
+                              },
+                            })}
+                            className="min-h-[44px] w-full rounded-full border border-[#d8d8d8] bg-white px-5 text-[14px] outline-none transition focus:border-[#2540dd]"
+                            placeholder="VD: Nhà riêng, Công ty..."
+                          />
+                          <FieldError error={checkoutForm.formState.errors.addressLabel} />
+                          <div className="mt-2.5 flex flex-wrap gap-2 pl-1">
+                            {addressLabelSuggestions.map((suggestion) => {
+                              const isActive = String(addressLabelValue ?? '').trim() === suggestion;
+                              return (
+                                <button
+                                  key={suggestion}
+                                  type="button"
+                                  onClick={() =>
+                                    checkoutForm.setValue('addressLabel', isActive ? '' : suggestion, {
+                                      shouldDirty: true,
+                                      shouldValidate: true,
+                                    })
+                                  }
+                                  className={`inline-flex h-8 items-center rounded-full border px-3.5 text-[12.5px] font-semibold transition ${
+                                    isActive
+                                      ? 'border-[#2540dd] bg-[#2540dd] text-white'
+                                      : 'border-[#d9def8] bg-white text-[#555] hover:border-[#2540dd] hover:text-[#2540dd]'
+                                  }`}
+                                  aria-pressed={isActive}
+                                >
+                                  {suggestion}
+                                </button>
+                              );
+                            })}
+                          </div>
+                          <p className="mt-2 pl-1 text-[12px] leading-5 text-[#8a8a8a]">
+                            Giúp bạn nhận ra địa chỉ này nhanh hơn ở lần đặt sau. Để trống sẽ dùng tên người nhận.
+                          </p>
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : null}
                   <div className="md:col-span-2">
                     <label className="mb-1.5 block pl-3 text-[13px] font-medium text-[#555]">Ghi chú</label>
                     <input type="text" {...checkoutForm.register('note')} className="min-h-[44px] w-full rounded-full border border-[#d8d8d8] bg-white px-5 text-[14px] outline-none transition focus:border-[#2540dd]" placeholder="Nhập ghi chú" />
@@ -1142,7 +1256,7 @@ export default function CheckoutPage() {
                 Chọn phương thức phù hợp
               </h2>
 
-              <div className="mt-4 grid gap-2.5 sm:mt-6 sm:gap-4">
+              <div className="mt-4 grid gap-2.5 sm:mt-6 sm:grid-cols-2 sm:gap-4">
                 {paymentMethodOptions.map((method) => (
                   <PaymentMethodOption
                     key={method.id}
@@ -1155,7 +1269,7 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          <div className="min-w-0 lg:sticky lg:top-[92px] lg:self-start">
+          <div className="min-w-0 border-t border-[#e5e5e5] pt-8 xl:sticky xl:top-[92px] xl:self-start xl:border-t-0 xl:pt-0">
             <div className="bg-white p-0">
               <h2 className="mt-2 text-[26px] font-semibold tracking-[-0.04em] text-[#050505] xl:mt-0 xl:text-[30px]">Giỏ hàng</h2>
               <div className="mt-3 flex min-h-[36px] items-center justify-between rounded-[7px] bg-[#e9ecff] px-3 text-[12px] font-semibold text-[#2540dd] sm:px-4 sm:text-[14px]">
@@ -1234,19 +1348,19 @@ export default function CheckoutPage() {
         </div>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-[60] border-t border-[#e5e5e5] bg-[#eef1ff] shadow-[0_-12px_34px_rgba(15,23,42,0.08)] backdrop-blur">
-        <div className="mx-auto grid max-w-[1920px] grid-cols-[minmax(0,1fr)_116px] items-stretch px-0 sm:grid-cols-[minmax(0,1fr)_164px] sm:px-6 lg:px-10 xl:px-[58px]">
-          <div className="grid min-h-[64px] items-center gap-1 bg-[#eef1ff] px-3 py-2 sm:min-h-[74px] sm:gap-3 sm:px-4 sm:py-3 md:grid-cols-[minmax(220px,0.85fr)_minmax(0,1fr)] md:px-8">
+      <div className="fixed inset-x-0 bottom-0 z-[60] border-t border-[#dfe3f7] bg-[#eef1ff]/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-12px_34px_rgba(15,23,42,0.08)] backdrop-blur-md">
+        <div className="grid w-full grid-cols-[minmax(0,1fr)_120px] items-stretch sm:grid-cols-[minmax(0,1fr)_184px] lg:grid-cols-[minmax(0,1fr)_220px]">
+          <div className="flex min-h-[64px] items-center justify-between gap-3 bg-[#eef1ff] px-4 py-2 sm:min-h-[74px] sm:px-6 sm:py-3 lg:px-8 xl:px-10">
             <div className="hidden items-center gap-3 text-[14px] font-semibold text-[#15110d] sm:flex">
               <CreditCard className="h-5 w-5 text-[#2540dd]" />
               <span>{paymentMethodOptions.find((method) => method.id === paymentMethod)?.label ?? 'Thanh toán'}</span>
             </div>
-            <div className="flex flex-col items-start justify-center gap-0.5 text-left text-[11px] text-[#555] sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-5 sm:gap-y-1 sm:text-center sm:text-[13px]">
+            <div className="ml-auto flex min-w-0 flex-col items-end justify-center gap-0.5 text-right text-[11px] text-[#555] sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:gap-x-5 sm:gap-y-1 sm:text-[13px]">
               <div className="font-['Inter',_sans-serif] text-[21px] font-bold leading-none text-[#2540dd] sm:text-[26px]">{currencyFormatter.format(totals.grandTotal)}</div>
               <div>Tiết kiệm {currencyFormatter.format(totals.discountTotal)}</div>
             </div>
           </div>
-          <button type="button" onClick={handleSubmitOrder} disabled={isSubmitting || isLoadingAddresses} className="flex h-full min-h-[64px] items-center justify-center bg-black px-3 text-[13px] font-bold uppercase text-white transition hover:bg-[#222] disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-[74px] sm:px-6 sm:text-[15px]">
+          <button type="button" onClick={handleSubmitOrder} disabled={isSubmitting || isLoadingAddresses || (useSavedAddresses && !selectedAddressId)} className="flex h-full min-h-[64px] items-center justify-center bg-black px-3 text-[13px] font-bold uppercase text-white transition hover:bg-[#222] disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-[74px] sm:px-6 sm:text-[15px]">
             {isSubmitting ? <LoaderCircle className="h-5 w-5 animate-spin" /> : 'Đặt hàng'}
           </button>
         </div>

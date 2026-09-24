@@ -26,13 +26,14 @@ test('daily report uses UTC+7 boundaries and sums sessions per landing page', ()
     fromDate: '2026-09-21',
     toDate: '2026-09-22',
     rows: [
-      { visit_date: '2026-09-21', device_type: 'mobile', os_family: 'Android', browser_family: 'Chrome', sessions: 3 },
-      { visit_date: '2026-09-21', device_type: 'desktop', os_family: 'Windows', browser_family: 'Edge', sessions: 2 },
-      { visit_date: '2026-09-22', device_type: 'mobile', os_family: 'iOS', browser_family: 'Safari', sessions: 1 },
+      { visit_date: '2026-09-21', device_type: 'mobile', os_family: 'Android', browser_family: 'Chrome', sessions: 3, views: 7 },
+      { visit_date: '2026-09-21', device_type: 'desktop', os_family: 'Windows', browser_family: 'Edge', sessions: 2, views: 2 },
+      { visit_date: '2026-09-22', device_type: 'mobile', os_family: 'iOS', browser_family: 'Safari', sessions: 1, views: 3 },
     ],
   });
 
   assert.equal(report.totalSessions, 6);
+  assert.equal(report.totalViews, 12);
   assert.deepEqual(report.byDevice, { mobile: 4, desktop: 2 });
   assert.deepEqual(report.daily, { '2026-09-21': 5, '2026-09-22': 1 });
   assert.equal(report.eventId, 12);

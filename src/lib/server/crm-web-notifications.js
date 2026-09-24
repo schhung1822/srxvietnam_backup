@@ -12,6 +12,9 @@ const AFFILIATE_APPLICATIONS_WEB_API_TOKEN =
 const LEAD_FORMS_WEB_API_URL =
   process.env.SRX_LEAD_FORMS_WEB_API_URL?.trim() || 'https://crm.srx.vn/api/srx/lead-forms-web';
 const LEAD_FORMS_WEB_API_TOKEN = process.env.SRX_LEAD_FORMS_WEB_API_TOKEN?.trim() || '';
+const META_EVENTS_WEB_API_URL =
+  process.env.SRX_META_EVENTS_WEB_API_URL?.trim() || 'https://crm.srx.vn/api/srx/meta-events-web';
+const META_EVENTS_WEB_API_TOKEN = process.env.SRX_META_EVENTS_WEB_API_TOKEN?.trim() || '';
 
 async function postCrmNotification({ url, token, payload, label, timeoutMs = 5000 }) {
   const { signal, cleanup } = createRequestTimeoutSignal(timeoutMs);
@@ -61,5 +64,14 @@ export async function deliverLeadFormNotificationToCrm(payload) {
     token: LEAD_FORMS_WEB_API_TOKEN,
     payload,
     label: 'lead-forms-web',
+  });
+}
+
+export async function deliverMetaEventToCrm(payload) {
+  await postCrmNotification({
+    url: META_EVENTS_WEB_API_URL,
+    token: META_EVENTS_WEB_API_TOKEN,
+    payload,
+    label: 'meta-events-web',
   });
 }

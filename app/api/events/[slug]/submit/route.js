@@ -1,10 +1,9 @@
 import http from 'node:http';
 import https from 'node:https';
-import { randomUUID } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { getPublishedLadipageEventBySlug } from '../../../../../src/lib/server/ladipage-events.js';
 import { query } from '../../../../../src/lib/server/db.js';
-import { sendCompleteRegistrationToMeta } from '../../../../../src/lib/server/meta-conversions.js';
+import { deliverMetaEventToCrm } from '../../../../../src/lib/server/crm-web-notifications.js';
 
 export const runtime = 'nodejs';
 
@@ -297,7 +296,11 @@ async function insertCheckinSubmission(event, values, request, pageUrl) {
     columns.map((column) => row[column]),
   );
 
-  return { registrationId: result.insertId || randomUUID(), row };
+  if (!result.insertId) {
+    throw new Error('Checkin insert did not return a registration ID.');
+  }
+
+  return result.insertId;
 }
 
 export async function POST(request, { params }) {
@@ -313,22 +316,13 @@ export async function POST(request, { params }) {
     const values = normalizeFormValues(body?.values);
 
     validateSubmission(event, values);
-    const { registrationId, row } = await insertCheckinSubmission(event, values, request, body?.pageUrl);
+    const registrationId = await insertCheckinSubmission(event, values, request, body?.pageUrl);
 
     const metaDelivery = (async () => {
       try {
-        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin;
-        await sendCompleteRegistrationToMeta({
-          registrationId,
-          eventName: row.event_name,
-          eventUrl: new URL(event.path, siteUrl).toString(),
-          request,
-          email: row.email,
-          phone: row.phone,
-          ip: row.user_ip,
-        });
+        await deliverMetaEventToCrm({ registrationId });
       } catch (metaError) {
-        console.warn('Meta CompleteRegistration delivery failed after DB insert:', metaError.message);
+        console.warn('CRM Meta event notification failed after DB insert:', metaError.message);
       }
     })();
 
