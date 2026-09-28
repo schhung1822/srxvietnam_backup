@@ -1,7 +1,8 @@
 ﻿import Link from 'next/link';
 import { ArrowLeft, ArrowUpRight, ChevronRight, Clock3 } from 'lucide-react';
 import { formatNewsDate } from '../../lib/news/articles.js';
-import { getPostGalleryImages, getRelatedNewsArticles } from '../../lib/server/news.js';
+import { getRelatedNewsArticles } from '../../lib/server/news.js';
+import { getNewsPromoPopup } from '../../lib/server/promo-popup.js';
 import AboutContactSection from '../../components/aboutus/AboutContactSection.jsx';
 import NewsShareCopyButton from '../../components/news/NewsShareCopyButton.jsx';
 import NewsArticleViewTracker from '../../components/news/NewsArticleViewTracker.jsx';
@@ -196,10 +197,11 @@ export default async function NewsDetailMinimalPage({ article }) {
     article.categorySlug === 'tin-tuc' || article.categorySlug === 'su-kien';
   const listPath = isMergedNewsEventCategory ? '/tin-tuc' : '/follow-srx';
   const listLabel = isMergedNewsEventCategory ? 'Tin tức & Sự kiện' : 'Theo dòng SRX';
-  const [galleryImages, relatedArticles] = await Promise.all([
-    getPostGalleryImages(),
+  const [promoPopup, relatedArticles] = await Promise.all([
+    getNewsPromoPopup(),
     getRelatedNewsArticles(article, { limit: 3 }),
   ]);
+  const galleryImages = promoPopup.slides;
 
   return (
     <section className="bg-white pb-20 md:pb-24">
@@ -294,7 +296,7 @@ export default async function NewsDetailMinimalPage({ article }) {
 
             {galleryImages.length ? (
               <div className="lg:hidden">
-                <PostImageGallery images={galleryImages} />
+                <PostImageGallery images={galleryImages} autoSlideSeconds={promoPopup.autoSlideSeconds} />
               </div>
             ) : null}
           </article>
@@ -302,7 +304,7 @@ export default async function NewsDetailMinimalPage({ article }) {
           <aside className="hidden self-start lg:sticky lg:top-28 lg:block">
             <NewsArticleToc headings={tocHeadings} variant="desktop" />
 
-            {galleryImages.length ? <PostImageGallery images={galleryImages} /> : null}
+            {galleryImages.length ? <PostImageGallery images={galleryImages} autoSlideSeconds={promoPopup.autoSlideSeconds} /> : null}
           </aside>
         </div>
 

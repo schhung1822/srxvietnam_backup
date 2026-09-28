@@ -1,9 +1,7 @@
 'use client';
 
-import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
-import { createPortal } from 'react-dom';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { useCallback, useMemo, useState } from 'react';
+import PromoPopupModal from '../promo/PromoPopupModal.jsx';
 
 const previewTransitionClass =
   'transition-[transform,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]';
@@ -50,71 +48,18 @@ function getPreviewCardSize(total, index) {
   return index === 2 ? 'h-[78%] w-[77%]' : 'h-[72%] w-[72%]';
 }
 
-function GalleryButton({ children, className = '', ...props }) {
-  return (
-    <button
-      type="button"
-      className={`flex h-10 w-10 items-center justify-center rounded-full transition ${className}`}
-      {...props}
-    >
-      {children}
-    </button>
-  );
-}
-
-export default function PostImageGallery({ images = [] }) {
+/** Popup ở trang chi tiết tin tức: ảnh xếp chồng, khách bấm vào thì mở popup. */
+export default function PostImageGallery({ images = [], autoSlideSeconds = 0 }) {
   const [isHovered, setIsHovered] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isMounted, setIsMounted] = useState(false);
 
   const previewImages = useMemo(() => images.slice(0, 3), [images]);
   const previewLayouts = useMemo(
     () => getStackLayouts(previewImages.length, isHovered),
     [isHovered, previewImages.length],
   );
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!isOpen) {
-      return undefined;
-    }
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-
-    const handleKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        setIsOpen(false);
-      }
-
-      if (images.length > 1 && event.key === 'ArrowLeft') {
-        setActiveIndex((current) => (current - 1 + images.length) % images.length);
-      }
-
-      if (images.length > 1 && event.key === 'ArrowRight') {
-        setActiveIndex((current) => (current + 1) % images.length);
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [images.length, isOpen]);
-
-  useEffect(() => {
-    if (activeIndex < images.length) {
-      return;
-    }
-
-    setActiveIndex(0);
-  }, [activeIndex, images.length]);
+  const handleClose = useCallback(() => setIsOpen(false), []);
 
   if (!images.length) {
     return null;
@@ -125,16 +70,6 @@ export default function PostImageGallery({ images = [] }) {
     setActiveIndex(index);
     setIsOpen(true);
   };
-
-  const showPrevious = () => {
-    setActiveIndex((current) => (current - 1 + images.length) % images.length);
-  };
-
-  const showNext = () => {
-    setActiveIndex((current) => (current + 1) % images.length);
-  };
-
-  const activeImage = images[activeIndex] ?? null;
 
   return (
     <>
@@ -149,7 +84,7 @@ export default function PostImageGallery({ images = [] }) {
 
             return (
               <button
-                key={image.src}
+                key={image.id ?? image.src}
                 type="button"
                 onClick={() => openAt(index)}
                 className={`absolute left-1/2 top-[46%] overflow-hidden rounded-[28px] border border-white/90 bg-white shadow-[0_30px_55px_rgba(57,72,122,0.18)] ${previewTransitionClass} ${getPreviewCardSize(previewImages.length, index)}`}
@@ -157,7 +92,7 @@ export default function PostImageGallery({ images = [] }) {
                   zIndex: layout.zIndex,
                   transform: `translate(calc(-50% + ${layout.x}px), calc(-50% + ${layout.y}px)) rotate(${layout.rotate}deg) scale(${layout.scale})`,
                 }}
-                aria-label={`Xem hinh ${index + 1}`}
+                aria-label={image.title ? `Xem ${image.title}` : `Xem hình ${index + 1}`}
               >
                 <img
                   src={image.src}
@@ -170,115 +105,14 @@ export default function PostImageGallery({ images = [] }) {
         </div>
       </div>
 
-      {isMounted && isOpen
-        ? createPortal(
-            <div
-              className="fixed inset-0 z-[120] grid h-dvh w-screen place-items-center bg-[#0f1528]/72 p-4 backdrop-blur-md sm:p-6"
-              role="dialog"
-              aria-modal="true"
-              aria-label="Thư viện ảnh bài viết"
-            >
-              <div className="absolute inset-0" onClick={() => setIsOpen(false)} aria-hidden="true" />
-
-              <div className="relative z-10 mx-auto w-full max-w-[760px]">
-                <div className="relative overflow-hidden rounded-[34px] bg-white shadow-[0_36px_100px_rgba(0,0,0,0.35)]">
-                  <div className="relative aspect-square max-h-[calc(100dvh-2rem)] overflow-hidden bg-[#e7eefc] sm:max-h-[calc(100dvh-3rem)]">
-                    {images.map((image, index) => {
-                      const isActive = index === activeIndex;
-                      const canOpenProduct = Boolean(image.href);
-
-                      return (
-                        <div
-                          key={image.src}
-                          className={`absolute inset-0 transition-[opacity,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                            isActive ? 'opacity-100 scale-100' : 'pointer-events-none opacity-0 scale-[1.015]'
-                          }`}
-                          aria-hidden={!isActive}
-                        >
-                          {canOpenProduct ? (
-                            <Link
-                              href={image.href}
-                              className="block h-full w-full cursor-pointer"
-                              aria-label={`Mở sản phẩm ${image.productName || image.alt}`}
-                            >
-                              <img
-                                src={image.src}
-                                alt={image.alt}
-                                className="h-full w-full object-cover transition-transform duration-500 hover:scale-[1.01]"
-                              />
-                            </Link>
-                          ) : (
-                            <img src={image.src} alt={image.alt} className="h-full w-full object-cover" />
-                          )}
-                        </div>
-                      );
-                    })}
-
-                    <GalleryButton
-                      onClick={() => setIsOpen(false)}
-                      className="absolute right-4 top-4 z-20 bg-black text-white hover:bg-[#161616]"
-                      aria-label="Dong popup"
-                    >
-                      <X className="h-5 w-5" />
-                    </GalleryButton>
-
-                    {images.length > 1 ? (
-                      <>
-                        <GalleryButton
-                          onClick={showPrevious}
-                          className="absolute left-4 top-1/2 z-20 -translate-y-1/2 border border-[#1a1a1a] bg-white/78 text-[#1a1a1a] hover:bg-[#1a1a1a] hover:text-white"
-                          aria-label="Anh truoc"
-                        >
-                          <ChevronLeft className="h-5 w-5" />
-                        </GalleryButton>
-
-                        <GalleryButton
-                          onClick={showNext}
-                          className="absolute right-4 top-1/2 z-20 -translate-y-1/2 border border-[#1a1a1a] bg-white/78 text-[#1a1a1a] hover:bg-[#1a1a1a] hover:text-white"
-                          aria-label="Anh tiep theo"
-                        >
-                          <ChevronRight className="h-5 w-5" />
-                        </GalleryButton>
-                      </>
-                    ) : null}
-
-                    {images.length > 1 ? (
-                      <div className="absolute inset-x-0 bottom-5 z-20 flex justify-center gap-2">
-                        {images.map((image, index) => {
-                          const isActive = index === activeIndex;
-
-                          return (
-                            <button
-                              key={`${image.src}-dot`}
-                              type="button"
-                              onClick={() => setActiveIndex(index)}
-                              className={`h-2.5 rounded-full transition ${
-                                isActive ? 'w-8 bg-white shadow-[0_4px_16px_rgba(255,255,255,0.65)]' : 'w-2.5 bg-white/55'
-                              }`}
-                              aria-label={`Chuyen toi hinh ${index + 1}`}
-                            />
-                          );
-                        })}
-                      </div>
-                    ) : null}
-
-                    {activeImage?.href ? (
-                      <div className="absolute bottom-4 left-4 z-20 sm:bottom-5 sm:left-5">
-                        <Link
-                          href={activeImage.href}
-                          className="inline-flex items-center rounded-full bg-black/80 px-4 py-2 text-[13px] font-semibold text-white shadow-[0_16px_32px_rgba(0,0,0,0.18)] transition hover:bg-black"
-                        >
-                          {activeImage.productName ? `Xem ${activeImage.productName}` : 'Xem sản phẩm'}
-                        </Link>
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
-              </div>
-            </div>,
-            document.body,
-          )
-        : null}
+      <PromoPopupModal
+        slides={images}
+        isOpen={isOpen}
+        activeIndex={activeIndex}
+        onActiveIndexChange={setActiveIndex}
+        onClose={handleClose}
+        autoSlideSeconds={autoSlideSeconds}
+      />
     </>
   );
 }

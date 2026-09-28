@@ -10,8 +10,9 @@ import DoctorQuoteSection from '../components/home/DoctorQuoteSection.jsx';
 import HomeScientificTopicsSection from '../components/home/HomeScientificTopicsSection.jsx';
 import HomeFaqSection from '../components/home/HomeFaqSection.jsx';
 import SRXLogo from '../components/home/SrxLogo.jsx';
+import HomePromoPopup from '../components/promo/HomePromoPopup.jsx';
 
-const Home = ({ featuredProducts = [], heroBanners = [], scientificTopic = null }) => {
+const Home = ({ featuredProducts = [], heroBanners = [], scientificTopic = null, promoPopup = null }) => {
   return (
     <div className="home-page">
       <HeroSection />
@@ -26,6 +27,7 @@ const Home = ({ featuredProducts = [], heroBanners = [], scientificTopic = null 
       <HomeScientificTopicsSection topic={scientificTopic} />
       <HomeFaqSection />
       <SRXLogo />
+      {promoPopup ? <HomePromoPopup popup={promoPopup} /> : null}
     </div>
   );
 };

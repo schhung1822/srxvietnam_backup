@@ -1,5 +1,6 @@
 import Home from '../src/views/Home.jsx';
 import { getHomepageHeroBanners } from '../src/lib/server/banners.js';
+import { getHomepagePromoPopup } from '../src/lib/server/promo-popup.js';
 import { getCatalogProducts } from '../src/lib/server/products.js';
 import { getPublishedNews } from '../src/lib/server/news.js';
 import { buildMetadata } from '../src/lib/seo.js';
@@ -90,10 +91,11 @@ function pickFeaturedScientificTopic(articles = []) {
 }
 
 export default async function HomePage() {
-  const [products, heroBanners, scientificArticles] = await Promise.all([
+  const [products, heroBanners, scientificArticles, promoPopup] = await Promise.all([
     getCatalogProducts(),
     getHomepageHeroBanners(),
     getPublishedNews({ limit: 12, categorySlug: 'kien-thuc' }),
+    getHomepagePromoPopup(),
   ]);
   const featuredProducts = pickRandomProducts(
     products.filter((product) => product.featured),
@@ -115,6 +117,7 @@ export default async function HomePage() {
     <Home
       featuredProducts={featuredProducts}
       heroBanners={heroBanners}
+      promoPopup={promoPopup}
       scientificTopic={scientificTopic}
     />
   );
