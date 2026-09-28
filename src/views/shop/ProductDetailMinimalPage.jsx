@@ -1,11 +1,13 @@
 ﻿'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, Minus, Plus, Star } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft, ArrowRight, ChevronDown, Minus, Plus, Star } from 'lucide-react';
 import ProductArtwork from '../../components/shop/ProductArtwork';
 import ProductCard from '../../components/shop/ProductCard';
 import ProductIngredientShowcase from '../../components/shop/ProductIngredientShowcase';
+import ProductMobileActionBar from '../../components/shop/ProductMobileActionBar';
 import { useCart } from '../../contexts/CartContext';
 import AboutContactSection from "../../components/aboutus/AboutContactSection.jsx";
 import SRXLogo from "../../components/home/SrxLogo.jsx";
@@ -430,8 +432,104 @@ function buildBenefitItems(product) {
     .filter(Boolean);
 }
 
+const COLLAPSED_DESCRIPTION_HEIGHT = 220;
+const DESCRIPTION_TOGGLE_SPACE = 64;
+const HEADER_OFFSET = 96;
+
+// Clamps long descriptions: a short preview on mobile, the info image's height on desktop.
+function CollapsibleDescription({ referenceRef, resetKey, children }) {
+  const wrapperRef = useRef(null);
+  const contentRef = useRef(null);
+  const [collapsedHeight, setCollapsedHeight] = useState(COLLAPSED_DESCRIPTION_HEIGHT);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  useEffect(() => {
+    setIsExpanded(false);
+  }, [resetKey]);
+
+  useEffect(() => {
+    const content = contentRef.current;
+
+    if (!content) {
+      return undefined;
+    }
+
+    const mediaQuery = window.matchMedia('(min-width: 1280px)');
+
+    const updateHeights = () => {
+      const referenceHeight = referenceRef?.current?.getBoundingClientRect().height ?? 0;
+      const nextCollapsedHeight =
+        mediaQuery.matches && referenceHeight
+          ? Math.max(COLLAPSED_DESCRIPTION_HEIGHT, Math.floor(referenceHeight - DESCRIPTION_TOGGLE_SPACE))
+          : COLLAPSED_DESCRIPTION_HEIGHT;
+
+      setCollapsedHeight(nextCollapsedHeight);
+      setIsOverflowing(content.getBoundingClientRect().height > nextCollapsedHeight + 24);
+    };
+
+    updateHeights();
+
+    const resizeObserver = new ResizeObserver(updateHeights);
+    resizeObserver.observe(content);
+
+    if (referenceRef?.current) {
+      resizeObserver.observe(referenceRef.current);
+    }
+
+    mediaQuery.addEventListener('change', updateHeights);
+
+    return () => {
+      resizeObserver.disconnect();
+      mediaQuery.removeEventListener('change', updateHeights);
+    };
+  }, [referenceRef, resetKey]);
+
+  const isCollapsed = isOverflowing && !isExpanded;
+
+  const toggleExpanded = () => {
+    if (isExpanded) {
+      const wrapperTop = wrapperRef.current?.getBoundingClientRect().top ?? 0;
+
+      if (wrapperTop < HEADER_OFFSET) {
+        window.scrollTo({ top: window.scrollY + wrapperTop - HEADER_OFFSET, behavior: 'smooth' });
+      }
+    }
+
+    setIsExpanded((current) => !current);
+  };
+
+  return (
+    <div ref={wrapperRef}>
+      <div
+        className="relative overflow-hidden"
+        style={isCollapsed ? { maxHeight: `${collapsedHeight}px` } : undefined}
+      >
+        <div ref={contentRef}>{children}</div>
+        {isCollapsed ? (
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white via-white/85 to-transparent" />
+        ) : null}
+      </div>
+
+      {isOverflowing ? (
+        <button
+          type="button"
+          onClick={toggleExpanded}
+          className="mt-4 inline-flex items-center gap-2 rounded-full border border-[#15110d] px-5 py-2.5 text-[12px] font-semibold uppercase tracking-[0.16em] text-[#15110d] transition hover:bg-[#15110d] hover:text-white"
+          aria-expanded={isExpanded}
+        >
+          {isExpanded ? 'Thu gọn' : 'Xem thêm'}
+          <ChevronDown className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
 export default function ProductDetailMinimalPage({ product, relatedProducts = [] }) {
-  const { addItem } = useCart();
+  const router = useRouter();
+  const { addItem, startBuyNow } = useCart();
+  const infoImageRef = useRef(null);
   const [selectedSceneId, setSelectedSceneId] = useState(product.gallery[0]?.id ?? null);
   const [selectedVariantId, setSelectedVariantId] = useState(product.variants[0].id);
   const [quantity, setQuantity] = useState(1);
@@ -497,6 +595,11 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
 
   const increaseQuantity = () => setQuantity((current) => current + 1);
   const decreaseQuantity = () => setQuantity((current) => (current > 1 ? current - 1 : 1));
+  const addSelectedToCart = () => addItem({ product, variant: selectedVariant, quantity });
+  const buyNow = () => {
+    startBuyNow({ product, variant: selectedVariant, quantity });
+    router.push('/checkout?mode=buy-now');
+  };
   const goToSceneByOffset = (offset) => {
     if (!product.gallery.length) {
       return;
@@ -523,7 +626,7 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
           <span className="text-[#15110d]">{product.name}</span>
         </div>
 
-        <div className="max-w-[1440px] mx-auto grid gap-8 pt-8 pb-20 xl:grid-cols-[100px_minmax(0,1fr)_minmax(380px,500px)] xl:gap-10">
+        <div className="max-w-[1440px] mx-auto grid gap-8 pt-4 pb-8 sm:pb-20 xl:grid-cols-[100px_minmax(0,1fr)_minmax(380px,500px)] xl:gap-10">
           <div className="order-2 flex gap-3 overflow-x-auto pb-1 xl:order-1 xl:max-h-[760px] xl:flex-col xl:self-start xl:overflow-x-hidden xl:overflow-y-auto xl:pb-0 xl:pr-2">
             {product.gallery.map((scene) => (
               <button
@@ -603,7 +706,7 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
               <span>{product.soldCount}+ đã bán</span>
             </div>
 
-            <div className="mt-12">
+            <div className="mt-12 hidden lg:block">
               <div className="mb-4 text-[18px] font-medium text-[#15110d]">
                 Size
               </div>
@@ -629,8 +732,8 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
               </div>
             </div>
 
-            <div className="mt-8">
-              <div className="flex flex-wrap items-center gap-3">
+            <div className="mt-6 lg:mt-8">
+              <div className="hidden flex-wrap items-center gap-3 lg:flex">
                 <div className="grid min-h-[54px] min-w-[132px] grid-cols-[44px_1fr_44px] items-center rounded-[12px] bg-[#edf0ff]">
                   <button
                     type="button"
@@ -651,27 +754,27 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
 
                 <button
                   type="button"
-                  onClick={() => addItem({ product, variant: selectedVariant, quantity })}
+                  onClick={addSelectedToCart}
                   className="flex-1 rounded-[12px] bg-[linear-gradient(90deg,#7d91eb_0%,#efb6df_100%)] px-6 py-4 text-[12px] font-semibold uppercase tracking-[0.24em] text-white transition hover:opacity-95"
                 >
                   Thêm vào giỏ →
                 </button>
               </div>
 
-              <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-[13px] text-[#7b7064]">
+              <div className="flex flex-wrap gap-x-5 gap-y-2 text-[13px] text-[#7b7064] lg:mt-5">
                 {purchaseNotes.map((note) => (
                   <span key={note}>{note}</span>
                 ))}
               </div>
             </div>
 
-            <div className="mt-16 border-t border-[#e8ddd0]">
+            <div className="mt-8 sm:mt-16 border-t border-[#d7d7d7]">
               <div>
                 {topInfoPanels.map((panel) => {
                   const isOpen = openInfoPanelId === panel.id;
 
                   return (
-                    <div key={panel.id} className="border-b border-[#e8ddd0]">
+                    <div key={panel.id} className="border-b border-[#d7d7d7]">
                       <button
                         type="button"
                         onClick={() =>
@@ -721,8 +824,11 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
         </div>
 
         <div className="max-w-[1800px] mx-auto py-12 md:py-16">
-          <div className="grid items-center gap-10 xl:grid-cols-[minmax(0,1fr)_minmax(340px,0.82fr)] xl:gap-16">
-            <div className="overflow-hidden rounded-[28px] bg-[#f8f4ee]">
+          <div className="grid items-center gap-6 md:gap-10 xl:grid-cols-[minmax(0,1fr)_minmax(340px,0.82fr)] xl:gap-16">
+            <div
+              ref={infoImageRef}
+              className="overflow-hidden rounded-[28px] bg-[#f8f4ee] xl:sticky xl:top-[110px] xl:self-start"
+            >
               {infoImage ? (
                 <div className="relative aspect-[10/11]">
                   <img
@@ -742,141 +848,143 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
               )}
             </div>
 
-            <div className="max-w-[540px] mx-auto">
-              {hasRenderableDescription ? (
-                <div
-                  className={[
-                    'text-[#5f5449]',
-                    '[&_p]:mt-0 [&_p]:text-[15px] [&_p]:leading-8',
-                    '[&_p+*]:mt-4 [&_p+ul]:mt-5 [&_p+ol]:mt-5',
-                    '[&_div]:text-[15px] [&_div]:leading-8',
-                    '[&_span]:leading-inherit',
-                    '[&_h1]:mt-8 [&_h1]:text-[14px] [&_h1]:font-semibold [&_h1]:uppercase [&_h1]:tracking-[0.18em] [&_h1]:text-[#15110d]',
-                    '[&_h2]:mt-8 [&_h2]:text-[12px] [&_h2]:font-semibold [&_h2]:uppercase [&_h2]:tracking-[0.18em] [&_h2]:text-[#15110d]',
-                    '[&_h3]:mt-8 [&_h3]:text-[12px] [&_h3]:font-semibold [&_h3]:uppercase [&_h3]:tracking-[0.18em] [&_h3]:text-[#15110d]',
-                    '[&_h4]:mt-8 [&_h4]:text-[12px] [&_h4]:font-semibold [&_h4]:uppercase [&_h4]:tracking-[0.18em] [&_h4]:text-[#15110d]',
-                    '[&_ul]:mt-4 [&_ul]:list-disc [&_ul]:space-y-2.5 [&_ul]:pl-5',
-                    '[&_ol]:mt-4 [&_ol]:list-decimal [&_ol]:space-y-2.5 [&_ol]:pl-5',
-                    '[&_li]:text-[14px] [&_li]:leading-6',
-                    '[&_strong]:text-[#15110d]',
-                    '[&_a]:font-medium [&_a]:text-[#15110d] hover:[&_a]:text-[#6f6357]',
-                    '[&_img]:mt-4 [&_img]:rounded-[20px]',
-                  ].join(' ')}
-                  dangerouslySetInnerHTML={{ __html: richInfoHtml }}
-                />
-              ) : hasStructuredInfoContent ? (
-                <>
-                  {infoIntro ? (
-                    <p className="text-[15px] leading-8 text-[#111]">
-                      {toSentence(infoIntro)}
-                    </p>
-                  ) : null}
-
-                  <div className="mt-8 space-y-8">
-                    {parsedInfoContent.sections.map((section, sectionIndex) => {
-                      const isHowToSection = /hướng dẫn sử dụng/iu.test(section.title);
-
-                      return (
-                        <div key={`${section.title}-${sectionIndex}`}>
-                          <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#15110d]">
-                            {section.title}
-                          </div>
-
-                          {section.paragraphs.length ? (
-                            <div className="mt-4 space-y-3 text-[14px] leading-7 text-[#111]">
-                              {section.paragraphs.map((paragraph, paragraphIndex) => (
-                                <p key={`${section.title}-paragraph-${paragraphIndex}`}>{toSentence(paragraph)}</p>
-                              ))}
+            <div className="w-full max-w-[540px] mx-auto">
+              <CollapsibleDescription referenceRef={infoImageRef} resetKey={product.slug}>
+                {hasRenderableDescription ? (
+                  <div
+                    className={[
+                      'text-[#5f5449]',
+                      '[&_p]:mt-0 [&_p]:text-[15px] [&_p]:leading-8',
+                      '[&_p+*]:mt-4 [&_p+ul]:mt-5 [&_p+ol]:mt-5',
+                      '[&_div]:text-[15px] [&_div]:leading-8',
+                      '[&_span]:leading-inherit',
+                      '[&_h1]:mt-8 [&_h1]:text-[14px] [&_h1]:font-semibold [&_h1]:uppercase [&_h1]:tracking-[0.18em] [&_h1]:text-[#15110d]',
+                      '[&_h2]:mt-8 [&_h2]:text-[12px] [&_h2]:font-semibold [&_h2]:uppercase [&_h2]:tracking-[0.18em] [&_h2]:text-[#15110d]',
+                      '[&_h3]:mt-8 [&_h3]:text-[12px] [&_h3]:font-semibold [&_h3]:uppercase [&_h3]:tracking-[0.18em] [&_h3]:text-[#15110d]',
+                      '[&_h4]:mt-8 [&_h4]:text-[12px] [&_h4]:font-semibold [&_h4]:uppercase [&_h4]:tracking-[0.18em] [&_h4]:text-[#15110d]',
+                      '[&_ul]:mt-4 [&_ul]:list-disc [&_ul]:space-y-2.5 [&_ul]:pl-5',
+                      '[&_ol]:mt-4 [&_ol]:list-decimal [&_ol]:space-y-2.5 [&_ol]:pl-5',
+                      '[&_li]:text-[14px] [&_li]:leading-6',
+                      '[&_strong]:text-[#15110d]',
+                      '[&_a]:font-medium [&_a]:text-[#15110d] hover:[&_a]:text-[#6f6357]',
+                      '[&_img]:mt-4 [&_img]:rounded-[20px]',
+                    ].join(' ')}
+                    dangerouslySetInnerHTML={{ __html: richInfoHtml }}
+                  />
+                ) : hasStructuredInfoContent ? (
+                  <>
+                    {infoIntro ? (
+                      <p className="text-[15px] leading-8 text-[#111]">
+                        {toSentence(infoIntro)}
+                      </p>
+                    ) : null}
+  
+                    <div className="mt-8 space-y-8">
+                      {parsedInfoContent.sections.map((section, sectionIndex) => {
+                        const isHowToSection = /hướng dẫn sử dụng/iu.test(section.title);
+  
+                        return (
+                          <div key={`${section.title}-${sectionIndex}`}>
+                            <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#15110d]">
+                              {section.title}
                             </div>
-                          ) : null}
-
-                          {section.items.length ? (
-                            isHowToSection ? (
-                              <ul className="mt-4 space-y-2.5 text-[14px] leading-6 text-[#5f5449]">
-                                {section.items.map((item, itemIndex) => (
-                                  <li key={`${section.title}-item-${itemIndex}`} className="flex gap-3">
-                                    <span className="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#15110d]" />
-                                    <span>{item}</span>
-                                  </li>
+  
+                            {section.paragraphs.length ? (
+                              <div className="mt-4 space-y-3 text-[14px] leading-7 text-[#111]">
+                                {section.paragraphs.map((paragraph, paragraphIndex) => (
+                                  <p key={`${section.title}-paragraph-${paragraphIndex}`}>{toSentence(paragraph)}</p>
                                 ))}
-                              </ul>
-                            ) : (
-                              <ul className="mt-4 list-disc space-y-2.5 pl-5 text-[14px] leading-6 text-[#5f5449] marker:text-[#15110d]">
-                                {section.items.map((item, itemIndex) => (
-                                  <li key={`${section.title}-item-${itemIndex}`}>{toSentence(item)}</li>
-                                ))}
-                              </ul>
-                            )
-                          ) : null}
+                              </div>
+                            ) : null}
+  
+                            {section.items.length ? (
+                              isHowToSection ? (
+                                <ul className="mt-4 space-y-2.5 text-[14px] leading-6 text-[#5f5449]">
+                                  {section.items.map((item, itemIndex) => (
+                                    <li key={`${section.title}-item-${itemIndex}`} className="flex gap-3">
+                                      <span className="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#15110d]" />
+                                      <span>{item}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              ) : (
+                                <ul className="mt-4 list-disc space-y-2.5 pl-5 text-[14px] leading-6 text-[#5f5449] marker:text-[#15110d]">
+                                  {section.items.map((item, itemIndex) => (
+                                    <li key={`${section.title}-item-${itemIndex}`}>{toSentence(item)}</li>
+                                  ))}
+                                </ul>
+                              )
+                            ) : null}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {infoIntro ? (
+                      <p className="text-[15px] leading-8 text-[#5f5449]">
+                        {toSentence(infoIntro)}
+                      </p>
+                    ) : null}
+  
+                    <div className="mt-8 space-y-8">
+                      <div>
+                        <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#15110d]">
+                          Chỉ định sử dụng: Sản phẩm được các chuyên gia khuyên dùng cho:
                         </div>
-                      );
-                    })}
-                  </div>
-                </>
-              ) : (
-                <>
-                  {infoIntro ? (
-                    <p className="text-[15px] leading-8 text-[#5f5449]">
-                      {toSentence(infoIntro)}
-                    </p>
-                  ) : null}
-
-                  <div className="mt-8 space-y-8">
-                    <div>
-                      <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#15110d]">
-                        Chỉ định sử dụng: Sản phẩm được các chuyên gia khuyên dùng cho:
+                        <ul className="mt-4 list-disc space-y-2.5 pl-5 text-[14px] leading-6 text-[#5f5449] marker:text-[#15110d]">
+                          {infoIndications.map((item, itemIndex) => (
+                            <li key={`indication-${itemIndex}`}>{item}</li>
+                          ))}
+                        </ul>
                       </div>
-                      <ul className="mt-4 list-disc space-y-2.5 pl-5 text-[14px] leading-6 text-[#5f5449] marker:text-[#15110d]">
-                        {infoIndications.map((item, itemIndex) => (
-                          <li key={`indication-${itemIndex}`}>{item}</li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div>
-                      <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#15110d]">
-                        Hướng dẫn sử dụng (Điều chỉnh theo làn da):
+  
+                      <div>
+                        <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#15110d]">
+                          Hướng dẫn sử dụng (Điều chỉnh theo làn da):
+                        </div>
+                        <ul className="mt-4 space-y-2.5 text-[14px] leading-6 text-[#5f5449]">
+                          {product.howToUse.slice(0, 3).map((step, index) => (
+                            <li key={`usage-${index}`} className="flex gap-3">
+                              <span className="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#15110d]" />
+                              <span>{`Bước ${index + 1}: ${step}`}</span>
+                            </li>
+                          ))}
+                        </ul>
                       </div>
-                      <ul className="mt-4 space-y-2.5 text-[14px] leading-6 text-[#5f5449]">
-                        {product.howToUse.slice(0, 3).map((step, index) => (
-                          <li key={`usage-${index}`} className="flex gap-3">
-                            <span className="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#15110d]" />
-                            <span>{`Bước ${index + 1}: ${step}`}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div>
-                      <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#15110d]">
-                        Lưu ý khi sử dụng sản phẩm:
+  
+                      <div>
+                        <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#15110d]">
+                          Lưu ý khi sử dụng sản phẩm:
+                        </div>
+                        <ul className="mt-4 list-disc space-y-2.5 pl-5 text-[14px] leading-6 text-[#5f5449] marker:text-[#15110d]">
+                          {infoNotes.map((item, itemIndex) => (
+                            <li key={`note-${itemIndex}`}>{item}</li>
+                          ))}
+                        </ul>
                       </div>
-                      <ul className="mt-4 list-disc space-y-2.5 pl-5 text-[14px] leading-6 text-[#5f5449] marker:text-[#15110d]">
-                        {infoNotes.map((item, itemIndex) => (
-                          <li key={`note-${itemIndex}`}>{item}</li>
-                        ))}
-                      </ul>
                     </div>
-                  </div>
-                </>
-              )}
+                  </>
+                )}
+              </CollapsibleDescription>
             </div>
           </div>
 
           {infoBenefits.length ? (
-            <div className="mx-auto mt-12 flex max-w-[1440px] flex-wrap justify-center gap-x-10 gap-y-10 pt-10">
+            <div className="mx-auto mt-8 grid max-w-[1440px] grid-cols-2 gap-2.5 md:mt-12 md:flex md:flex-wrap md:justify-center md:gap-x-10 md:gap-y-10 md:pt-10">
               {infoBenefits.map((benefit) => {
                 return (
                   <div
                     key={benefit.label}
-                    className="flex w-full max-w-[300px] flex-col items-center text-center sm:w-[300px]"
+                    className="flex items-center gap-2.5 rounded-[14px] bg-[#f7f6fb] px-2.5 py-2.5 md:w-[300px] md:max-w-[300px] md:flex-col md:bg-transparent md:p-0 md:text-center"
                   >
-                    <div className="flex h-20 w-20 items-center justify-center rounded-[8px]">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[8px] md:h-20 md:w-20">
                       <img
                         src={benefit.icon_img}
                         alt={benefit.label}
                         data-fallback-src={benefit.fallbackIcon}
-                        className="h-30 w-30 object-contain"
+                        className="h-30 w-30 object-contain max-md:h-full max-md:w-full"
                         loading="lazy"
                         onError={(event) => {
                           const fallbackSrc = event.currentTarget.dataset.fallbackSrc;
@@ -888,7 +996,9 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
                         }}
                       />
                     </div>
-                    <div className="mt-3 text-[15px] font-medium leading-6 text-[#342f4f]">{benefit.label}</div>
+                    <div className="min-w-0 text-[12px] font-medium leading-[1.35] text-[#342f4f] md:mt-3 md:text-[15px] md:leading-6">
+                      {benefit.label}
+                    </div>
                   </div>
                 );
               })}
@@ -897,7 +1007,7 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
         </div>
 
         {product.tagEntries?.length ? (
-          <div className="max-w-[1800px] mx-auto py-20">
+          <div className="max-w-[1800px] mx-auto py-8 md:py-20">
             <ProductIngredientShowcase productName={product.name} entries={product.tagEntries} />
           </div>
         ) : null}
@@ -930,6 +1040,15 @@ export default function ProductDetailMinimalPage({ product, relatedProducts = []
       </div>
       <AboutContactSection />
       <SRXLogo/>
+      <ProductMobileActionBar
+        product={product}
+        selectedVariant={selectedVariant}
+        onSelectVariant={setSelectedVariantId}
+        quantity={quantity}
+        onQuantityChange={setQuantity}
+        onAddToCart={addSelectedToCart}
+        onBuyNow={buyNow}
+      />
     </section>
   );
 }

@@ -12,6 +12,7 @@ import {
   CreditCard,
   LoaderCircle,
   MapPin,
+  MessageCircleMore,
   Minus,
   Plus,
   QrCode,
@@ -28,6 +29,8 @@ import { EMAIL_PATTERN, toContactEmail } from '../../lib/email-address.js';
 import { toProductThumbnailUrl } from '../../lib/products/image.js';
 import ProductArtwork from '../../components/shop/ProductArtwork';
 import VoucherField from '../../components/cart/VoucherField';
+import { ContactBottomSheet } from '../../components/shop/MobileBottomSheet';
+import { useHideFloatingCta } from '../../components/FloatingCallToAction';
 import provinceData from '../../../province.json';
 import wardData from '../../../ward.json';
 
@@ -423,10 +426,41 @@ function FieldError({ error }) {
   return <div className="mt-2 text-[13px] text-red-600">{error.message}</div>;
 }
 
-export default function CheckoutPage() {
+// Nút liên hệ nằm trong thanh đặt hàng cố định thay cho nút nổi (cả mobile lẫn desktop).
+function CheckoutContactButton() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  useHideFloatingCta('all');
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setIsOpen(true)}
+        aria-expanded={isOpen}
+        className="flex h-full w-[58px] shrink-0 flex-col items-center justify-center gap-1 text-[#15110d] transition lg:h-12 lg:w-auto lg:flex-row lg:gap-2 lg:rounded-[12px] lg:border lg:border-[#e2dcd4] lg:px-5 lg:hover:border-[#15110d]"
+      >
+        <MessageCircleMore className="h-5 w-5" strokeWidth={1.9} />
+        <span className="text-[11px] font-medium lg:text-[14px]">Liên hệ</span>
+      </button>
+      <ContactBottomSheet isOpen={isOpen} onClose={() => setIsOpen(false)} showOnDesktop />
+    </>
+  );
+}
+
+export default function CheckoutPage({ isBuyNow = false }) {
   const router = useRouter();
   const { user, isLoading: isAuthLoading } = useAuth();
-  const { items, subtotal, clearCart, isReady, updateQuantity, updateVariant, removeItem } = useCart();
+  const cart = useCart();
+  const { isReady } = cart;
+  // "Mua ngay" chỉ thanh toán sản phẩm vừa chọn, giỏ hàng được giữ nguyên.
+  const items = isBuyNow ? cart.buyNowItems : cart.items;
+  const clearItems = isBuyNow ? cart.clearBuyNow : cart.clearCart;
+  const updateQuantity = isBuyNow ? cart.updateBuyNowQuantity : cart.updateQuantity;
+  const updateVariant = isBuyNow ? cart.updateBuyNowVariant : cart.updateVariant;
+  const removeItem = isBuyNow ? cart.removeBuyNowItem : cart.removeItem;
+  const subtotal = items.reduce((total, item) => total + item.price * item.quantity, 0);
+  const checkoutPath = isBuyNow ? '/checkout?mode=buy-now' : '/checkout';
   const { discountCodes, isLoading: isLoadingDiscountCodes } = useDiscountCodes();
   const [paymentMethod, setPaymentMethod] = useState('cod');
   const [appliedCouponCode, setAppliedCouponCode] = useState('');
@@ -672,7 +706,7 @@ export default function CheckoutPage() {
         image: item.scene?.image ?? '',
       }));
 
-      clearCart();
+      clearItems();
       setIsUsingNewAddress(false);
 
       if (data.order?.paymentMethod === 'bank_transfer' && data.order?.orderNumber) {
@@ -914,7 +948,7 @@ export default function CheckoutPage() {
               <ShoppingBag className="h-7 w-7" />
             </div>
             <h1 className="mt-6 text-[32px] font-semibold tracking-[-0.04em] text-[#15110d]">
-              Giỏ hàng đang trống
+              {isBuyNow ? 'Chưa có sản phẩm để thanh toán' : 'Giỏ hàng đang trống'}
             </h1>
             <p className="mt-3 text-[15px] leading-7 text-[#665a4e]">
               Hãy thêm sản phẩm vào giỏ trước khi tiến hành checkout.
@@ -973,7 +1007,7 @@ export default function CheckoutPage() {
                 </div>
 
                 {isLoadingAddresses ? (
-                  <div className="mt-6 flex items-center gap-3 rounded-[24px] border border-[#ece4da] bg-[#fcfaf8] px-5 py-4 text-[14px] text-[#665a4e]">
+                  <div className="mt-6 flex items-center gap-3 rounded-[12px] border border-[#ece4da] bg-[#fcfaf8] px-5 py-4 text-[14px] text-[#665a4e]">
                     <LoaderCircle className="h-4 w-4 animate-spin" />
                     Đang tải địa chỉ đã lưu...
                   </div>
@@ -1271,13 +1305,13 @@ export default function CheckoutPage() {
 
           <div className="min-w-0 border-t border-[#e5e5e5] pt-8 xl:sticky xl:top-[92px] xl:self-start xl:border-t-0 xl:pt-0">
             <div className="bg-white p-0">
-              <h2 className="mt-2 text-[26px] font-semibold tracking-[-0.04em] text-[#050505] xl:mt-0 xl:text-[30px]">Giỏ hàng</h2>
+              <h2 className="mt-2 text-[26px] font-semibold tracking-[-0.04em] text-[#050505] xl:mt-0 xl:text-[30px]">{isBuyNow ? 'Mua ngay' : 'Giỏ hàng'}</h2>
               <div className="mt-3 flex min-h-[36px] items-center justify-between rounded-[7px] bg-[#e9ecff] px-3 text-[12px] font-semibold text-[#2540dd] sm:px-4 sm:text-[14px]">
                 <span className="inline-flex items-center gap-2"><ShieldCheck className="h-4 w-4" />Freeship đơn từ 200k</span>
               </div>
               <div className="mt-4 flex items-center justify-between border-b border-[#e5e5e5] pb-3 text-[13px] text-[#777] sm:mt-5 sm:pb-4 sm:text-[14px]">
                 <label className="inline-flex items-center gap-3">Tất cả sản phẩm</label>
-                <button type="button" onClick={clearCart} className="text-[13px] transition hover:text-[#15110d]">Xóa tất cả</button>
+                <button type="button" onClick={clearItems} className="text-[13px] transition hover:text-[#15110d]">Xóa tất cả</button>
               </div>
               <div className="mt-3 sm:mt-5">
                 {items.map((item) => (
@@ -1304,7 +1338,7 @@ export default function CheckoutPage() {
                 onApply={setAppliedCouponCode}
                 onRemove={() => setAppliedCouponCode('')}
                 isLoggedIn={Boolean(user)}
-                loginHref="/login?next=/checkout"
+                loginHref={`/login?next=${encodeURIComponent(checkoutPath)}`}
               />
 
               <div className="mt-6 border-t border-[#e5e5e5] pt-5 sm:mt-8 sm:pt-7"><h3 className="text-[20px] font-semibold tracking-[-0.02em] text-[#15110d] sm:text-[22px]">Chi tiết thanh toán</h3><div className="mt-4 space-y-3 text-[14px] text-[#666] sm:mt-5 sm:space-y-4 sm:text-[15px]">
@@ -1348,19 +1382,30 @@ export default function CheckoutPage() {
         </div>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-[60] border-t border-[#dfe3f7] bg-[#eef1ff]/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-12px_34px_rgba(15,23,42,0.08)] backdrop-blur-md">
-        <div className="grid w-full grid-cols-[minmax(0,1fr)_120px] items-stretch sm:grid-cols-[minmax(0,1fr)_184px] lg:grid-cols-[minmax(0,1fr)_220px]">
-          <div className="flex min-h-[64px] items-center justify-between gap-3 bg-[#eef1ff] px-4 py-2 sm:min-h-[74px] sm:px-6 sm:py-3 lg:px-8 xl:px-10">
-            <div className="hidden items-center gap-3 text-[14px] font-semibold text-[#15110d] sm:flex">
-              <CreditCard className="h-5 w-5 text-[#2540dd]" />
-              <span>{paymentMethodOptions.find((method) => method.id === paymentMethod)?.label ?? 'Thanh toán'}</span>
+      <div className="fixed inset-x-0 bottom-0 z-[60] border-t border-[#ece6de] bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-10px_30px_rgba(21,17,13,0.08)] backdrop-blur">
+        <div className="mx-auto flex h-[72px] max-w-[1600px] items-center gap-2 px-3 sm:gap-4 sm:px-6 lg:h-[84px] lg:gap-6 lg:px-8 xl:px-10 2xl:px-12">
+          <CheckoutContactButton />
+
+          <div className="hidden items-center gap-2 text-[14px] font-medium text-[#15110d] md:flex">
+            <CreditCard className="h-5 w-5 text-[#7d91eb]" />
+            <span>{paymentMethodOptions.find((method) => method.id === paymentMethod)?.label ?? 'Thanh toán'}</span>
+          </div>
+
+          <div className="ml-auto flex min-w-0 flex-col items-end justify-center text-right">
+            <div className="text-[11px] text-[#7b7064] sm:text-[12px]">
+              {totals.discountTotal > 0 ? `Tiết kiệm ${currencyFormatter.format(totals.discountTotal)}` : 'Tổng cộng'}
             </div>
-            <div className="ml-auto flex min-w-0 flex-col items-end justify-center gap-0.5 text-right text-[11px] text-[#555] sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:gap-x-5 sm:gap-y-1 sm:text-[13px]">
-              <div className="font-['Inter',_sans-serif] text-[21px] font-bold leading-none text-[#2540dd] sm:text-[26px]">{currencyFormatter.format(totals.grandTotal)}</div>
-              <div>Tiết kiệm {currencyFormatter.format(totals.discountTotal)}</div>
+            <div className="font-['Inter',_sans-serif] text-[20px] font-semibold leading-tight tracking-[-0.04em] text-[#15110d] sm:text-[24px]">
+              {currencyFormatter.format(totals.grandTotal)}
             </div>
           </div>
-          <button type="button" onClick={handleSubmitOrder} disabled={isSubmitting || isLoadingAddresses || (useSavedAddresses && !selectedAddressId)} className="flex h-full min-h-[64px] items-center justify-center bg-black px-3 text-[13px] font-bold uppercase text-white transition hover:bg-[#222] disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-[74px] sm:px-6 sm:text-[15px]">
+
+          <button
+            type="button"
+            onClick={handleSubmitOrder}
+            disabled={isSubmitting || isLoadingAddresses || (useSavedAddresses && !selectedAddressId)}
+            className="flex h-12 min-w-[128px] shrink-0 items-center justify-center rounded-[12px] bg-[linear-gradient(90deg,#7d91eb_0%,#efb6df_100%)] px-5 text-[13px] font-semibold uppercase tracking-[0.12em] text-white transition hover:opacity-95 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:min-w-[200px] lg:h-[52px] lg:min-w-[240px] lg:text-[14px]"
+          >
             {isSubmitting ? <LoaderCircle className="h-5 w-5 animate-spin" /> : 'Đặt hàng'}
           </button>
         </div>

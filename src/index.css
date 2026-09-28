@@ -540,3 +540,18 @@ html {
   animation: gradient-shift 3s ease-in-out infinite;
 }
  
+
+/* Bottom action bars (product detail on mobile, checkout everywhere) replace the floating contact button */
+body[data-hide-floating-cta="all"] [data-floating-cta] {
+  display: none;
+}
+
+@media (max-width: 1023.98px) {
+  body[data-product-action-bar] {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom));
+  }
+
+  body[data-hide-floating-cta="mobile"] [data-floating-cta] {
+    display: none;
+  }
+}

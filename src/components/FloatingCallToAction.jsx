@@ -15,7 +15,7 @@ const FACEBOOK_URL = 'https://www.facebook.com/srxvnofficial';
 const ZALO_URL = 'https://zalo.me/3726662326010428300';
 const PHONE_NUMBER = '+84903010692';
 
-const CONTACT_ITEMS = [
+export const CONTACT_ITEMS = [
   {
     id: 'phone',
     label: 'Gọi cho SRX',
@@ -96,7 +96,7 @@ function getNearestCorner(position, viewport) {
   return `${vertical}-${horizontal}`;
 }
 
-function renderItemIcon(type) {
+export function renderContactIcon(type) {
   if (type === 'phone') {
     return (
       <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#1f1a18] text-white shadow-[0_16px_34px_rgba(31,26,24,0.28)]">
@@ -116,6 +116,18 @@ function renderItemIcon(type) {
       <Image src={iconSrc} alt={iconAlt} width={24} height={24} className="h-[22px] w-[22px]" />
     </div>
   );
+}
+
+// Pages whose bottom bar already offers a contact button hide the floating one:
+// scope 'mobile' hides it below lg only, 'all' hides it at every width.
+export function useHideFloatingCta(scope = 'mobile') {
+  useEffect(() => {
+    document.body.dataset.hideFloatingCta = scope;
+
+    return () => {
+      delete document.body.dataset.hideFloatingCta;
+    };
+  }, [scope]);
 }
 
 export default function FloatingCallToAction() {
@@ -274,6 +286,7 @@ export default function FloatingCallToAction() {
   return (
     <div
       ref={containerRef}
+      data-floating-cta
       className="pointer-events-none fixed z-[90]"
       style={{
         left: `${position.x}px`,
@@ -304,7 +317,7 @@ export default function FloatingCallToAction() {
                       rel={isExternal ? 'noreferrer' : undefined}
                       className="group flex items-center gap-3 px-3 py-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#d9c6ff]"
                     >
-                      {renderItemIcon(item.icon)}
+                      {renderContactIcon(item.icon)}
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-[15px] font-semibold text-[#231b17]">{item.label}</div>
                         <div className="truncate text-sm text-[#6d6780]">{item.meta}</div>

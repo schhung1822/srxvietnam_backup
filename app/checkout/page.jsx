@@ -9,6 +9,8 @@ export const metadata = buildMetadata({
   noIndex: true,
 });
 
-export default function CheckoutRoute() {
-  return <CheckoutPage />;
+export default async function CheckoutRoute({ searchParams }) {
+  const { mode } = await searchParams;
+
+  return <CheckoutPage isBuyNow={mode === 'buy-now'} />;
 }

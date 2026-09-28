@@ -62,8 +62,6 @@ export default function ProductIngredientShowcase({ productName, entries = [] })
     return null;
   }
 
-  const activeEntry = preparedEntries[activeIndex] ?? preparedEntries[0];
-
   const goToSlide = (nextIndex) => {
     if (!preparedEntries.length) {
       return;
@@ -74,7 +72,158 @@ export default function ProductIngredientShowcase({ productName, entries = [] })
   };
 
   return (
-    <section className="grid gap-8 xl:grid-cols-[minmax(0,0.95fr)_minmax(420px,1fr)] xl:items-center">
+    <>
+      <CompactIngredientShowcase
+        productName={productName}
+        entries={preparedEntries}
+        activeIndex={activeIndex}
+        onSelect={goToSlide}
+      />
+      <DesktopIngredientShowcase
+        productName={productName}
+        entries={preparedEntries}
+        activeIndex={activeIndex}
+        onSelect={goToSlide}
+        introRef={introRef}
+        imageCardRef={imageCardRef}
+        listMaxHeight={listMaxHeight}
+      />
+    </>
+  );
+}
+
+const SWIPE_THRESHOLD = 40;
+
+function CompactIngredientShowcase({ productName, entries, activeIndex, onSelect }) {
+  const chipsRef = useRef(null);
+  const touchStartXRef = useRef(null);
+  const activeEntry = entries[activeIndex] ?? entries[0];
+
+  useEffect(() => {
+    const container = chipsRef.current;
+    const activeChip = container?.children[activeIndex];
+
+    if (!container || !activeChip || container.clientWidth === 0) {
+      return;
+    }
+
+    container.scrollTo({
+      left: activeChip.offsetLeft - (container.clientWidth - activeChip.clientWidth) / 2,
+      behavior: 'smooth',
+    });
+  }, [activeIndex]);
+
+  const handleTouchStart = (event) => {
+    touchStartXRef.current = event.touches[0]?.clientX ?? null;
+  };
+
+  const handleTouchEnd = (event) => {
+    const startX = touchStartXRef.current;
+    const endX = event.changedTouches[0]?.clientX;
+    touchStartXRef.current = null;
+
+    if (startX === null || endX === undefined || Math.abs(endX - startX) < SWIPE_THRESHOLD) {
+      return;
+    }
+
+    onSelect(activeIndex + (endX < startX ? 1 : -1));
+  };
+
+  return (
+    <section className="xl:hidden">
+      <div className="text-[13px] font-semibold uppercase tracking-[0.22em] text-[#000000]">
+        Bảng thành phần
+      </div>
+      <p className="mt-2 text-[13px] leading-6 text-[#5f5449]">
+        Các hoạt chất sinh học nổi bật trong {productName}.
+      </p>
+
+      {entries.length > 1 ? (
+        <div
+          ref={chipsRef}
+          className="relative -mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] md:-mx-6 md:px-6 [&::-webkit-scrollbar]:hidden"
+        >
+          {entries.map((entry, index) => (
+            <button
+              key={entry.id || entry.slug || entry.name}
+              type="button"
+              onClick={() => onSelect(index)}
+              className={`shrink-0 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-[13px] font-medium transition ${
+                index === activeIndex
+                  ? 'border-[#15110d] bg-[#15110d] text-white'
+                  : 'border-[#e2dcd4] bg-white text-[#5f5449]'
+              }`}
+            >
+              {entry.name}
+            </button>
+          ))}
+        </div>
+      ) : null}
+
+      <div
+        className="mt-3 flex gap-3 rounded-[20px] bg-[#f4f3f1] p-3"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        <div className="h-[104px] w-[104px] shrink-0 overflow-hidden rounded-[14px] bg-white sm:h-[140px] sm:w-[140px]">
+          {activeEntry.image ? (
+            <img
+              src={activeEntry.image}
+              alt={activeEntry.name}
+              className="h-full w-full object-cover"
+              loading="lazy"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center px-2 text-center text-[12px] text-[#8d857d]">
+              {activeEntry.name}
+            </div>
+          )}
+        </div>
+
+        <div className="min-w-0 flex-1 py-0.5">
+          <div className="flex items-start justify-between gap-2">
+            <div className="text-[16px] font-semibold leading-5 tracking-[-0.03em] text-[#111111]">
+              {activeEntry.name}
+            </div>
+            {entries.length > 1 ? (
+              <span className="shrink-0 pt-0.5 text-[11px] text-[#9f988f]">
+                {activeIndex + 1}/{entries.length}
+              </span>
+            ) : null}
+          </div>
+          {activeEntry.description ? (
+            <p className="mt-1.5 line-clamp-4 text-[13px] leading-5 text-[#5f5449]">
+              {activeEntry.description}
+            </p>
+          ) : null}
+          {activeEntry.slug ? (
+            <Link
+              href={`/key-srx/${activeEntry.slug}`}
+              className="mt-2 inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#15110d]"
+            >
+              Xem chi tiết
+              <ChevronRight className="h-3.5 w-3.5" />
+            </Link>
+          ) : null}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function DesktopIngredientShowcase({
+  productName,
+  entries: preparedEntries,
+  activeIndex,
+  onSelect: goToSlide,
+  introRef,
+  imageCardRef,
+  listMaxHeight,
+}) {
+  const activeEntry = preparedEntries[activeIndex] ?? preparedEntries[0];
+
+  return (
+    <section className="hidden gap-8 xl:grid xl:grid-cols-[minmax(0,0.95fr)_minmax(420px,1fr)] xl:items-center">
       <div className="order-2 xl:order-1">
         <div ref={introRef} className="mb-10 max-w-[560px] xl:mb-12">
           <div className="text-[14px] font-semibold uppercase tracking-[0.22em] text-[#000000] font-weight-700">

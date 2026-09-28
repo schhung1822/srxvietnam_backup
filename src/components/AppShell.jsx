@@ -24,8 +24,9 @@ function AppShellContent({ children }) {
   const isVerificationPage = pathname === '/tiktok-verification';
   const isEventLandingPage = pathname.startsWith('/events/');
   const hideSiteChrome = isVerificationPage || isEventLandingPage;
-  const { items, isCartOpen } = useCart();
-  const hideFooter = hideSiteChrome || (pathname === '/checkout' && items.length > 0);
+  const { items, buyNowItems, isCartOpen } = useCart();
+  const hideFooter =
+    hideSiteChrome || (pathname === '/checkout' && (items.length > 0 || buyNowItems.length > 0));
 
   return (
         <div className="App min-h-screen flex flex-col">
