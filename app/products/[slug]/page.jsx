@@ -13,6 +13,7 @@ import {
   createBreadcrumbSchema,
   createProductSchema,
 } from '../../../src/lib/seo.js';
+import { getProductSeo } from '../../../src/lib/seo-keywords.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,12 +35,15 @@ export async function generateMetadata({ params }) {
   ]);
 
   if (product) {
+    const productSeo = getProductSeo(product);
+
     return buildMetadata({
-      title: product.name,
+      title: productSeo.title,
       description: product.shortDescription || product.description,
       path: `/products/${slug}`,
       image: product.gallery?.[0]?.image || product.infoImage,
-      keywords: [product.name, product.brand, product.category, ...(product.ingredients ?? [])],
+      imageAlt: product.name,
+      keywords: productSeo.keywords,
     });
   }
 

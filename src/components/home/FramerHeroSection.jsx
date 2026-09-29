@@ -295,16 +295,16 @@ const FramerHeroSection = () => {
                   <div />
                 </div>
 
-                <div className="flex w-full flex-wrap items-center justify-center lg:justify-start gap-2.5 sm:gap-3">
-                  <h1
+                <h1 className="flex w-full flex-wrap items-center justify-center lg:justify-start gap-2.5 sm:gap-3">
+                  <span
                     data-hero-title-part
                     className="text-[30px] font-medium leading-none tracking-[-0.05em] text-[#7990f0] sm:text-[58px] lg:text-[80px]"
                     style={{ fontFamily: '"Manrope", "Hubot Sans", sans-serif' }}
                   >
                     Mang
-                  </h1>
+                  </span>
 
-                  <div
+                  <span
                     data-hero-title-pill
                     className={`${styles.titlePill} relative z-[4] inline-flex min-h-[58px] items-center justify-center px-7 py-3 sm:min-h-[94px] sm:px-10 sm:py-4 lg:min-h-[122px] lg:px-[46px] lg:py-[18px]`}
                   >
@@ -321,21 +321,21 @@ const FramerHeroSection = () => {
                       className="pointer-events-none absolute inset-0 h-full w-full object-fill drop-shadow-[0_18px_34px_rgba(114,113,221,0.26)] sm:drop-shadow-[0_22px_42px_rgba(114,113,221,0.3)]"
                     />
 
-                    <h1
+                    <span
                       data-hero-title-pill-text
                       className={`${heroLegacyHeadingFont.className} relative z-[1] text-[30px] font-medium leading-none tracking-[-0.05em] text-white [text-shadow:0_2px_10px_rgba(255,255,255,0.16)] sm:text-[58px] lg:text-[80px]`}
                     >
                       Khoa học trị liệu
-                    </h1>
-                  </div>
+                    </span>
+                  </span>
 
-                  <h1
+                  <span
                     data-hero-title-part
                     className={`${heroLegacyHeadingFont.className} text-center text-[30px] font-medium leading-none tracking-[-0.05em] text-[#7990f0] sm:text-[58px] lg:text-[80px]`}
                   >
                     chạm đến làn da
-                  </h1>
-                </div>
+                  </span>
+                </h1>
 
                 <div className="relative z-[5] hidden sm:block flex w-full flex-wrap items-start justify-start px-0 pt-6 sm:px-1 sm:pt-8">
                   <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:gap-[18px]">

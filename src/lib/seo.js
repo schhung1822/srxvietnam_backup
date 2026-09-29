@@ -48,19 +48,21 @@ export const DEFAULT_DESCRIPTION =
   'SRX Việt Nam phân phối mỹ phẩm chăm sóc da chuyên sâu chính hãng, ứng dụng công nghệ sinh học và hoạt chất khoa học cho làn da Việt.';
 export const DEFAULT_KEYWORDS = [
   'SRX Việt Nam',
+  'SRX Vietnam',
   'SRX',
   'SRX chính hãng',
+  'SRX Hàn Quốc',
   'mỹ phẩm SRX',
   'dược mỹ phẩm SRX',
-  'sản phẩm chăm sóc da SRX',
+  'sản phẩm SRX',
+  'dược mỹ phẩm Hàn Quốc',
+  'mỹ phẩm Hàn Quốc chính hãng',
   'chăm sóc da chuyên sâu',
   'phục hồi da',
-  'điều trị mụn',
+  'phục hồi da sau laser',
+  'phục hồi da nhạy cảm',
+  'trị mụn',
   'làm sáng da',
-  'skincare',
-  'dược mỹ phẩm',
-  'sản phẩm SRX',
-  'thành phần SRX',
 ];
 export const DEFAULT_OG_IMAGE = '/assets/images/about/banner_about.webp';
 export const DEFAULT_OG_IMAGE_WIDTH = 1920;
@@ -75,10 +77,17 @@ export const COMPANY_ADDRESS = {
   addressRegion: 'TP. Hồ Chí Minh',
   addressCountry: 'VN',
 };
+// Tên gọi khác của thương hiệu, giúp Google gom các cách gọi về cùng một thực thể
+// (site name trên kết quả tìm kiếm + Knowledge Panel).
+export const SITE_ALTERNATE_NAMES = ['SRX', 'SRX Vietnam', 'SRX Viet Nam'];
+// Logo vuông (2000x2000, nền trắng) theo khuyến nghị logo của Google cho Organization.
+export const ORGANIZATION_LOGO = '/assets/images/favicon.webp';
+export const ORGANIZATION_LOGO_SIZE = 2000;
+export const RETURN_WINDOW_DAYS = 7;
 export const SOCIAL_LINKS = [
   'https://www.facebook.com/srxvnofficial',
   'https://www.tiktok.com/@srxvietnam',
-  'https://zalo.me/4112137101220932811',
+  'https://zalo.me/3726662326010428300',
   'https://shopee.vn/srxvietnam',
 ];
 
@@ -89,11 +98,31 @@ function stripHtml(value = '') {
     .trim();
 }
 
+// Google thường hiển thị khoảng 155–160 ký tự; cắt ở ranh giới từ để snippet không bị ngắt giữa chữ.
+const MAX_DESCRIPTION_LENGTH = 160;
+
+function truncateDescription(value = '') {
+  const text = stripHtml(value);
+
+  if (text.length <= MAX_DESCRIPTION_LENGTH) {
+    return text;
+  }
+
+  const cut = text.slice(0, MAX_DESCRIPTION_LENGTH - 1);
+  const lastSpace = cut.lastIndexOf(' ');
+  return `${(lastSpace > 100 ? cut.slice(0, lastSpace) : cut).replace(/[\s,.;:–-]+$/, '')}…`;
+}
+
 function buildTitle(title) {
   const normalizedTitle = String(title ?? '').trim();
 
   if (!normalizedTitle || normalizedTitle === SITE_NAME) {
     return SITE_NAME;
+  }
+
+  // Tiêu đề đã chứa tên thương hiệu (vd. trang chủ) thì không gắn thêm hậu tố.
+  if (normalizedTitle.includes(SITE_NAME)) {
+    return normalizedTitle;
   }
 
   return `${normalizedTitle} | ${SITE_NAME}`;
@@ -235,7 +264,7 @@ export function buildMetadata({
   section,
 } = {}) {
   const fullTitle = buildTitle(title);
-  const finalDescription = String(description ?? DEFAULT_DESCRIPTION).trim() || DEFAULT_DESCRIPTION;
+  const finalDescription = truncateDescription(description) || DEFAULT_DESCRIPTION;
   const finalPath = String(path ?? '/').trim() || '/';
   const mergedKeywords = uniqueValues([...DEFAULT_KEYWORDS, ...toKeywordList(keywords)]);
   const openGraphImages = buildOpenGraphImages(image, imageAlt || fullTitle);
@@ -274,14 +303,35 @@ export function buildMetadata({
 export function createOrganizationSchema() {
   return {
     '@context': 'https://schema.org',
-    '@type': 'Organization',
+    '@type': 'OnlineStore',
     '@id': absoluteUrl('/#organization'),
     name: SITE_NAME,
+    alternateName: SITE_ALTERNATE_NAMES,
     legalName: COMPANY_LEGAL_NAME,
     url: SITE_URL,
-    logo: absoluteUrl('/assets/images/header/logo_primary.webp'),
+    logo: {
+      '@type': 'ImageObject',
+      '@id': absoluteUrl('/#logo'),
+      url: absoluteUrl(ORGANIZATION_LOGO),
+      contentUrl: absoluteUrl(ORGANIZATION_LOGO),
+      width: ORGANIZATION_LOGO_SIZE,
+      height: ORGANIZATION_LOGO_SIZE,
+      caption: SITE_NAME,
+    },
     image: absoluteUrl(DEFAULT_OG_IMAGE),
     description: DEFAULT_DESCRIPTION,
+    brand: {
+      '@type': 'Brand',
+      name: 'SRX',
+      logo: absoluteUrl(ORGANIZATION_LOGO),
+    },
+    hasMerchantReturnPolicy: {
+      '@type': 'MerchantReturnPolicy',
+      applicableCountry: 'VN',
+      returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+      merchantReturnDays: RETURN_WINDOW_DAYS,
+      merchantReturnLink: absoluteUrl('/chinh-sach-hoan-tra'),
+    },
     email: CONTACT_EMAIL,
     telephone: CONTACT_PHONE,
     address: {
@@ -307,8 +357,9 @@ export function createWebsiteSchema() {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     '@id': absoluteUrl('/#website'),
-    url: SITE_URL,
+    url: `${SITE_URL}/`,
     name: SITE_NAME,
+    alternateName: SITE_ALTERNATE_NAMES,
     description: DEFAULT_DESCRIPTION,
     inLanguage: 'vi-VN',
     publisher: {
@@ -418,7 +469,7 @@ export function createArticleSchema(article) {
       name: SITE_NAME,
       logo: {
         '@type': 'ImageObject',
-        url: absoluteUrl('/assets/images/header/logo_primary.webp'),
+        url: absoluteUrl(ORGANIZATION_LOGO),
       },
     },
   });

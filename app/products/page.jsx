@@ -9,9 +9,9 @@ import { buildMetadata } from '../../src/lib/seo.js';
 export const dynamic = 'force-dynamic';
 
 export const metadata = buildMetadata({
-  title: 'Sản phẩm SRX chính hãng',
+  title: 'Sản phẩm SRX chính hãng - Serum, kem dưỡng phục hồi da',
   description:
-    'Khám phá danh mục sản phẩm SRX chính hãng cho phục hồi da, hỗ trợ xử lý mụn, làm sáng da và chăm sóc da chuyên sâu tại SRX Việt Nam.',
+    'Mua sản phẩm SRX chính hãng: serum, gel phục hồi da, kem Retinol, peel sinh học, chống nắng, mặt nạ cho da mụn, da nhạy cảm. Giao hàng toàn quốc.',
   path: '/products',
   keywords: [
     'sản phẩm SRX',
@@ -20,6 +20,12 @@ export const metadata = buildMetadata({
     'sản phẩm trị mụn SRX',
     'dược mỹ phẩm SRX Việt Nam',
     'SRX',
+    'serum phục hồi da',
+    'kem Retinol',
+    'peel da sinh học',
+    'kem chống nắng nâng tông',
+    'mặt nạ phục hồi da',
+    'mỹ phẩm cho da nhạy cảm',
   ],
 });
 

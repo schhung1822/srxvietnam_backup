@@ -7,6 +7,17 @@ const distDir = process.env.NEXT_DIST_DIR?.trim();
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   ...(distDir ? { distDir } : {}),
+  async redirects() {
+    // Gom www về domain chính để Google chỉ index một phiên bản của site.
+    return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.srx.vn' }],
+        destination: 'https://srx.vn/:path*',
+        permanent: true,
+      },
+    ];
+  },
   webpack(config) {
     config.resolve.alias['react-router-dom'] = path.resolve(
       __dirname,
