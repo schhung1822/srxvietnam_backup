@@ -4,6 +4,10 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import styles from './PromoPopupModal.module.css';
+
+// Khớp thời lượng hiệu ứng đóng trong PromoPopupModal.module.css.
+const EXIT_DURATION_MS = 260;
 
 function PopupButton({ children, className = '', ...props }) {
   return (
@@ -53,11 +57,30 @@ export default function PromoPopupModal({
   autoSlideSeconds = 0,
 }) {
   const [isMounted, setIsMounted] = useState(false);
+  // Giữ popup trong DOM thêm một nhịp sau khi đóng để hiệu ứng biến mất kịp chạy.
+  const [isRendered, setIsRendered] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const total = slides.length;
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsRendered(true);
+      setIsClosing(false);
+      return undefined;
+    }
+
+    setIsClosing(true);
+    const timer = window.setTimeout(() => {
+      setIsRendered(false);
+      setIsClosing(false);
+    }, EXIT_DURATION_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -102,7 +125,7 @@ export default function PromoPopupModal({
     return () => window.clearTimeout(timer);
   }, [activeIndex, autoSlideSeconds, isOpen, onActiveIndexChange, total]);
 
-  if (!isMounted || !isOpen || !total) {
+  if (!isMounted || !isRendered || !total) {
     return null;
   }
 
@@ -112,14 +135,15 @@ export default function PromoPopupModal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[120] grid h-dvh w-screen place-items-center bg-[#0f1528]/72 p-4 backdrop-blur-md sm:p-6"
+      className={`${styles.overlay} fixed inset-0 z-[120] grid h-dvh w-screen place-items-center bg-[#0f1528]/72 p-4 backdrop-blur-md sm:p-6`}
+      data-state={isClosing ? 'closing' : 'open'}
       role="dialog"
       aria-modal="true"
       aria-label={activeSlide.title || 'Chương trình ưu đãi SRX'}
     >
       <div className="absolute inset-0" onClick={onClose} aria-hidden="true" />
 
-      <div className="relative z-10 mx-auto w-full max-w-[760px]">
+      <div className={`${styles.card} relative z-10 mx-auto w-full max-w-[760px]`}>
         <div className="relative overflow-hidden rounded-[34px] bg-white shadow-[0_36px_100px_rgba(0,0,0,0.35)]">
           <div className="relative aspect-square max-h-[calc(100dvh-2rem)] overflow-hidden bg-[#e7eefc] sm:max-h-[calc(100dvh-3rem)]">
             {slides.map((slide, index) => {
@@ -152,8 +176,10 @@ export default function PromoPopupModal({
               );
             })}
 
+            <div className={styles.shine} aria-hidden="true" />
+
             {activeSlide.title ? (
-              <div className="pointer-events-none absolute left-4 top-4 z-20 max-w-[calc(100%-5.5rem)] sm:left-5 sm:top-5">
+              <div className={`${styles.reveal} pointer-events-none absolute left-4 top-4 z-20 max-w-[calc(100%-5.5rem)] sm:left-5 sm:top-5`}>
                 <span className="inline-block rounded-full bg-white/88 px-4 py-2 text-[13px] font-semibold leading-snug text-[#141822] shadow-[0_12px_28px_rgba(15,21,40,0.16)] backdrop-blur-sm sm:text-[14px]">
                   {activeSlide.title}
                 </span>
@@ -162,7 +188,7 @@ export default function PromoPopupModal({
 
             <PopupButton
               onClick={onClose}
-              className="absolute right-4 top-4 z-20 bg-black text-white hover:bg-[#161616]"
+              className={`${styles.closeButton} absolute right-4 top-4 z-20 bg-black text-white hover:bg-[#161616]`}
               aria-label="Đóng popup"
             >
               <X className="h-5 w-5" />
@@ -186,7 +212,7 @@ export default function PromoPopupModal({
                   <ChevronRight className="h-5 w-5" />
                 </PopupButton>
 
-                <div className="absolute inset-x-0 bottom-5 z-20 flex justify-center gap-2">
+                <div className={`${styles.revealLate} absolute inset-x-0 bottom-5 z-20 flex justify-center gap-2`}>
                   {slides.map((slide, index) => (
                     <button
                       key={`${slide.id ?? slide.src}-dot`}
@@ -205,7 +231,7 @@ export default function PromoPopupModal({
             ) : null}
 
             {activeSlide.href ? (
-              <div className="absolute bottom-4 left-4 z-20 sm:bottom-5 sm:left-5">
+              <div className={`${styles.revealLate} absolute bottom-4 left-4 z-20 sm:bottom-5 sm:left-5`}>
                 <SlideLink
                   slide={activeSlide}
                   className="inline-flex items-center rounded-full bg-black/80 px-4 py-2 text-[13px] font-semibold text-white shadow-[0_16px_32px_rgba(0,0,0,0.18)] transition hover:bg-black"

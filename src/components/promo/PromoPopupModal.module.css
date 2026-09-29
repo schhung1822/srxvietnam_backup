@@ -1,0 +1,149 @@
+/* Hiệu ứng xuất hiện / biến mất của popup quảng cáo. Thời lượng đóng phải khớp EXIT_DURATION_MS. */
+
+.overlay {
+  animation: promoOverlayIn 320ms ease-out both;
+}
+
+.overlay[data-state='closing'] {
+  pointer-events: none;
+  animation: promoOverlayOut 260ms ease-in both;
+}
+
+.card {
+  animation: promoCardIn 640ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.overlay[data-state='closing'] .card {
+  animation: promoCardOut 240ms ease-in both;
+}
+
+.closeButton {
+  animation: promoPopIn 460ms 240ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.reveal {
+  animation: promoRiseIn 480ms 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.revealLate {
+  animation: promoRiseIn 480ms 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Vệt sáng quét qua ảnh một lần sau khi popup hiện ra. */
+.shine {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.shine::after {
+  content: '';
+  position: absolute;
+  top: -10%;
+  bottom: -10%;
+  left: 0;
+  width: 40%;
+  background: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.42) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: promoShine 1100ms 560ms ease-in-out both;
+}
+
+@keyframes promoOverlayIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes promoOverlayOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes promoCardIn {
+  0% {
+    opacity: 0;
+    transform: translateY(32px) scale(0.9);
+  }
+  55% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes promoCardOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(16px) scale(0.95);
+  }
+}
+
+@keyframes promoPopIn {
+  from {
+    opacity: 0;
+    transform: scale(0.4) rotate(-90deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes promoRiseIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes promoShine {
+  from {
+    transform: translateX(-120%) skewX(-18deg);
+  }
+  to {
+    transform: translateX(320%) skewX(-18deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .card,
+  .closeButton,
+  .reveal,
+  .revealLate,
+  .overlay[data-state='closing'],
+  .overlay[data-state='closing'] .card {
+    animation: none;
+  }
+
+  .overlay[data-state='closing'] {
+    opacity: 0;
+  }
+
+  .shine {
+    display: none;
+  }
+}
