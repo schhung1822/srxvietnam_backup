@@ -16,7 +16,8 @@ const VARIANTS = {
   },
   starry: {
     overlay: 'bg-black/75',
-    card: 'border border-white/12 bg-[#140609] text-white shadow-[0_40px_90px_rgba(0,0,0,0.6)]',
+    // --lp-section-soft do StarryEventLanding đặt theo "Dải màu giữa trang" trong CRM.
+    card: 'border border-white/12 bg-[var(--lp-section-soft,#140609)] text-white shadow-[0_40px_90px_rgba(0,0,0,0.6)]',
     title: 'text-white',
     message: 'text-white/65',
     success: 'bg-white/10 text-[color:var(--lp-accent)]',

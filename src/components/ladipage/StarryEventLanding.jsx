@@ -27,6 +27,25 @@ function StatTile({ icon, label, value }) {
 const MAX_AGENDA_ITEMS = 6;
 const LEGACY_AGENDA_ITEMS_LIMIT = 3;
 
+// Màu mặc định khớp với preset template 2 (sectionTint) trong crm-eac form-template/default-config.ts.
+const DEFAULT_SECTION_TINT = '#210609';
+const DEFAULT_SECTION_SOFT = '#150607';
+
+/**
+ * Dải màu loang giữa 2 khối nội dung. Khối đầu dùng bản nhạt hơn (pha với màu nền) để chuyển tiếp từ banner.
+ * Config cũ chưa chọn màu thì giữ đúng 2 màu đỏ sẫm trước đây.
+ */
+function getSectionTintVariables(sectionTint) {
+  if (!sectionTint) {
+    return { '--lp-section': DEFAULT_SECTION_TINT, '--lp-section-soft': DEFAULT_SECTION_SOFT };
+  }
+
+  return {
+    '--lp-section': sectionTint,
+    '--lp-section-soft': `color-mix(in srgb, ${sectionTint} 62%, var(--lp-bg))`,
+  };
+}
+
 function getAgendaItems(event) {
   const { agendaItems } = event.config.infoEvent;
 
@@ -75,11 +94,14 @@ export default function StarryEventLanding({ event }) {
     '--lp-footer-from': footer.gradientFrom || '#0a0304',
     '--lp-footer-to': footer.gradientTo || '#180608',
     '--lp-footer-text': footer.textColor || '#ffffff',
+    // Nền ngoài khung (desktop) và đuôi footer: tối hơn màu nền trang, để đổi nền thì cả trang đổi theo.
+    '--lp-page': 'color-mix(in srgb, var(--lp-bg) 55%, #000)',
+    ...getSectionTintVariables(theme.sectionTint),
   };
 
   return (
     <section
-      className="relative min-h-screen overflow-x-hidden bg-[#040203] py-0 text-white sm:py-10"
+      className="relative min-h-screen overflow-x-hidden bg-[var(--lp-page)] py-0 text-white sm:py-10"
       style={pageStyle}
     >
       <div
@@ -88,7 +110,7 @@ export default function StarryEventLanding({ event }) {
       />
 
       <div className="relative mx-auto w-full max-w-[440px] overflow-hidden bg-[var(--lp-bg)] shadow-[0_0_100px_rgba(0,0,0,0.7)] sm:rounded-[32px] sm:ring-1 sm:ring-white/10">
-        <div className="relative bg-[#050303]">
+        <div className="relative bg-[var(--lp-bg)]">
           {header.headingImageUrl ? (
             <img
               src={header.headingImageUrl}
@@ -107,7 +129,7 @@ export default function StarryEventLanding({ event }) {
           />
         </div>
 
-        <section className="relative -mt-6 bg-[linear-gradient(180deg,var(--lp-bg),#150607_58%,var(--lp-bg))] px-5 pb-7 pt-2">
+        <section className="relative -mt-6 bg-[linear-gradient(180deg,var(--lp-bg),var(--lp-section-soft)_58%,var(--lp-bg))] px-5 pb-7 pt-2">
           <div aria-hidden="true" className={STARFIELD_CLASS} />
 
           <div className="relative">
@@ -157,7 +179,7 @@ export default function StarryEventLanding({ event }) {
           </div>
         </section>
 
-        <section className="relative bg-[linear-gradient(180deg,var(--lp-bg),#210609_46%,var(--lp-bg))] px-5 py-8">
+        <section className="relative bg-[linear-gradient(180deg,var(--lp-bg),var(--lp-section)_46%,var(--lp-bg))] px-5 py-8">
           <div aria-hidden="true" className={STARFIELD_CLASS} />
 
           <main className="relative overflow-hidden rounded-3xl border border-white/15 bg-[linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.03))] px-5 py-7 shadow-[0_30px_70px_-30px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.14)]">
@@ -220,7 +242,7 @@ export default function StarryEventLanding({ event }) {
           </main>
         </section>
 
-        <footer className="relative flex flex-col items-center border-t border-white/10 bg-[linear-gradient(180deg,var(--lp-footer-from),var(--lp-footer-to)_62%,#040203)] px-5 pb-10 pt-8 text-[color:var(--lp-footer-text)]">
+        <footer className="relative flex flex-col items-center border-t border-white/10 bg-[linear-gradient(180deg,var(--lp-footer-from),var(--lp-footer-to)_62%,var(--lp-page))] px-5 pb-10 pt-8 text-[color:var(--lp-footer-text)]">
           <div aria-hidden="true" className={STARFIELD_CLASS} />
 
           {logoUrls.length ? (

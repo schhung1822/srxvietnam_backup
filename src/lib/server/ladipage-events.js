@@ -108,6 +108,8 @@ function normalizeTheme(theme = {}) {
     muted: normalizeText(theme.muted, defaultTheme.muted),
     primary: normalizeText(theme.primary, defaultTheme.primary),
     primary2: normalizeText(theme.primary2, defaultTheme.primary2),
+    // Chỉ template 2 dùng; để trống thì StarryEventLanding giữ màu đỏ sẫm mặc định.
+    sectionTint: normalizeText(theme.sectionTint),
   };
 }
 
