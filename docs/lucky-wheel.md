@@ -83,13 +83,34 @@ Tham số mẫu: `customer_name`, `customer_id` (KH + id tài khoản, vd. KH000
 `voucher` (100.000đ / 10%), `voucher_name` (Giảm 100.000đ), `dieukien` (đơn hàng từ 300.000đ /
 mọi đơn hàng), `start_date`, `expire` (HH:mm:ss dd/MM/yyyy).
 
+### Mã chung và mã riêng
+
+CRM **Mã giảm giá** (`/srx/voucher`) chia 2 tab:
+
+| Tab | `discount_codes.class` | Hiện ở giỏ hàng | Ghi chú |
+| --- | --- | --- | --- |
+| Mã chung | `public` | Có, khách nào cũng chọn được | |
+| Mã riêng | `private` | Không, khách phải nhập tay | Mã vòng quay nằm ở đây, cột **Nguồn** ghi khách trúng thưởng |
+
+Một đơn hàng dùng **tối đa 1 mã chung + 1 mã riêng**, và chỉ khi mã riêng bật **"Cho phép dùng chung
+với mã chung"** (cột `discount_codes.stack_with_public`). Mã riêng không bật thì phải dùng một mình:
+chọn mã chung sẽ bỏ mã riêng đó và ngược lại. Tổng giảm không vượt tạm tính (mã sau chỉ giảm phần
+còn lại).
+
+- Với mã vòng quay, bật/tắt ở form phần thưởng (Vòng quay may mắn → phần thưởng loại Mã giảm giá →
+  "Cho phép dùng chung với mã chung"); mỗi mã sinh ra mang theo cấu hình đó.
+- Với mã riêng tạo tay, bật ở form mã trong tab Mã riêng.
+- Cột `stack_with_public` được website và CRM tự thêm ở lần dùng đầu tiên (đọc/ghi bằng SQL thô, không
+  có trong `prisma/schema2.prisma`).
+
 Liên quan tới mã giảm giá nói chung:
 
-- Checkout giờ **ghi lượt dùng** vào `discount_code_redemptions` và khóa dòng mã khi đặt hàng, nên
-  `total_usage_limit` có hiệu lực với mọi mã (trước đây lượt dùng không được ghi). Mã hết hạn / hết
-  lượt lúc đặt hàng thì báo lỗi thay vì tính đủ tiền.
-- Danh sách mã ở giỏ hàng không còn hiện mã `private`; khách nhập tay mã private thì website tra
-  qua `GET /api/discount-codes?code=...`.
+- Checkout giờ **ghi lượt dùng** cho từng mã vào `discount_code_redemptions` và khóa dòng mã khi đặt
+  hàng, nên `total_usage_limit` có hiệu lực với mọi mã (trước đây lượt dùng không được ghi). Mã hết hạn /
+  hết lượt lúc đặt hàng thì báo lỗi thay vì tính đủ tiền.
+- Danh sách mã ở giỏ hàng không hiện mã riêng; khách nhập tay mã riêng thì website tra qua
+  `GET /api/discount-codes?code=...`.
+- `POST /api/checkout` nhận `couponCodes` (mảng); `couponCode` (một mã) vẫn được chấp nhận.
 
 ## 5. Endpoint
 

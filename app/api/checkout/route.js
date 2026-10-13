@@ -4,8 +4,10 @@ import {
   getCheckoutTotals,
   getSepayPaymentDetails,
   isSupportedPaymentMethod,
+  normalizeCouponCodes,
   paymentMethodOptions,
 } from '../../../src/lib/commerce/checkout.js';
+import { ensureDiscountCodeStackColumn } from '../../../src/lib/server/discount-codes.js';
 import { getAuthenticatedUserRow } from '../../../src/lib/server/account.js';
 import { EMAIL_PATTERN, toContactEmail } from '../../../src/lib/email-address.js';
 import { sendOrderConfirmationEmail } from '../../../src/lib/server/mail.js';
@@ -317,6 +319,14 @@ function calculateAffiliateCommissionAmount(baseAmount, commissionType, commissi
   return Number(((normalizedBaseAmount * normalizedCommissionRate) / 100).toFixed(2));
 }
 
+/** Các mã khách áp dụng (tối đa 1 mã chung + 1 mã riêng) còn hiệu lực và còn lượt. */
+async function getActiveDiscountCodesForCheckout(connection, couponCodes) {
+  const codes = normalizeCouponCodes(couponCodes);
+  const records = await Promise.all(codes.map((code) => getActiveDiscountCodeForCheckout(connection, code)));
+
+  return records.filter(Boolean);
+}
+
 async function getActiveDiscountCodeForCheckout(connection, couponCode) {
   const normalizedCode = normalizeString(couponCode).toUpperCase();
 
@@ -341,6 +351,8 @@ async function getActiveDiscountCodeForCheckout(connection, couponCode) {
         dc.scope_type,
         dc.starts_at,
         dc.ends_at,
+        dc.class,
+        dc.stack_with_public,
         COUNT(dcr.id) AS used_count
       FROM discount_codes dc
       LEFT JOIN discount_code_redemptions dcr
@@ -363,7 +375,9 @@ async function getActiveDiscountCodeForCheckout(connection, couponCode) {
         dc.per_user_limit,
         dc.scope_type,
         dc.starts_at,
-        dc.ends_at
+        dc.ends_at,
+        dc.class,
+        dc.stack_with_public
       HAVING dc.total_usage_limit IS NULL OR used_count < dc.total_usage_limit
       LIMIT 1
     `,
@@ -388,6 +402,8 @@ async function getActiveDiscountCodeForCheckout(connection, couponCode) {
     scopeType: row.scope_type,
     startsAt: row.starts_at,
     endsAt: row.ends_at,
+    codeClass: row.class === 'private' ? 'private' : 'public',
+    stackWithPublic: Number(row.stack_with_public) === 1,
   };
 }
 
@@ -501,7 +517,8 @@ export async function POST(request) {
     const user = await getAuthenticatedUserRow(request);
     const body = await request.json();
     const paymentMethod = normalizeString(body?.paymentMethod).toLowerCase();
-    const couponCode = normalizeString(body?.couponCode);
+    // couponCodes: bản mới (mã chung + mã riêng); couponCode: bản cũ gửi một mã.
+    const couponCodes = normalizeCouponCodes(body?.couponCodes ?? body?.couponCode);
     const addressId = normalizeInteger(body?.addressId);
     const customerInput = normalizeCustomer(body?.customer);
     const items = Array.isArray(body?.items) ? body.items.map(normalizeCheckoutItem) : [];
@@ -514,32 +531,43 @@ export async function POST(request) {
     validateCheckoutItems(items);
 
     const subtotal = items.reduce((total, item) => total + item.price * item.quantity, 0);
-    const activeDiscountCode = await getActiveDiscountCodeForCheckout(connection, couponCode);
+    await ensureDiscountCodeStackColumn();
+
+    const activeDiscountCodes = await getActiveDiscountCodesForCheckout(connection, couponCodes);
     const totals = getCheckoutTotals({
       subtotal,
-      couponCode,
-      discountCodes: activeDiscountCode ? [activeDiscountCode] : [],
+      couponCodes,
+      discountCodes: activeDiscountCodes,
     });
     const lineItems = buildLineItems(items, totals.discountTotal, totals.subtotal);
 
     // Khách đã thấy giá sau giảm ở bước trước: mã hết hạn/hết lượt thì báo lại, không âm thầm tính đủ tiền.
-    if (couponCode && !totals.coupon.isValid) {
+    if (couponCodes.length && !totals.coupon.isValid) {
       return NextResponse.json(
-        { message: `Mã ${couponCode.toUpperCase()} không còn hiệu lực. Vui lòng bỏ mã và đặt lại.`, code: 'coupon_invalid' },
+        {
+          message: `${totals.coupon.message || `Mã ${couponCodes.join(', ')} không còn hiệu lực.`} Vui lòng bỏ mã và đặt lại.`,
+          code: 'coupon_invalid',
+        },
         { status: 409 },
       );
     }
 
     await connection.beginTransaction();
 
-    const appliedDiscountCode = totals.coupon.isValid ? activeDiscountCode : null;
+    // Mỗi mã đã áp dụng kèm bản ghi DB (mã SRX10/SAVE50 viết cứng không có bản ghi nên không ghi lượt dùng).
+    const appliedDiscountCodes = totals.coupons.flatMap((coupon) => {
+      const record = activeDiscountCodes.find((discountCode) => discountCode.code === coupon.code);
+      return record ? [{ record, discountAmount: coupon.discountAmount }] : [];
+    });
 
-    if (appliedDiscountCode && !(await reserveDiscountCodeUsage(connection, appliedDiscountCode.id))) {
-      await connection.rollback();
-      return NextResponse.json(
-        { message: `Mã ${appliedDiscountCode.code} đã hết lượt sử dụng. Vui lòng bỏ mã và đặt lại.`, code: 'coupon_used_up' },
-        { status: 409 },
-      );
+    for (const { record } of appliedDiscountCodes) {
+      if (!(await reserveDiscountCodeUsage(connection, record.id))) {
+        await connection.rollback();
+        return NextResponse.json(
+          { message: `Mã ${record.code} đã hết lượt sử dụng. Vui lòng bỏ mã và đặt lại.`, code: 'coupon_used_up' },
+          { status: 409 },
+        );
+      }
     }
 
     const giftItems = await getEligibleGifts(connection, {
@@ -634,14 +662,14 @@ export async function POST(request) {
     const orderId = orderResult.insertId;
 
     // Ghi lượt dùng mã để total_usage_limit có hiệu lực (vd. mã vòng quay may mắn chỉ dùng 1 lần).
-    if (appliedDiscountCode) {
+    for (const { record, discountAmount } of appliedDiscountCodes) {
       await execute(
         connection,
         `
           INSERT INTO discount_code_redemptions (discount_code_id, order_id, user_id, discount_amount, status)
           VALUES (?, ?, ?, ?, 'applied')
         `,
-        [appliedDiscountCode.id, orderId, user?.id ?? null, totals.discountTotal],
+        [record.id, orderId, user?.id ?? null, discountAmount],
       );
     }
 

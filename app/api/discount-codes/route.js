@@ -1,5 +1,6 @@
 ﻿import { NextResponse } from 'next/server';
 import { query } from '../../../src/lib/server/db.js';
+import { ensureDiscountCodeStackColumn } from '../../../src/lib/server/discount-codes.js';
 
 export const runtime = 'nodejs';
 
@@ -21,6 +22,8 @@ function formatDiscountCode(row) {
     startsAt: row.starts_at,
     endsAt: row.ends_at,
     usedCount: Number(row.used_count ?? 0),
+    codeClass: row.class === 'private' ? 'private' : 'public',
+    stackWithPublic: Number(row.stack_with_public) === 1,
   };
 }
 
@@ -31,6 +34,8 @@ function formatDiscountCode(row) {
  */
 export async function GET(request) {
   try {
+    await ensureDiscountCodeStackColumn();
+
     const lookupCode = String(new URL(request.url).searchParams.get('code') ?? '')
       .trim()
       .toUpperCase()
@@ -52,6 +57,8 @@ export async function GET(request) {
         dc.scope_type,
         dc.starts_at,
         dc.ends_at,
+        dc.class,
+        dc.stack_with_public,
         COUNT(dcr.id) AS used_count
       FROM discount_codes dc
       LEFT JOIN discount_code_redemptions dcr
@@ -74,7 +81,9 @@ export async function GET(request) {
         dc.per_user_limit,
         dc.scope_type,
         dc.starts_at,
-        dc.ends_at
+        dc.ends_at,
+        dc.class,
+        dc.stack_with_public
       HAVING dc.total_usage_limit IS NULL OR used_count < dc.total_usage_limit
       ORDER BY dc.created_at DESC, dc.id DESC
       LIMIT 12

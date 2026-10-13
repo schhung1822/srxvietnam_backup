@@ -26,19 +26,20 @@ export default function CartDrawer() {
   } = useCart();
   const { user } = useAuth();
   const { discountCodes, isLoading: isLoadingDiscountCodes, lookupDiscountCode } = useDiscountCodes();
-  const [couponCode, setCouponCode] = useState('');
-  const { gifts } = useEligibleGifts(items, couponCode);
+  // Tối đa 1 mã chung + 1 mã riêng (mã riêng cho phép dùng chung, vd. mã vòng quay may mắn).
+  const [couponCodes, setCouponCodes] = useState([]);
+  const { gifts } = useEligibleGifts(items, couponCodes.join(','));
 
   const totals = useMemo(
-    () => getCheckoutTotals({ subtotal, couponCode, discountCodes }),
-    [couponCode, discountCodes, subtotal],
+    () => getCheckoutTotals({ subtotal, couponCodes, discountCodes }),
+    [couponCodes, discountCodes, subtotal],
   );
 
   useEffect(() => {
-    if (couponCode && !totals.coupon.isValid) {
-      setCouponCode('');
+    if (couponCodes.length && !totals.coupon.isValid) {
+      setCouponCodes([]);
     }
-  }, [couponCode, totals.coupon.isValid]);
+  }, [couponCodes.length, totals.coupon.isValid]);
 
   useEffect(() => {
     if (!isCartOpen) {
@@ -215,11 +216,11 @@ export default function CartDrawer() {
             subtotal={subtotal}
             discountCodes={discountCodes}
             isLoading={isLoadingDiscountCodes}
-            appliedCode={totals.coupon.isValid ? totals.coupon.code : ''}
+            appliedCodes={totals.coupon.isValid ? totals.coupon.codes : []}
+            appliedCoupons={totals.coupons}
             discountTotal={totals.discountTotal}
-            onApply={setCouponCode}
+            onChangeCodes={setCouponCodes}
             onLookupCode={lookupDiscountCode}
-            onRemove={() => setCouponCode('')}
             isLoggedIn={Boolean(user)}
             loginHref="/login?next=/checkout"
             compact

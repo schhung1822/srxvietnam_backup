@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { Check, ChevronRight, Lock, TicketPercent, Truck, X } from 'lucide-react';
-import { getCouponApplication } from '../../lib/commerce/checkout';
+import { getCouponCombination, mergeCouponCode } from '../../lib/commerce/checkout';
 import {
   canUseVoucher,
   formatVoucherDate,
@@ -126,14 +126,19 @@ function VoucherCard({ voucher, isApplied, isLoggedIn, subtotal, onUse, loginHre
   );
 }
 
+/**
+ * Ô chọn mã giảm giá. Một đơn dùng tối đa 1 mã chung + 1 mã riêng (khi mã riêng cho phép dùng
+ * chung, vd. mã vòng quay may mắn). appliedCodes: các mã đang dùng; appliedCoupons: từng mã kèm
+ * tiền giảm (totals.coupons); onChangeCodes(nextCodes) khi thêm / bỏ mã.
+ */
 export default function VoucherField({
   subtotal = 0,
   discountCodes = [],
   isLoading = false,
-  appliedCode = '',
+  appliedCodes = [],
+  appliedCoupons = [],
   discountTotal = 0,
-  onApply,
-  onRemove,
+  onChangeCodes,
   isLoggedIn = false,
   loginHref = '/login',
   compact = false,
@@ -176,10 +181,18 @@ export default function VoucherField({
     [discountCodes, isLoggedIn, subtotal],
   );
 
-  const appliedVoucher = useMemo(
-    () => discountCodes.find((voucher) => voucher.code === appliedCode) ?? null,
-    [appliedCode, discountCodes],
+  const appliedEntries = useMemo(
+    () =>
+      appliedCodes.map((code) => ({
+        code,
+        voucher: discountCodes.find((voucher) => voucher.code === code) ?? null,
+        discountAmount: appliedCoupons.find((coupon) => coupon.code === code)?.discountAmount ?? 0,
+      })),
+    [appliedCodes, appliedCoupons, discountCodes],
   );
+  const stackablePrivateVoucher = appliedEntries.find(
+    (entry) => entry.voucher?.codeClass === 'private' && entry.voucher?.stackWithPublic,
+  )?.voucher;
 
   const openSheet = () => {
     setFeedback({ type: '', text: '' });
@@ -189,8 +202,10 @@ export default function VoucherField({
   const applyCode = async (code) => {
     // Mã nhập tay không có trong danh sách công khai (vd. mã vòng quay gửi qua Zalo) thì hỏi server.
     const availableCodes = onLookupCode ? await onLookupCode(code) : discountCodes;
-    const result = getCouponApplication(code, subtotal, availableCodes);
-    const matchedVoucher = availableCodes.find((voucher) => voucher.code === result.code) ?? null;
+    const nextCodes = mergeCouponCode(appliedCodes, code, availableCodes);
+    const result = getCouponCombination(nextCodes, subtotal, availableCodes);
+    const newCode = nextCodes[nextCodes.length - 1] ?? '';
+    const matchedVoucher = availableCodes.find((voucher) => voucher.code === newCode) ?? null;
 
     if (result.isValid && matchedVoucher && !canUseVoucher(matchedVoucher, isLoggedIn)) {
       setFeedback({
@@ -205,14 +220,14 @@ export default function VoucherField({
       return;
     }
 
-    onApply?.(result.code);
+    onChangeCodes?.(nextCodes);
     setManualCode('');
     setFeedback({ type: '', text: '' });
     setIsOpen(false);
   };
 
-  const handleRemove = () => {
-    onRemove?.();
+  const handleRemove = (code) => {
+    onChangeCodes?.(appliedCodes.filter((appliedCode) => appliedCode !== code));
     setFeedback({ type: '', text: '' });
   };
 
@@ -290,6 +305,12 @@ export default function VoucherField({
             </button>
           </div>
 
+          {stackablePrivateVoucher ? (
+            <p className="mt-2 px-1 text-[12px] font-semibold text-[#3f6b39]">
+              Mã riêng {stackablePrivateVoucher.code} dùng chung được với 1 mã chung.
+            </p>
+          ) : null}
+
           {feedback.text ? (
             <p
               className={[
@@ -314,7 +335,7 @@ export default function VoucherField({
                 voucher={voucher}
                 subtotal={subtotal}
                 isLoggedIn={isLoggedIn}
-                isApplied={appliedCode === voucher.code}
+                isApplied={appliedCodes.includes(voucher.code)}
                 onUse={applyCode}
                 loginHref={loginHref}
                 onNavigate={handleNavigate}
@@ -344,10 +365,10 @@ export default function VoucherField({
         <span
           className={[
             `ml-auto flex items-center whitespace-nowrap font-semibold ${compact ? 'gap-1 text-[11px]' : 'gap-1.5 text-[13px]'}`,
-            appliedCode ? 'text-[#3f6b39]' : 'text-[#6B7280]',
+            appliedCodes.length ? 'text-[#3f6b39]' : 'text-[#6B7280]',
           ].join(' ')}
         >
-          {appliedCode
+          {appliedCodes.length
             ? discountTotal > 0
               ? `−${formatVoucherMoney(discountTotal)}`
               : 'Đã áp dụng'
@@ -356,31 +377,35 @@ export default function VoucherField({
         </span>
       </button>
 
-      {appliedCode ? (
-        <div className="mt-3.5 flex items-center gap-3.5 rounded-[20px] border-[1.5px] border-[#cfe0ca] bg-white p-3.5">
+      {appliedEntries.map(({ code, voucher, discountAmount }) => (
+        <div
+          key={code}
+          className="mt-3.5 flex items-center gap-3.5 rounded-[20px] border-[1.5px] border-[#cfe0ca] bg-white p-3.5"
+        >
           <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] bg-[#3f6b39] text-white">
             <Check className="h-5 w-5" strokeWidth={2.4} />
           </span>
 
           <div className="min-w-0 flex-1">
             <div className="truncate text-[15px] font-bold text-[#15110d]">
-              {appliedVoucher ? getVoucherTitle(appliedVoucher) : `Mã ${appliedCode}`}
+              {voucher ? getVoucherTitle(voucher) : `Mã ${code}`}
             </div>
             <div className="mt-0.5 truncate text-[13px] font-semibold text-[#3f6b39]">
-              {appliedCode}
-              {discountTotal > 0 ? ` · Tiết kiệm ${formatVoucherMoney(discountTotal)}` : ''}
+              {code}
+              {voucher?.codeClass === 'private' ? ' · Mã riêng' : ''}
+              {discountAmount > 0 ? ` · Tiết kiệm ${formatVoucherMoney(discountAmount)}` : ''}
             </div>
           </div>
 
           <button
             type="button"
-            onClick={handleRemove}
+            onClick={() => handleRemove(code)}
             className="shrink-0 rounded-full border-[1.5px] border-[#e3ddd3] px-4 py-2 text-[13px] font-bold text-[#a89e90] transition hover:border-[#15110d] hover:text-[#15110d]"
           >
             Bỏ mã
           </button>
         </div>
-      ) : null}
+      ))}
 
       {isMounted ? createPortal(sheet, document.body) : null}
     </div>

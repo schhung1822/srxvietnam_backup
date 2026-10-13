@@ -159,3 +159,8 @@ ALTER TABLE lucky_wheel_spins
   ADD COLUMN IF NOT EXISTS zbs_msg_id VARCHAR(100) NULL AFTER zbs_status,
   ADD COLUMN IF NOT EXISTS zbs_error VARCHAR(500) NULL AFTER zbs_msg_id,
   ADD COLUMN IF NOT EXISTS zbs_sent_at DATETIME NULL AFTER zbs_error;
+
+-- Mã riêng (class = 'private', vd. mã vòng quay) được phép dùng cùng 1 mã chung trong một đơn.
+-- Website và CRM cũng tự thêm cột này ở lần dùng đầu tiên.
+ALTER TABLE discount_codes
+  ADD COLUMN IF NOT EXISTS stack_with_public TINYINT(1) NOT NULL DEFAULT 0 AFTER class;

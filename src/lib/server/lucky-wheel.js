@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import { SESSION_COOKIE_NAME, normalizePhone } from './auth.js';
 import { getDbPool, hasDatabaseConfig, query } from './db.js';
+import { ensureDiscountCodeStackColumn } from './discount-codes.js';
 
 /**
  * Vòng quay may mắn. CRM quản lý ở /srx/lucky-wheel:
@@ -514,6 +515,8 @@ function readVoucherConfig(rawValue) {
     discountValue,
     maxDiscountAmount: discountType === 'percentage' && maxDiscountAmount > 0 ? maxDiscountAmount : null,
     minOrderAmount: minOrderAmount > 0 ? minOrderAmount : null,
+    // Mã riêng sinh ra được dùng cùng 1 mã chung trong cùng đơn hàng (CRM bật/tắt theo phần thưởng).
+    stackWithPublic: value.stack_with_public === true,
   };
 }
 
@@ -525,8 +528,9 @@ function describeVoucher(config) {
   const amount = config.discountType === 'percentage' ? `${config.discountValue}%` : formatVnd(config.discountValue);
   const cap = config.maxDiscountAmount ? `, tối đa ${formatVnd(config.maxDiscountAmount)}` : '';
   const condition = config.minOrderAmount ? `đơn hàng từ ${formatVnd(config.minOrderAmount)}` : 'mọi đơn hàng';
+  const stacking = config.stackWithPublic ? ', dùng chung được với 1 mã chung' : '';
 
-  return `Giảm ${amount}${cap} cho ${condition}`;
+  return `Giảm ${amount}${cap} cho ${condition}${stacking}`;
 }
 
 /**
@@ -544,8 +548,8 @@ async function createSpinVoucher(connection, { user, prize, config }) {
       const [result] = await connection.query(
         `INSERT INTO discount_codes (
             code, name, description, discount_type, discount_value, max_discount_amount, min_order_amount,
-            total_usage_limit, per_user_limit, scope_type, class, starts_at, ends_at, is_active
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, 1, 1, 'all_orders', 'private', NOW(),
+            total_usage_limit, per_user_limit, scope_type, class, stack_with_public, starts_at, ends_at, is_active
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, 1, 1, 'all_orders', 'private', ?, NOW(),
             TIMESTAMP(DATE(NOW() + INTERVAL 3 MONTH), '23:59:59'), 1)`,
         [
           code,
@@ -555,6 +559,7 @@ async function createSpinVoucher(connection, { user, prize, config }) {
           config.discountValue,
           config.maxDiscountAmount,
           config.minOrderAmount,
+          config.stackWithPublic ? 1 : 0,
         ],
       );
       const [rows] = await connection.query(
@@ -594,7 +599,7 @@ function pickWeightedPrize(prizes) {
  */
 export async function spinLuckyWheel(user, { ipAddress, settings }) {
   // ALTER TABLE tự commit nên phải xong trước khi mở transaction.
-  await ensureVoucherColumns();
+  await Promise.all([ensureVoucherColumns(), ensureDiscountCodeStackColumn()]);
 
   const connection = await getDbPool().getConnection();
 

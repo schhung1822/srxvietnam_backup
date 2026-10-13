@@ -463,7 +463,8 @@ export default function CheckoutPage({ isBuyNow = false }) {
   const checkoutPath = isBuyNow ? '/checkout?mode=buy-now' : '/checkout';
   const { discountCodes, isLoading: isLoadingDiscountCodes, lookupDiscountCode } = useDiscountCodes();
   const [paymentMethod, setPaymentMethod] = useState('cod');
-  const [appliedCouponCode, setAppliedCouponCode] = useState('');
+  // Tối đa 1 mã chung + 1 mã riêng (mã riêng cho phép dùng chung, vd. mã vòng quay may mắn).
+  const [appliedCouponCodes, setAppliedCouponCodes] = useState([]);
   const [submitError, setSubmitError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [completedCheckout, setCompletedCheckout] = useState(null);
@@ -571,29 +572,29 @@ export default function CheckoutPage({ isBuyNow = false }) {
 
   // Giỏ hàng đổi số lượng có thể khiến mã đang áp dụng không còn thỏa điều kiện.
   useEffect(() => {
-    if (!appliedCouponCode) {
+    if (!appliedCouponCodes.length) {
       return;
     }
 
     const nextTotals = getCheckoutTotals({
       subtotal,
-      couponCode: appliedCouponCode,
+      couponCodes: appliedCouponCodes,
       discountCodes,
     });
 
     if (!nextTotals.coupon.isValid) {
-      setAppliedCouponCode('');
+      setAppliedCouponCodes([]);
     }
-  }, [appliedCouponCode, discountCodes, subtotal]);
+  }, [appliedCouponCodes, discountCodes, subtotal]);
 
   const totals = useMemo(
     () =>
       getCheckoutTotals({
         subtotal,
-        couponCode: appliedCouponCode,
+        couponCodes: appliedCouponCodes,
         discountCodes,
       }),
-    [appliedCouponCode, discountCodes, subtotal],
+    [appliedCouponCodes, discountCodes, subtotal],
   );
 
   const selectedAddress = useMemo(
@@ -674,7 +675,7 @@ export default function CheckoutPage({ isBuyNow = false }) {
         },
         body: JSON.stringify({
           paymentMethod,
-          couponCode: appliedCouponCode,
+          couponCodes: appliedCouponCodes,
           addressId: checkoutAddressId,
           customer: checkoutAddressId ? null : normalizedValues,
           items: payloadItems,
@@ -1333,11 +1334,11 @@ export default function CheckoutPage({ isBuyNow = false }) {
                 subtotal={subtotal}
                 discountCodes={discountCodes}
                 isLoading={isLoadingDiscountCodes}
-                appliedCode={totals.coupon.isValid ? totals.coupon.code : ''}
+                appliedCodes={totals.coupon.isValid ? totals.coupon.codes : []}
+                appliedCoupons={totals.coupons}
                 discountTotal={totals.discountTotal}
-                onApply={setAppliedCouponCode}
+                onChangeCodes={setAppliedCouponCodes}
                 onLookupCode={lookupDiscountCode}
-                onRemove={() => setAppliedCouponCode('')}
                 isLoggedIn={Boolean(user)}
                 loginHref={`/login?next=${encodeURIComponent(checkoutPath)}`}
               />
