@@ -25,6 +25,7 @@ const REFERRAL_CODE_LENGTH = 8;
 const REFERRAL_CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const PRIZE_TYPES = new Set(['voucher', 'gift', 'no_prize']);
 const RECENT_WINS_LIMIT = 5;
+const CRM_MEDIA_ORIGIN = (process.env.SRX_CRM_MEDIA_ORIGIN?.trim() || 'https://crm.srx.vn').replace(/\/+$/, '');
 
 const DEFAULT_SETTINGS = {
   enabled: false,
@@ -95,14 +96,16 @@ function isMissingTable(error) {
   return error?.code === 'ER_NO_SUCH_TABLE';
 }
 
-function normalizeImagePath(value = '') {
+export function normalizeLuckyWheelImageUrl(value = '') {
   const normalizedValue = String(value ?? '').trim();
 
   if (!normalizedValue || /^https?:\/\//i.test(normalizedValue)) {
     return normalizedValue;
   }
 
-  return normalizedValue.startsWith('/') ? normalizedValue : `/${normalizedValue}`;
+  const imagePath = normalizedValue.startsWith('/') ? normalizedValue : `/${normalizedValue}`;
+
+  return imagePath.startsWith('/upload/') ? `${CRM_MEDIA_ORIGIN}${imagePath}` : imagePath;
 }
 
 export async function getLuckyWheelSettings() {
@@ -139,7 +142,7 @@ export async function getPublicPrizes() {
         id: Number(row.id),
         name: readText(row.name),
         description: readText(row.description),
-        imageUrl: normalizeImagePath(row.image_url),
+        imageUrl: normalizeLuckyWheelImageUrl(row.image_url),
         type: PRIZE_TYPES.has(row.prize_type) ? row.prize_type : 'gift',
       }))
       .filter((prize) => prize.imageUrl);
@@ -679,7 +682,7 @@ export async function spinLuckyWheel(user, { ipAddress, settings }) {
         prizeId: Number(prize.id),
         name: prize.name,
         description: readText(prize.description),
-        imageUrl: normalizeImagePath(prize.image_url),
+        imageUrl: normalizeLuckyWheelImageUrl(prize.image_url),
         type: prizeType,
         rewardCode,
         claimInstructions,

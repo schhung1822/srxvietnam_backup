@@ -253,7 +253,7 @@ function ReferralBox({ referral, rule }) {
   };
 
   return (
-    <div className="rounded-[20px] border border-[#E4E7EE] bg-[#F7F8FB] p-3.5">
+    <div className="min-w-0 overflow-hidden rounded-[20px] border border-[#E4E7EE] bg-[#F7F8FB] p-3 sm:p-3.5">
       <div className="flex items-start gap-2.5">
         <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-[#4f3c75] shadow-[0_2px_8px_rgba(20,32,64,0.08)]">
           <Users className="h-4 w-4" />
@@ -265,19 +265,21 @@ function ReferralBox({ referral, rule }) {
         </div>
       </div>
 
-      <div className="mt-3 flex items-center gap-1.5 rounded-full border border-[#E4E7EE] bg-white py-1 pl-3.5 pr-1">
+      <div className="mt-3 grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-1.5 rounded-[18px] border border-[#E4E7EE] bg-white py-1 pl-3 pr-1">
         <span className="min-w-0 flex-1 truncate text-[12.5px] text-[#5E6266]">{referral.link}</span>
-        <CopyButton value={referral.link} label="Chép link" className="bg-[#15110d] text-white hover:bg-[#2b2520]" />
-        {canShare ? (
-          <button
-            type="button"
-            onClick={handleShare}
-            aria-label="Chia sẻ link"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#F1EEF9] text-[#4f3c75] transition hover:bg-[#E6E0F6]"
-          >
-            <Share2 className="h-3.5 w-3.5" />
-          </button>
-        ) : null}
+        <div className="flex shrink-0 items-center gap-1.5">
+          <CopyButton value={referral.link} label="Chép" className="bg-[#15110d] text-white hover:bg-[#2b2520]" />
+          {canShare ? (
+            <button
+              type="button"
+              onClick={handleShare}
+              aria-label="Chia sẻ link"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#F1EEF9] text-[#4f3c75] transition hover:bg-[#E6E0F6]"
+            >
+              <Share2 className="h-3.5 w-3.5" />
+            </button>
+          ) : null}
+        </div>
       </div>
 
       {referral.signedUp > 0 ? (
@@ -295,7 +297,7 @@ function RecentWins({ wins }) {
   }
 
   return (
-    <details className="group rounded-[20px] border border-[#E4E7EE] bg-white px-3.5 py-3">
+    <details className="group min-w-0 rounded-[20px] border border-[#E4E7EE] bg-white px-3.5 py-3">
       <summary className="flex cursor-pointer list-none items-center gap-2 text-[13.5px] font-semibold text-[#15110d]">
         <Ticket className="h-4 w-4 text-[#4f3c75]" />
         Phần thưởng của bạn ({wins.length})
@@ -303,9 +305,9 @@ function RecentWins({ wins }) {
       </summary>
       <ul className="mt-2.5 space-y-2">
         {wins.map((win) => (
-          <li key={win.id} className="rounded-[14px] bg-[#F7F8FB] px-3 py-2.5">
+          <li key={win.id} className="min-w-0 rounded-[14px] bg-[#F7F8FB] px-3 py-2.5">
             <div className="flex items-center justify-between gap-2">
-              <span className="text-[13px] font-semibold text-[#15110d]">{win.name}</span>
+              <span className="min-w-0 truncate text-[13px] font-semibold text-[#15110d]">{win.name}</span>
               <span className="shrink-0 text-[11px] text-[#9AA1AE]">
                 {new Date(win.createdAt).toLocaleDateString('vi-VN')}
               </span>
@@ -517,9 +519,9 @@ export default function LuckyWheelModal({
         aria-hidden="true"
       />
 
-      <div className="relative flex min-h-full items-end justify-center sm:items-center sm:p-5">
+      <div className="relative flex min-h-[100dvh] w-full min-w-0 items-end justify-center sm:items-center sm:p-5">
         <div
-          className={`${styles.card} relative flex max-h-[calc(100dvh-12px)] w-full max-w-[560px] flex-col overflow-y-auto overscroll-contain rounded-t-[28px] bg-white shadow-[0_-18px_70px_rgba(0,0,0,0.22)] sm:max-h-[calc(100vh-40px)] sm:rounded-[28px] sm:shadow-[0_30px_90px_rgba(9,12,20,0.26)] lg:max-w-[760px]`}
+          className={`${styles.card} relative flex max-h-[calc(100dvh-12px)] w-full min-w-0 max-w-[100vw] flex-col overflow-x-hidden overflow-y-auto overscroll-contain rounded-t-[28px] bg-white shadow-[0_-18px_70px_rgba(0,0,0,0.22)] sm:max-h-[calc(100vh-40px)] sm:max-w-[560px] sm:rounded-[28px] sm:shadow-[0_30px_90px_rgba(9,12,20,0.26)] lg:max-w-[760px]`}
         >
           <button
             type="button"
@@ -541,11 +543,13 @@ export default function LuckyWheelModal({
               aria-hidden="true"
             />
 
-            <div className="px-5 pt-6 text-center lg:pt-6">
+            <div className="px-12 pt-5 text-center sm:px-5 sm:pt-6 lg:pt-6">
               <WheelHeading wheel={wheel} />
             </div>
 
-            <div className={`relative mt-1 h-[250px] sm:h-[340px] lg:h-[400px] ${isSpinning ? styles.spinning : ''}`}>
+            <div
+              className={`relative mt-1 h-[clamp(190px,30dvh,250px)] sm:h-[340px] lg:h-[400px] ${isSpinning ? styles.spinning : ''}`}
+            >
               {pointerTop !== null ? <WheelPointer tipTop={pointerTop} /> : null}
               {/* Chừa khoảng trống hai bên để vòng quay không chạm mép popup. */}
               <div className="absolute inset-y-0 left-3 right-3 sm:left-5 sm:right-5 lg:left-6 lg:right-6">
@@ -578,7 +582,7 @@ export default function LuckyWheelModal({
             </div>
           </div>
 
-          <div className="mx-auto grid w-full max-w-[560px] content-start gap-4 px-5 pb-6 pt-4 sm:px-6 lg:pb-8">
+          <div className="mx-auto grid w-full min-w-0 max-w-[560px] content-start gap-3 px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-4 sm:gap-4 sm:px-6 sm:pb-6 lg:pb-8">
             {result ? (
               <SpinResult
                 result={result}
@@ -625,9 +629,9 @@ function WheelHeading({ wheel }) {
       <img
         src="/assets/images/header/logo_srx.webp"
         alt="SRX Việt Nam"
-        className="mx-auto h-7 w-auto object-contain lg:h-8"
+        className="mx-auto h-7 w-auto max-w-full object-contain lg:h-8"
       />
-      <h2 className="mt-3 text-[22px] font-bold leading-tight tracking-[-0.02em] text-[#15110d] lg:text-[28px]">
+      <h2 className="mt-2.5 break-words text-[clamp(20px,5.8vw,22px)] font-bold leading-tight tracking-[-0.02em] text-[#15110d] lg:mt-3 lg:text-[28px]">
         {wheel.title}
       </h2>
       {wheel.description ? (
