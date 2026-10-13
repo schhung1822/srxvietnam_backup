@@ -10,6 +10,7 @@ import AffiliateReferralTracker from './affiliate/AffiliateReferralTracker';
 import MetaTrackingCookieTracker from './tracking/MetaTrackingCookieTracker';
 import MetaPixel from './tracking/MetaPixel';
 import FloatingCallToAction from './FloatingCallToAction';
+import LuckyWheelLauncher from './lucky-wheel/LuckyWheelLauncher';
 import { AuthProvider } from '../contexts/AuthContext';
 import { CartProvider, useCart } from '../contexts/CartContext';
 import { usePageTransition } from '../hooks/usePageTransition';
@@ -54,6 +55,7 @@ function AppShellContent({ children }) {
           {!hideFooter && <Footer />}
           {!hideSiteChrome && <CartDrawer />}
           {!hideSiteChrome && !isCartOpen && <FloatingCallToAction />}
+          {!hideSiteChrome && <LuckyWheelLauncher hideButton={isCartOpen} />}
 
           {!hideSiteChrome ? (
             <PageTransition

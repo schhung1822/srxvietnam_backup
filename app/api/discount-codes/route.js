@@ -6,7 +6,9 @@ export const runtime = 'nodejs';
 function formatDiscountCode(row) {
   return {
     id: Number(row.id),
-    code: String(row.code ?? '').trim().toUpperCase(),
+    code: String(row.code ?? '')
+      .trim()
+      .toUpperCase(),
     name: String(row.name ?? '').trim(),
     description: String(row.description ?? '').trim(),
     discountType: String(row.discount_type ?? '').trim(),
@@ -22,9 +24,20 @@ function formatDiscountCode(row) {
   };
 }
 
-export async function GET() {
+/**
+ * Không có ?code: danh sách mã công khai cho ô chọn voucher (bỏ mã class = 'private', vd. mã
+ * vòng quay may mắn sinh riêng cho từng khách).
+ * Có ?code=XXX: tra đúng một mã khách tự nhập, kể cả mã private, nếu còn hiệu lực và còn lượt.
+ */
+export async function GET(request) {
   try {
-    const rows = await query(`
+    const lookupCode = String(new URL(request.url).searchParams.get('code') ?? '')
+      .trim()
+      .toUpperCase()
+      .slice(0, 50);
+    const filter = lookupCode ? 'AND dc.code = ?' : "AND (dc.class IS NULL OR dc.class <> 'private')";
+    const rows = await query(
+      `
       SELECT
         dc.id,
         dc.code,
@@ -47,6 +60,7 @@ export async function GET() {
       WHERE dc.is_active = 1
         AND (dc.starts_at IS NULL OR dc.starts_at <= NOW())
         AND (dc.ends_at IS NULL OR dc.ends_at >= NOW())
+        ${filter}
       GROUP BY
         dc.id,
         dc.code,
@@ -64,7 +78,9 @@ export async function GET() {
       HAVING dc.total_usage_limit IS NULL OR used_count < dc.total_usage_limit
       ORDER BY dc.created_at DESC, dc.id DESC
       LIMIT 12
-    `);
+    `,
+      lookupCode ? [lookupCode] : [],
+    );
 
     return NextResponse.json({ discountCodes: rows.map(formatDiscountCode) });
   } catch (error) {

@@ -3,7 +3,9 @@
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { MessageCircleMore, Move, Phone, X } from 'lucide-react';
+import { setFloatingCtaCorner } from '../hooks/useFloatingCtaCorner';
 
+// Nút vòng quay may mắn (lucky-wheel/LuckyWheelLauncher) căn theo các số đo này: sửa thì sửa cả bên đó.
 const BUTTON_SIZE = 58;
 const EDGE_PADDING = 18;
 const MOBILE_TOP_PADDING = 84;
@@ -151,6 +153,7 @@ export default function FloatingCallToAction() {
     const nextPosition = getCornerPosition(savedCorner, viewport);
 
     setCorner(savedCorner);
+    setFloatingCtaCorner(savedCorner);
     setPosition(nextPosition);
     setIsReady(true);
   }, []);
@@ -262,6 +265,7 @@ export default function FloatingCallToAction() {
 
     hasDraggedRef.current = false;
     setCorner(nextCorner);
+    setFloatingCtaCorner(nextCorner);
     setPosition(snappedPosition);
     window.localStorage.setItem(STORAGE_KEY, nextCorner);
   };

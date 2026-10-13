@@ -15,6 +15,9 @@ const LEAD_FORMS_WEB_API_TOKEN = process.env.SRX_LEAD_FORMS_WEB_API_TOKEN?.trim(
 const META_EVENTS_WEB_API_URL =
   process.env.SRX_META_EVENTS_WEB_API_URL?.trim() || 'https://crm.srx.vn/api/srx/meta-events-web';
 const META_EVENTS_WEB_API_TOKEN = process.env.SRX_META_EVENTS_WEB_API_TOKEN?.trim() || '';
+const LUCKY_WHEEL_WEB_API_URL =
+  process.env.SRX_LUCKY_WHEEL_WEB_API_URL?.trim() || 'https://crm.srx.vn/api/srx/lucky-wheel-web';
+const LUCKY_WHEEL_WEB_API_TOKEN = process.env.SRX_LUCKY_WHEEL_WEB_API_TOKEN?.trim() || '';
 
 async function postCrmNotification({ url, token, payload, label, timeoutMs = 5000 }) {
   const { signal, cleanup } = createRequestTimeoutSignal(timeoutMs);
@@ -73,5 +76,20 @@ export async function deliverMetaEventToCrm(payload) {
     token: META_EVENTS_WEB_API_TOKEN,
     payload,
     label: 'meta-events-web',
+  });
+}
+
+/**
+ * Nhờ crm-eac gửi tin ZBS kèm mã voucher cho một lượt trúng vòng quay. Không chờ kết quả:
+ * gửi lỗi thì lượt quay giữ zbs_status = 'pending' và CRM có nút gửi lại.
+ */
+export function queueLuckyWheelZbsToCrm(spinId) {
+  void postCrmNotification({
+    url: LUCKY_WHEEL_WEB_API_URL,
+    token: LUCKY_WHEEL_WEB_API_TOKEN,
+    payload: { spinId },
+    label: 'lucky-wheel-web',
+  }).catch((error) => {
+    console.error(`Lucky wheel ZBS CRM notification error:\n${formatErrorDetails(error)}`);
   });
 }

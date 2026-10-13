@@ -461,7 +461,7 @@ export default function CheckoutPage({ isBuyNow = false }) {
   const removeItem = isBuyNow ? cart.removeBuyNowItem : cart.removeItem;
   const subtotal = items.reduce((total, item) => total + item.price * item.quantity, 0);
   const checkoutPath = isBuyNow ? '/checkout?mode=buy-now' : '/checkout';
-  const { discountCodes, isLoading: isLoadingDiscountCodes } = useDiscountCodes();
+  const { discountCodes, isLoading: isLoadingDiscountCodes, lookupDiscountCode } = useDiscountCodes();
   const [paymentMethod, setPaymentMethod] = useState('cod');
   const [appliedCouponCode, setAppliedCouponCode] = useState('');
   const [submitError, setSubmitError] = useState('');
@@ -1336,6 +1336,7 @@ export default function CheckoutPage({ isBuyNow = false }) {
                 appliedCode={totals.coupon.isValid ? totals.coupon.code : ''}
                 discountTotal={totals.discountTotal}
                 onApply={setAppliedCouponCode}
+                onLookupCode={lookupDiscountCode}
                 onRemove={() => setAppliedCouponCode('')}
                 isLoggedIn={Boolean(user)}
                 loginHref={`/login?next=${encodeURIComponent(checkoutPath)}`}

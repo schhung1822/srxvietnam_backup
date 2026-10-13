@@ -1,0 +1,231 @@
+/* Hiệu ứng popup. Thời lượng đóng phải khớp EXIT_DURATION_MS trong LuckyWheelModal. */
+
+.overlay {
+  animation: wheelFadeIn 280ms ease-out both;
+}
+
+.overlay[data-state='closing'] {
+  pointer-events: none;
+  animation: wheelFadeOut 240ms ease-in both;
+}
+
+.card {
+  animation: wheelCardIn 560ms cubic-bezier(0.34, 1.4, 0.64, 1) both;
+}
+
+.overlay[data-state='closing'] .card {
+  animation: wheelCardOut 220ms ease-in both;
+}
+
+.reveal {
+  animation: wheelRise 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.result {
+  animation: wheelResultIn 620ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Kim chỉ: nhún nhẹ khi đứng yên, rung qua lại quanh đầu ghim khi vòng đang quay. */
+.pointer {
+  display: block;
+  overflow: visible;
+  transform-origin: 50% 40%;
+  filter: drop-shadow(0 6px 10px rgba(43, 35, 51, 0.28));
+  animation: wheelBob 2.4s ease-in-out infinite;
+}
+
+.spinning .pointer {
+  animation: wheelTick 120ms ease-in-out infinite alternate;
+}
+
+@keyframes wheelFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes wheelFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes wheelCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes wheelCardOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(18px) scale(0.97);
+  }
+}
+
+@keyframes wheelRise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes wheelResultIn {
+  from {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes wheelTick {
+  from {
+    transform: rotate(-10deg);
+  }
+  to {
+    transform: rotate(10deg);
+  }
+}
+
+@keyframes wheelBob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .card,
+  .reveal,
+  .result,
+  .pointer,
+  .spinning .pointer {
+    animation: none;
+  }
+}
+
+/* ---------- Nút mở vòng quay (chỉ có icon quà) ---------- */
+
+.launcher {
+  /* backwards: không giữ transform sau khi chạy xong, để hover:scale vẫn hoạt động. */
+  animation: wheelLauncherIn 480ms 500ms cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+
+/* Vòng sáng lan ra quanh nút để hút mắt mà không cần chữ. */
+.launcher::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 9999px;
+  pointer-events: none;
+  animation: wheelPulse 2.4s ease-out infinite;
+}
+
+/* Hộp quà lắc nhẹ rồi nảy lên, nghỉ một nhịp rồi lặp lại. */
+.launcherGift {
+  transform-origin: 50% 85%;
+  animation: wheelGiftShake 3.2s ease-in-out infinite;
+}
+
+.launcherSparkle {
+  position: absolute;
+  pointer-events: none;
+  animation: wheelTwinkle 2.4s ease-in-out infinite;
+}
+
+.launcherSparkleLate {
+  animation-delay: 1.2s;
+}
+
+@keyframes wheelLauncherIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes wheelPulse {
+  from {
+    box-shadow: 0 0 0 0 rgba(236, 111, 168, 0.55);
+  }
+  to {
+    box-shadow: 0 0 0 14px rgba(236, 111, 168, 0);
+  }
+}
+
+@keyframes wheelGiftShake {
+  0%,
+  62%,
+  100% {
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+  68% {
+    transform: translateY(0) rotate(-14deg) scale(1.05);
+  }
+  74% {
+    transform: translateY(0) rotate(12deg) scale(1.05);
+  }
+  80% {
+    transform: translateY(0) rotate(-8deg) scale(1.05);
+  }
+  86% {
+    transform: translateY(-4px) rotate(0deg) scale(1.12);
+  }
+  93% {
+    transform: translateY(0) rotate(0deg) scale(0.96);
+  }
+}
+
+@keyframes wheelTwinkle {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.4) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1) rotate(45deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .launcher,
+  .launcherGift,
+  .launcherSparkle {
+    animation: none;
+  }
+
+  .launcher::before {
+    display: none;
+  }
+}

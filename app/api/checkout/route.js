@@ -391,6 +391,29 @@ async function getActiveDiscountCodeForCheckout(connection, couponCode) {
   };
 }
 
+/**
+ * Khóa dòng mã giảm giá tới hết transaction rồi đếm lại lượt đã dùng, để hai đơn đặt cùng lúc
+ * không cùng dùng được một mã còn đúng một lượt. false = đã hết lượt.
+ */
+async function reserveDiscountCodeUsage(connection, discountCodeId) {
+  const codes = await execute(connection, `SELECT total_usage_limit FROM discount_codes WHERE id = ? FOR UPDATE`, [
+    discountCodeId,
+  ]);
+  const usageLimit = codes[0]?.total_usage_limit;
+
+  if (usageLimit == null) {
+    return true;
+  }
+
+  const usage = await execute(
+    connection,
+    `SELECT COUNT(*) AS used_count FROM discount_code_redemptions WHERE discount_code_id = ? AND status = 'applied'`,
+    [discountCodeId],
+  );
+
+  return Number(usage[0]?.used_count ?? 0) < Number(usageLimit);
+}
+
 async function getAffiliateAttributionForCheckout(connection, request, purchasingUserId) {
   const affiliateCode = normalizeAffiliateCode(
     request.cookies.get(AFFILIATE_REFERRAL_COOKIE_NAME)?.value,
@@ -499,7 +522,25 @@ export async function POST(request) {
     });
     const lineItems = buildLineItems(items, totals.discountTotal, totals.subtotal);
 
+    // Khách đã thấy giá sau giảm ở bước trước: mã hết hạn/hết lượt thì báo lại, không âm thầm tính đủ tiền.
+    if (couponCode && !totals.coupon.isValid) {
+      return NextResponse.json(
+        { message: `Mã ${couponCode.toUpperCase()} không còn hiệu lực. Vui lòng bỏ mã và đặt lại.`, code: 'coupon_invalid' },
+        { status: 409 },
+      );
+    }
+
     await connection.beginTransaction();
+
+    const appliedDiscountCode = totals.coupon.isValid ? activeDiscountCode : null;
+
+    if (appliedDiscountCode && !(await reserveDiscountCodeUsage(connection, appliedDiscountCode.id))) {
+      await connection.rollback();
+      return NextResponse.json(
+        { message: `Mã ${appliedDiscountCode.code} đã hết lượt sử dụng. Vui lòng bỏ mã và đặt lại.`, code: 'coupon_used_up' },
+        { status: 409 },
+      );
+    }
 
     const giftItems = await getEligibleGifts(connection, {
       items,
@@ -591,6 +632,18 @@ export async function POST(request) {
     );
 
     const orderId = orderResult.insertId;
+
+    // Ghi lượt dùng mã để total_usage_limit có hiệu lực (vd. mã vòng quay may mắn chỉ dùng 1 lần).
+    if (appliedDiscountCode) {
+      await execute(
+        connection,
+        `
+          INSERT INTO discount_code_redemptions (discount_code_id, order_id, user_id, discount_amount, status)
+          VALUES (?, ?, ?, ?, 'applied')
+        `,
+        [appliedDiscountCode.id, orderId, user?.id ?? null, totals.discountTotal],
+      );
+    }
 
     await execute(
       connection,

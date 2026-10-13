@@ -138,6 +138,7 @@ export default function VoucherField({
   loginHref = '/login',
   compact = false,
   onNavigate,
+  onLookupCode,
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -185,9 +186,11 @@ export default function VoucherField({
     setIsOpen(true);
   };
 
-  const applyCode = (code) => {
-    const result = getCouponApplication(code, subtotal, discountCodes);
-    const matchedVoucher = discountCodes.find((voucher) => voucher.code === result.code) ?? null;
+  const applyCode = async (code) => {
+    // Mã nhập tay không có trong danh sách công khai (vd. mã vòng quay gửi qua Zalo) thì hỏi server.
+    const availableCodes = onLookupCode ? await onLookupCode(code) : discountCodes;
+    const result = getCouponApplication(code, subtotal, availableCodes);
+    const matchedVoucher = availableCodes.find((voucher) => voucher.code === result.code) ?? null;
 
     if (result.isValid && matchedVoucher && !canUseVoucher(matchedVoucher, isLoggedIn)) {
       setFeedback({

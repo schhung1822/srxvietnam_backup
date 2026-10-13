@@ -25,7 +25,7 @@ export default function CartDrawer() {
     clearCart,
   } = useCart();
   const { user } = useAuth();
-  const { discountCodes, isLoading: isLoadingDiscountCodes } = useDiscountCodes();
+  const { discountCodes, isLoading: isLoadingDiscountCodes, lookupDiscountCode } = useDiscountCodes();
   const [couponCode, setCouponCode] = useState('');
   const { gifts } = useEligibleGifts(items, couponCode);
 
@@ -218,6 +218,7 @@ export default function CartDrawer() {
             appliedCode={totals.coupon.isValid ? totals.coupon.code : ''}
             discountTotal={totals.discountTotal}
             onApply={setCouponCode}
+            onLookupCode={lookupDiscountCode}
             onRemove={() => setCouponCode('')}
             isLoggedIn={Boolean(user)}
             loginHref="/login?next=/checkout"
